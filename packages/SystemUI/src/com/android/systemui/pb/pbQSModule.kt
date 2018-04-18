@@ -20,6 +20,7 @@ import com.android.systemui.qs.tileimpl.QSTileImpl
 import com.android.systemui.qs.tiles.CaffeineTile
 import com.android.systemui.qs.tiles.HeadsUpTile
 import com.android.systemui.qs.tiles.SyncTile
+import com.android.systemui.qs.tiles.AODTile
 
 import dagger.Binds
 import dagger.Module
@@ -46,5 +47,11 @@ interface pbQSModule {
     @IntoMap
     @StringKey(SyncTile.TILE_SPEC)
     fun bindSyncTile(syncTile: SyncTile): QSTileImpl<*>
+
+    /** Inject AODTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(AODTile.TILE_SPEC)
+    fun bindAODTile(aODTile: AODTile): QSTileImpl<*>
 
 }
