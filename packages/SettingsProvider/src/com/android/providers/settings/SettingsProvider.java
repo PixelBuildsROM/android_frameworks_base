@@ -2433,8 +2433,8 @@ public class SettingsProvider extends ContentProvider {
                 }
             }
         } else {
-            throw new SecurityException("Permission denial to mutate flag, must have root, "
-                + "WRITE_DEVICE_CONFIG, or WRITE_ALLOWLISTED_DEVICE_CONFIG");
+            throw new SecurityException("Permission denial: " + resolveCallingPackage() +
+            " to mutate flag, must have root, " + "WRITE_DEVICE_CONFIG, or WRITE_ALLOWLISTED_DEVICE_CONFIG");
         }
     }
 
