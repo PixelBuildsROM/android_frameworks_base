@@ -33,4 +33,8 @@
     <string name="turn_on_bluetooth">Activar Bluetooth</string>
     <string name="bluetooth_is_off">Bluetooth está apagado</string>
     <string name="tap_a_device_to_connect">Toca para conectar un dispositivo</string>
+    <string name="quick_settings_powershare_label">Carga inalámbrica inversa</string>
+    <string name="quick_settings_powershare_off_powersave_label">Carga inalámbrica inversa desactivada\nAhorro de batería</string>
+    <string name="quick_settings_powershare_off_low_battery_label">Carga inalámbrica inversa desactivada\nCarga de la batería demasiado baja</string>
+    <string name="quick_settings_powershare_enabled_label">La carga inalámbrica inversa está habilitada</string>
 </resources>
