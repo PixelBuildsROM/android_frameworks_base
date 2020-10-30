@@ -7234,6 +7234,10 @@ public final class ViewRootImpl implements ViewParent,
             if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                 notifyLeaveTypingEvent();
             }
+                
+            if (event.getPointerCount() == 3 && isSwipeToScreenshotGestureActive()) {
+                event.setAction(MotionEvent.ACTION_CANCEL);
+            }
 
             mAttachInfo.mUnbufferedDispatchRequested = false;
             mAttachInfo.mHandlingPointerEvent = true;
@@ -11786,5 +11790,13 @@ public final class ViewRootImpl implements ViewParent,
     public void removeTrustedPresentationCallback(@NonNull SurfaceControl.Transaction t,
             @NonNull Consumer<Boolean> listener) {
         t.clearTrustedPresentationCallback(getSurfaceControl());
+    }
+
+    private boolean isSwipeToScreenshotGestureActive() {
+        try {
+            return ActivityManager.getService().isSwipeToScreenshotGestureActive();
+        } catch (RemoteException e) {
+            return false;
+        }
     }
 }
