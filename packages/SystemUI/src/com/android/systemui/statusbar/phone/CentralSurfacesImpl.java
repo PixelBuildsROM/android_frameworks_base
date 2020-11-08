@@ -153,6 +153,7 @@ import com.android.systemui.flags.Flags;
 import com.android.systemui.fragments.ExtensionFragmentListener;
 import com.android.systemui.fragments.FragmentHostManager;
 import com.android.systemui.fragments.FragmentService;
+import com.android.systemui.keyguard.KeyguardSliceProvider;
 import com.android.systemui.keyguard.KeyguardUnlockAnimationController;
 import com.android.systemui.keyguard.KeyguardViewMediator;
 import com.android.systemui.keyguard.ScreenLifecycle;
@@ -245,6 +246,7 @@ import com.android.systemui.statusbar.policy.UserSwitcherController;
 import com.android.systemui.statusbar.window.StatusBarWindowController;
 import com.android.systemui.statusbar.window.StatusBarWindowStateController;
 import com.android.systemui.surfaceeffects.ripple.RippleShader.RippleShape;
+import com.android.systemui.tuner.TunerService;
 import com.android.systemui.util.DumpUtilsKt;
 import com.android.systemui.util.WallpaperController;
 import com.android.systemui.util.concurrency.DelayableExecutor;
@@ -284,12 +286,14 @@ import javax.inject.Provider;
  * {@link ActivityStarterImpl}
  */
 @SysUISingleton
-public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
+public class CentralSurfacesImpl implements CoreStartable, TunerService.Tunable, CentralSurfaces {
 
     private static final String BANNER_ACTION_CANCEL =
             "com.android.systemui.statusbar.banner_action_cancel";
     private static final String BANNER_ACTION_SETUP =
             "com.android.systemui.statusbar.banner_action_setup";
+    private static final String PULSE_ON_NEW_TRACKS =
+            Settings.Secure.PULSE_ON_NEW_TRACKS;
 
     private static final int MSG_OPEN_SETTINGS_PANEL = 1002;
     private static final int MSG_LAUNCH_TRANSITION_TIMEOUT = 1003;
@@ -546,6 +550,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     private final UserTracker mUserTracker;
     private final Provider<FingerprintManager> mFingerprintManager;
     private final ActivityStarter mActivityStarter;
+    private final TunerService mTunerService;
 
     private CentralSurfacesComponent mCentralSurfacesComponent;
 
@@ -824,7 +829,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             AlternateBouncerInteractor alternateBouncerInteractor,
             UserTracker userTracker,
             Provider<FingerprintManager> fingerprintManager,
-            ActivityStarter activityStarter
+            ActivityStarter activityStarter,
+            TunerService tunerService
     ) {
         mContext = context;
         mNotificationsController = notificationsController;
@@ -912,6 +918,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mUserTracker = userTracker;
         mFingerprintManager = fingerprintManager;
         mActivityStarter = activityStarter;
+        mTunerService = tunerService;
 
         mLockscreenShadeTransitionController = lockscreenShadeTransitionController;
         mStartingSurfaceOptional = startingSurfaceOptional;
@@ -980,6 +987,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mKeyguardIndicationController.init();
 
         mColorExtractor.addOnColorsChangedListener(mOnColorsChangedListener);
+
+        mTunerService.addTunable(this, PULSE_ON_NEW_TRACKS);
 
         mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
 
@@ -1765,6 +1774,21 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     @Override
     public ShadeViewController getShadeViewController() {
         return mShadeSurface;
+    }
+
+    @Override
+    public void onTuningChanged(String key, String newValue) {
+        switch (key) {
+            case PULSE_ON_NEW_TRACKS:
+                boolean pulseOnNewTracks =
+                        TunerService.parseIntegerSwitch(newValue, true);
+                if (KeyguardSliceProvider.getAttachedInstance() != null) {
+                    KeyguardSliceProvider.getAttachedInstance().setPulseOnNewTracks(pulseOnNewTracks);
+                }
+                break;
+            default:
+                break;
+         }
     }
 
     @Override
