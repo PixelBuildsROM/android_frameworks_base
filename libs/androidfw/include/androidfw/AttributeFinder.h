@@ -74,7 +74,6 @@ class BackTrackingAttributeFinder {
 
   // Package offsets (best-case, fast look-up).
   Iterator framework_start_;
-  Iterator lineage_framework_start_;
   Iterator app_start_;
 
   // Worst case, we have shared-library resources.
@@ -100,9 +99,6 @@ void BackTrackingAttributeFinder<Derived, Iterator>::JumpToClosestAttribute(
   switch (package_id) {
     case 0x01u:
       current_ = framework_start_;
-      break;
-    case 0x3fu:
-      current_ = lineage_framework_start_;
       break;
     case 0x7fu:
       current_ = app_start_;
@@ -137,9 +133,6 @@ void BackTrackingAttributeFinder<Derived, Iterator>::MarkCurrentPackageId(
   switch (package_id) {
     case 0x01u:
       framework_start_ = current_;
-      break;
-    case 0x3fu:
-      lineage_framework_start_ = current_;
       break;
     case 0x7fu:
       app_start_ = current_;
