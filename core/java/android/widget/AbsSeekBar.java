@@ -1005,15 +1005,7 @@ public abstract class AbsSeekBar extends ProgressBar {
         progress += scale * range + getMin();
 
         setHotspot(x, y);
-        setProgressInternal(updateTouchProgress(getProgress(),
-                    Math.round(progress)), true, false);
-    }
-
-    /**
-     * @hide
-     */
-    protected int updateTouchProgress(int lastProgress, int newProgress) {
-        return newProgress;
+        setProgressInternal(Math.round(progress), true, false);
     }
 
     /**
