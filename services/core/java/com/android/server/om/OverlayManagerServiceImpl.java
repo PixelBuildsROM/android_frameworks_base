@@ -704,8 +704,7 @@ final class OverlayManagerServiceImpl {
         // layers.
         boolean modified = false;
         if (targetPackage != null && overlayPackage != null
-                && !(("android".equals(targetPackageName) ||
-                        "lineageos.platform".equals(targetPackageName))
+                && !("android".equals(targetPackageName)
                     && !isPackageConfiguredMutable(overlayPackageName))) {
             modified |= mIdmapManager.createIdmap(targetPackage, overlayPackage, userId);
         }
