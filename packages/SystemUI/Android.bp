@@ -69,10 +69,7 @@ android_library {
         "SystemUI-tags",
         "SystemUI-proto",
         "dagger2-2.19",
-        "jsr330",
-        "org.lineageos.platform.internal",
-        "vendor.lineage.biometrics.fingerprint.inscreen-V1.0-java",
-        "vendor.lineage.powershare-V1.0-java",
+        "jsr330"
     ],
     manifest: "AndroidManifest.xml",
     additional_manifests: ["LineageManifest.xml"],
@@ -144,10 +141,7 @@ android_library {
         "testables",
         "truth-prebuilt",
         "dagger2-2.19",
-        "jsr330",
-        "org.lineageos.platform.internal",
-        "vendor.lineage.biometrics.fingerprint.inscreen-V1.0-java",
-        "vendor.lineage.powershare-V1.0-java",
+        "jsr330"
     ],
     libs: [
         "android.test.runner",
