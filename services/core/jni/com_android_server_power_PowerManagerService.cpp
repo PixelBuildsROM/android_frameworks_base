@@ -25,8 +25,6 @@
 #include <android/system/suspend/1.0/ISystemSuspend.h>
 #include <android/system/suspend/ISuspendControlService.h>
 #include <nativehelper/JNIHelp.h>
-#include <vendor/lineage/power/1.0/ILineagePower.h>
-#include <vendor/lineage/power/IPower.h>
 #include "jni.h"
 
 #include <nativehelper/ScopedUtfChars.h>
@@ -63,12 +61,6 @@ using android::system::suspend::ISuspendControlService;
 using IPowerV1_1 = android::hardware::power::V1_1::IPower;
 using IPowerV1_0 = android::hardware::power::V1_0::IPower;
 using IPowerAidl = android::hardware::power::IPower;
-using ILineagePowerV1_0 = vendor::lineage::power::V1_0::ILineagePower;
-using ILineagePowerAidl = vendor::lineage::power::IPower;
-using LineageBoostAidl = vendor::lineage::power::Boost;
-using LineageFeatureV1_0 = vendor::lineage::power::V1_0::LineageFeature;
-using LineageFeatureAidl = vendor::lineage::power::Feature;
-using LineagePowerHint1_0 = vendor::lineage::power::V1_0::LineagePowerHint;
 
 namespace android {
 
@@ -84,8 +76,6 @@ static jobject gPowerManagerServiceObj;
 static sp<IPowerV1_0> gPowerHalHidlV1_0_ = nullptr;
 static sp<IPowerV1_1> gPowerHalHidlV1_1_ = nullptr;
 static sp<IPowerAidl> gPowerHalAidl_ = nullptr;
-static sp<ILineagePowerV1_0> gLineagePowerHalV1_0_ = nullptr;
-static sp<ILineagePowerAidl> gLineagePowerHalAidl_ = nullptr;
 static std::mutex gPowerHalMutex;
 static std::mutex gLineagePowerHalMutex;
 
@@ -155,41 +145,6 @@ static HalVersion connectPowerHalLocked() {
     return HalVersion::NONE;
 }
 
-// Check validity of current handle to the Lineage power HAL service, and connect to it if necessary.
-// The caller must be holding gLineagePowerHalMutex.
-static HalVersion connectLineagePowerHalLocked() {
-    static bool gPowerHalHidlExists = true;
-    static bool gPowerHalAidlExists = true;
-    if (!gPowerHalHidlExists && !gPowerHalAidlExists) {
-        return HalVersion::NONE;
-    }
-    if (gPowerHalAidlExists) {
-        if (!gLineagePowerHalAidl_) {
-            gLineagePowerHalAidl_ = waitForVintfService<ILineagePowerAidl>();
-        }
-        if (gLineagePowerHalAidl_) {
-            ALOGV("Successfully connected to Lineage Power HAL AIDL service.");
-            return HalVersion::AIDL;
-        } else {
-            gPowerHalAidlExists = false;
-        }
-    }
-    if (gPowerHalHidlExists && gLineagePowerHalV1_0_ == nullptr) {
-        gLineagePowerHalV1_0_ = ILineagePowerV1_0::getService();
-        if (gLineagePowerHalV1_0_) {
-            ALOGV("Successfully connected to Lineage Power HAL HIDL 1.0 service.");
-        } else {
-            ALOGV("Couldn't load Lineage power HAL HIDL service");
-            gPowerHalHidlExists = false;
-            return HalVersion::NONE;
-        }
-    }
-    if (gLineagePowerHalV1_0_) {
-        return HalVersion::HIDL_1_0;
-    }
-    return HalVersion::NONE;
-}
-
 // Retrieve a copy of PowerHAL HIDL V1_0
 sp<IPowerV1_0> getPowerHalHidlV1_0() {
     std::lock_guard<std::mutex> lock(gPowerHalMutex);
@@ -206,16 +161,6 @@ sp<IPowerV1_1> getPowerHalHidlV1_1() {
     std::lock_guard<std::mutex> lock(gPowerHalMutex);
     if (connectPowerHalLocked() == HalVersion::HIDL_1_1) {
         return gPowerHalHidlV1_1_;
-    }
-
-    return nullptr;
-}
-
-// Retrieve a copy of LineagePowerHAL AIDL
-sp<ILineagePowerAidl> getLineagePowerHalAidl() {
-    std::lock_guard<std::mutex> lock(gLineagePowerHalMutex);
-    if (connectLineagePowerHalLocked() == HalVersion::AIDL) {
-        return gLineagePowerHalAidl_;
     }
 
     return nullptr;
@@ -476,39 +421,6 @@ void disableAutoSuspend() {
     }
 }
 
-static jint nativeGetFeature(JNIEnv* /* env */, jclass /* clazz */, jint featureId) {
-    int value = -1;
-    std::unique_lock<std::mutex> lock(gLineagePowerHalMutex);
-    switch (connectLineagePowerHalLocked()) {
-        case HalVersion::NONE:
-            break;
-        case HalVersion::HIDL_1_0: {
-            sp<ILineagePowerV1_0> handle = gLineagePowerHalV1_0_;
-            lock.unlock();
-            value = handle->getFeature(static_cast<LineageFeatureV1_0>(featureId));
-            break;
-        }
-        case HalVersion::AIDL: {
-            sp<ILineagePowerAidl> handle = gLineagePowerHalAidl_;
-            lock.unlock();
-            switch (static_cast<LineageFeatureV1_0>(featureId)) {
-                case LineageFeatureV1_0::SUPPORTED_PROFILES:
-                    handle->getFeature(LineageFeatureAidl::SUPPORTED_PROFILES, &value);
-                    break;
-                default:
-                    ALOGE("Unsupported power feature: %d.", featureId);
-                    break;
-            }
-            break;
-        }
-        default: {
-            ALOGE("Unknown Lineage power HAL state");
-            break;
-        }
-    }
-    return static_cast<jint>(value);
-}
-
 // ----------------------------------------------------------------------------
 
 static void nativeInit(JNIEnv* env, jobject obj) {
@@ -640,7 +552,6 @@ static const JNINativeMethod gPowerManagerServiceMethods[] = {
         {"nativeSetPowerBoost", "(II)V", (void*)nativeSetPowerBoost},
         {"nativeSetPowerMode", "(IZ)Z", (void*)nativeSetPowerMode},
         {"nativeSetFeature", "(II)V", (void*)nativeSetFeature},
-        {"nativeGetFeature", "(I)I", (void*)nativeGetFeature},
 };
 
 #define FIND_CLASS(var, className) \
