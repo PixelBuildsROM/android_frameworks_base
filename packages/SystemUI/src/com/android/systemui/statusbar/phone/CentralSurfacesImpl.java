@@ -242,6 +242,7 @@ import com.android.systemui.statusbar.policy.ConfigurationController.Configurati
 import com.android.systemui.statusbar.policy.DeviceProvisionedController;
 import com.android.systemui.statusbar.policy.DeviceProvisionedController.DeviceProvisionedListener;
 import com.android.systemui.statusbar.policy.ExtensionController;
+import com.android.systemui.statusbar.policy.GameSpaceManager;
 import com.android.systemui.statusbar.policy.KeyguardStateController;
 import com.android.systemui.statusbar.policy.UserInfoControllerImpl;
 import com.android.systemui.statusbar.policy.UserSwitcherController;
@@ -481,6 +482,8 @@ public class CentralSurfacesImpl implements CoreStartable, TunerService.Tunable,
     private final StatusBarSignalPolicy mStatusBarSignalPolicy;
     private final StatusBarHideIconsForBouncerManager mStatusBarHideIconsForBouncerManager;
     private final Lazy<LightRevealScrimViewModel> mLightRevealScrimViewModelLazy;
+
+    protected GameSpaceManager mGameSpaceManager;
 
     /** Controller for the Shade. */
     private final ShadeSurface mShadeSurface;
@@ -906,6 +909,7 @@ public class CentralSurfacesImpl implements CoreStartable, TunerService.Tunable,
         mShadeExpansionStateManager.addFullExpansionListener(this::onShadeExpansionFullyChanged);
 
         mActivityIntentHelper = new ActivityIntentHelper(mContext);
+        mGameSpaceManager = new GameSpaceManager(mContext, mKeyguardStateController);
         mActivityLaunchAnimator = activityLaunchAnimator;
 
         // The status bar background may need updating when the ongoing call status changes.
@@ -1556,6 +1560,7 @@ public class CentralSurfacesImpl implements CoreStartable, TunerService.Tunable,
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_SCREEN_CAMERA_GESTURE);
         mBroadcastDispatcher.registerReceiver(mBroadcastReceiver, filter, null, UserHandle.ALL);
+        mGameSpaceManager.observe();
     }
 
     protected QS createDefaultQSFragment() {
@@ -3479,6 +3484,11 @@ public class CentralSurfacesImpl implements CoreStartable, TunerService.Tunable,
     @Override
     public boolean isKeyguardSecure() {
         return mStatusBarKeyguardViewManager.isSecure();
+    }
+
+    @Override
+    public GameSpaceManager getGameSpaceManager() {
+        return mGameSpaceManager;
     }
 
     // End Extra BaseStatusBarMethods.
