@@ -1,3 +1,0 @@
--keepclassmembers class lineageos.providers.LineageSettings {
-    public <fields>;
-}
