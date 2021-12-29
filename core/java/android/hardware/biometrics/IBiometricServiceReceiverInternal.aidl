@@ -42,8 +42,6 @@ oneway interface IBiometricServiceReceiverInternal {
     void onTryAgainPressed();
     // Notifies that the user has pressed the "use password" button on SystemUI
     void onDeviceCredentialPressed();
-    // Notifies that the user has pressed the "use face" button on SystemUI
-    void onUseFacePressed();
     // Notifies the client that an internal event, e.g. back button has occurred.
     void onSystemEvent(int event);
 }

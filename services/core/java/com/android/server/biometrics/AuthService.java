@@ -100,7 +100,7 @@ public class AuthService extends SystemService {
          */
         @VisibleForTesting
         public String[] getConfiguration(Context context) {
-            return Utils.getConfiguration(context);
+            return context.getResources().getStringArray(R.array.config_biometric_sensors);
         }
 
         /**

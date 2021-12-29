@@ -235,9 +235,6 @@ public class AuthContainerView extends LinearLayout
                         addCredentialView(false /* animatePanel */, true /* animateContents */);
                     }, mInjector.getAnimateCredentialStartDelayMs());
                     break;
-                case AuthBiometricView.Callback.ACTION_USE_FACE:
-                    mConfig.mCallback.onUseFacePressed();
-                    break;
                 default:
                     Log.e(TAG, "Unhandled action: " + action);
             }
