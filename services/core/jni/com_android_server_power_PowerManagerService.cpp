@@ -77,7 +77,6 @@ static sp<IPowerV1_0> gPowerHalHidlV1_0_ = nullptr;
 static sp<IPowerV1_1> gPowerHalHidlV1_1_ = nullptr;
 static sp<IPowerAidl> gPowerHalAidl_ = nullptr;
 static std::mutex gPowerHalMutex;
-static std::mutex gLineagePowerHalMutex;
 
 enum class HalVersion {
     NONE,
@@ -310,17 +309,6 @@ static void sendPowerHint(PowerHint hintId, uint32_t data) {
                 sp<IPowerAidl> handle = gPowerHalAidl_;
                 lock.unlock();
                 setPowerModeWithHandle(handle, Mode::VR, static_cast<bool>(data));
-                break;
-            // TODO: Fix lineage sdk once killed hidl.
-            } else if (hintId == static_cast<PowerHint>(LineagePowerHint1_0::CPU_BOOST)) {
-                lock.unlock();
-                sp<ILineagePowerAidl> handle = getLineagePowerHalAidl();
-                handle->setBoost(LineageBoostAidl::CPU_BOOST, data);
-                break;
-            } else if (hintId == static_cast<PowerHint>(LineagePowerHint1_0::SET_PROFILE)) {
-                lock.unlock();
-                sp<ILineagePowerAidl> handle = getLineagePowerHalAidl();
-                handle->setBoost(LineageBoostAidl::SET_PROFILE, data);
                 break;
             } else {
                 ALOGE("Unsupported power hint: %s.", toString(hintId).c_str());
