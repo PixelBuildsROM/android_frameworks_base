@@ -139,12 +139,10 @@ import android.app.ActivityThread;
 import android.app.LoadedApk;
 import android.app.ResourcesManager;
 import android.app.StatusBarManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.database.ContentObserver;
 import android.graphics.Insets;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
@@ -210,8 +208,6 @@ import com.android.server.protolog.common.ProtoLog;
 import com.android.server.statusbar.StatusBarManagerInternal;
 import com.android.server.wallpaper.WallpaperManagerInternal;
 import com.android.server.wm.utils.InsetUtils;
-
-import lineageos.providers.LineageSettings;
 
 import java.io.PrintWriter;
 import java.util.function.Consumer;
@@ -304,7 +300,6 @@ public class DisplayPolicy {
 
     private volatile boolean mHasStatusBar;
     private volatile boolean mHasNavigationBar;
-    private volatile int mForceNavbar = -1;
     // Can the navigation bar ever move to the side?
     private volatile boolean mNavigationBarCanMove;
     private volatile boolean mNavigationBarLetsThroughTaps;
@@ -436,8 +431,6 @@ public class DisplayPolicy {
 
     private PointerLocationView mPointerLocationView;
 
-    private SettingsObserver mSettingsObserver;
-
     /**
      * The area covered by system windows which belong to another display. Forwarded insets is set
      * in case this is a virtual display, this is displayed on another display that has insets, and
@@ -489,24 +482,6 @@ public class DisplayPolicy {
                     disablePointerLocation();
                     break;
             }
-        }
-    }
-
-    private class SettingsObserver extends ContentObserver {
-        public SettingsObserver(Handler handler) {
-            super(handler);
-
-            ContentResolver resolver = mContext.getContentResolver();
-            resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.FORCE_SHOW_NAVBAR), false, this,
-                    UserHandle.USER_ALL);
-
-            updateSettings();
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            updateSettings();
         }
     }
 
@@ -680,9 +655,6 @@ public class DisplayPolicy {
             } else if ("0".equals(navBarOverride)) {
                 mHasNavigationBar = true;
             }
-
-            // Register content observer only for main display
-            mSettingsObserver = new SettingsObserver(mHandler);
         } else {
             mHasStatusBar = false;
             mHasNavigationBar = mDisplayContent.supportsSystemDecorations();
@@ -723,14 +695,6 @@ public class DisplayPolicy {
         if (mService.mPointerLocationEnabled) {
             setPointerLocationEnabled(true);
         }
-    }
-
-    public void updateSettings() {
-        ContentResolver resolver = mContext.getContentResolver();
-
-        mForceNavbar = LineageSettings.System.getIntForUser(resolver,
-                LineageSettings.System.FORCE_SHOW_NAVBAR, 0,
-                UserHandle.USER_CURRENT);
     }
 
     private int getDisplayId() {
@@ -781,7 +745,7 @@ public class DisplayPolicy {
     }
 
     public boolean hasNavigationBar() {
-        return mHasNavigationBar || mForceNavbar == 1;
+        return mHasNavigationBar;
     }
 
     public boolean hasStatusBar() {

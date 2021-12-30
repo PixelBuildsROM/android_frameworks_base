@@ -98,7 +98,6 @@ import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.RemoteInputQuickSettingsDisabler;
 import com.android.systemui.statusbar.policy.UserInfoControllerImpl;
 import com.android.systemui.statusbar.policy.UserSwitcherController;
-import com.android.systemui.tuner.TunerService;
 import com.android.systemui.volume.VolumeComponent;
 
 import java.util.Optional;
@@ -201,7 +200,6 @@ public interface StatusBarPhoneModule {
             Lazy<NotificationShadeDepthController> notificationShadeDepthController,
             DismissCallbackRegistry dismissCallbackRegistry,
             StatusBarTouchableRegionManager statusBarTouchableRegionManager,
-            TunerService tunerService,
             FODCircleViewImpl fodCircleViewImpl) {
         return new StatusBar(
                 context,
@@ -281,7 +279,6 @@ public interface StatusBarPhoneModule {
                 dismissCallbackRegistry,
                 notificationShadeDepthController,
                 statusBarTouchableRegionManager,
-                tunerService,
                 fodCircleViewImpl);
     }
 }

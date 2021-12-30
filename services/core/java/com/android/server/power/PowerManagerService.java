@@ -906,8 +906,6 @@ public final class PowerManagerService extends SystemService
     private SensorEventListener mProximityListener;
     private android.os.PowerManager.WakeLock mProximityWakeLock;
 
-    private boolean mForceNavbar;
-
     public PowerManagerService(Context context) {
         this(context, new Injector());
     }
@@ -1222,9 +1220,6 @@ public final class PowerManagerService extends SystemService
         resolver.registerContentObserver(LineageSettings.System.getUriFor(
                 LineageSettings.System.PROXIMITY_ON_WAKE),
                 false, mSettingsObserver, UserHandle.USER_ALL);
-        resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                LineageSettings.System.FORCE_SHOW_NAVBAR),
-                false, mSettingsObserver, UserHandle.USER_ALL);
         resolver.registerContentObserver(LineageSettings.Global.getUriFor(
                 LineageSettings.Global.WAKE_WHEN_PLUGGED_OR_UNPLUGGED),
                 false, mSettingsObserver, UserHandle.USER_ALL);
@@ -1384,10 +1379,6 @@ public final class PowerManagerService extends SystemService
         mProximityWakeEnabled = LineageSettings.System.getInt(resolver,
                 LineageSettings.System.PROXIMITY_ON_WAKE,
                 mProximityWakeEnabledByDefaultConfig ? 1 : 0) == 1;
-
-        mForceNavbar = LineageSettings.System.getIntForUser(resolver,
-                LineageSettings.System.FORCE_SHOW_NAVBAR,
-                0, UserHandle.USER_CURRENT) == 1;
 
         mDirty |= DIRTY_SETTINGS;
     }
@@ -2421,44 +2412,16 @@ public final class PowerManagerService extends SystemService
                     if (now < nextTimeout) {
                         mUserActivitySummary = USER_ACTIVITY_SCREEN_BRIGHT;
                         if (getWakefulnessLocked() == WAKEFULNESS_AWAKE) {
-                            if (mButtonsLight != null) {
-                                float buttonBrightness = PowerManager.BRIGHTNESS_OFF_FLOAT;
-                                if (!mForceNavbar) {
-                                    if (isValidBrightness(
-                                            mButtonBrightnessOverrideFromWindowManager)) {
-                                        if (mButtonBrightnessOverrideFromWindowManager >
-                                                PowerManager.BRIGHTNESS_MIN) {
-                                            buttonBrightness =
-                                                    mButtonBrightnessOverrideFromWindowManager;
-                                        }
-                                    } else if (isValidButtonOrKeyboardBrightness(
-                                            mButtonBrightness)) {
-                                        buttonBrightness = mButtonBrightness;
-                                    }
+                            float buttonBrightness = PowerManager.BRIGHTNESS_OFF_FLOAT;
+                            if (isValidBrightness(
+                                    mButtonBrightnessOverrideFromWindowManager)) {
+                                if (mButtonBrightnessOverrideFromWindowManager >
+                                        PowerManager.BRIGHTNESS_MIN) {
+                                    buttonBrightness =
+                                            mButtonBrightnessOverrideFromWindowManager;
                                 }
-
-                                mLastButtonActivityTime = mButtonLightOnKeypressOnly ?
-                                        mLastButtonActivityTime : mLastUserActivityTime;
-                                if (mButtonTimeout != 0 &&
-                                        now > mLastButtonActivityTime + mButtonTimeout) {
-                                    mButtonsLight.setBrightness(PowerManager.BRIGHTNESS_OFF_FLOAT);
-                                    mButtonOn = false;
-                                } else {
-                                    if ((!mButtonLightOnKeypressOnly || mButtonPressed) &&
-                                            !mProximityPositive) {
-                                        mButtonsLight.setBrightness(buttonBrightness);
-                                        mButtonPressed = false;
-                                        if (buttonBrightness != PowerManager.BRIGHTNESS_OFF_FLOAT &&
-                                                mButtonTimeout != 0) {
-                                            mButtonOn = true;
-                                            if (now + mButtonTimeout < nextTimeout) {
-                                                nextTimeout = now + mButtonTimeout;
-                                            }
-                                        }
-                                    } else if (mButtonLightOnKeypressOnly && mButtonOn &&
-                                            mLastButtonActivityTime + mButtonTimeout <
-                                                    nextTimeout) {
-                                        nextTimeout = mLastButtonActivityTime + mButtonTimeout;
+                            } else if (isValidButtonBrightness(mButtonBrightness)) {
+                                buttonBrightness = mButtonBrightness;
                                     }
                                 }
                             }

@@ -95,7 +95,6 @@ import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.RemoteInputQuickSettingsDisabler;
 import com.android.systemui.statusbar.policy.UserInfoControllerImpl;
 import com.android.systemui.statusbar.policy.UserSwitcherController;
-import com.android.systemui.tuner.TunerService;
 import com.android.systemui.volume.VolumeComponent;
 
 import java.util.Optional;
@@ -185,7 +184,6 @@ public class UnusedStatusBar extends StatusBar {
             DismissCallbackRegistry dismissCallbackRegistry,
             Lazy<NotificationShadeDepthController> notificationShadeDepthControllerLazy,
             StatusBarTouchableRegionManager statusBarTouchableRegionManager,
-            TunerService tunerService,
             FODCircleViewImpl fodCircleViewImpl) {
         super(context, notificationsController, lightBarController, autoHideController,
                 keyguardUpdateMonitor, statusBarIconController, pulseExpansionHandler,
@@ -213,7 +211,6 @@ public class UnusedStatusBar extends StatusBar {
                 userInfoControllerImpl, phoneStatusBarPolicy, keyguardIndicationController,
                 dismissCallbackRegistry, notificationShadeDepthControllerLazy,
                 statusBarTouchableRegionManager,
-                tunerService,
                 fodCircleViewImpl);
     }
 
