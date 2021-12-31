@@ -29,6 +29,7 @@ import android.view.View
 import android.view.animation.PathInterpolator
 import com.android.internal.graphics.ColorUtils
 import com.android.app.animation.Interpolators
+import com.android.settingslib.Utils
 import com.android.systemui.surfaceeffects.ripple.RippleShader
 
 private const val RIPPLE_SPARKLE_STRENGTH: Float = 0.3f
@@ -86,6 +87,7 @@ class AuthRippleView(context: Context?, attrs: AttributeSet?) : View(context, at
     init {
         rippleShader.rawProgress = 0f
         rippleShader.pixelDensity = resources.displayMetrics.density
+        rippleShader.color = Utils.getColorAttr(context, android.R.attr.colorAccent).defaultColor
         rippleShader.sparkleStrength = RIPPLE_SPARKLE_STRENGTH
         updateRippleFadeParams()
         ripplePaint.shader = rippleShader
