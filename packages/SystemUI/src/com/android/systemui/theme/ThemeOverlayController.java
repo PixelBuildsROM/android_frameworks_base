@@ -75,8 +75,11 @@ import com.android.systemui.monet.ColorScheme;
 import com.android.systemui.monet.Style;
 import com.android.systemui.monet.TonalPalette;
 import com.android.systemui.settings.UserTracker;
+import com.android.systemui.statusbar.policy.ConfigurationController;
+import com.android.systemui.statusbar.policy.ConfigurationController.ConfigurationListener;
 import com.android.systemui.statusbar.policy.DeviceProvisionedController;
 import com.android.systemui.statusbar.policy.DeviceProvisionedController.DeviceProvisionedListener;
+import com.android.systemui.tuner.TunerService;
 import com.android.systemui.util.settings.SecureSettings;
 
 import com.google.ux.material.libmonet.dynamiccolor.MaterialDynamicColors;
@@ -116,9 +119,11 @@ import javax.inject.Inject;
  * associated work profiles
  */
 @SysUISingleton
-public class ThemeOverlayController implements CoreStartable, Dumpable {
+public class ThemeOverlayController implements CoreStartable, Dumpable, TunerService.Tunable {
     protected static final String TAG = "ThemeOverlayController";
     private static final boolean DEBUG = true;
+
+    private static final String SYSTEM_BLACK_THEME = Settings.Secure.SYSTEM_BLACK_THEME;
 
     private final ThemeOverlayApplier mThemeManager;
     private final UserManager mUserManager;
@@ -164,11 +169,14 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
     private final UiModeManager mUiModeManager;
     private DynamicScheme mDynamicSchemeDark;
     private DynamicScheme mDynamicSchemeLight;
+    private final TunerService mTunerService;
 
     // Defers changing themes until Setup Wizard is done.
     private boolean mDeferredThemeEvaluation;
     // Determines if we should ignore THEME_CUSTOMIZATION_OVERLAY_PACKAGES setting changes.
     private boolean mSkipSettingChange;
+
+    private final ConfigurationController mConfigurationController;
 
     private final DeviceProvisionedListener mDeviceProvisionedListener =
             new DeviceProvisionedListener() {
@@ -395,7 +403,9 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
             FeatureFlags featureFlags,
             @Main Resources resources,
             WakefulnessLifecycle wakefulnessLifecycle,
-            UiModeManager uiModeManager) {
+            UiModeManager uiModeManager,
+            ConfigurationController configurationController,
+            TunerService tunerService) {
         mContext = context;
         mIsMonochromaticEnabled = featureFlags.isEnabled(Flags.MONOCHROMATIC_THEME);
         mIsMonetEnabled = featureFlags.isEnabled(Flags.MONET);
@@ -413,6 +423,8 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
         mResources = resources;
         mWakefulnessLifecycle = wakefulnessLifecycle;
         mUiModeManager = uiModeManager;
+        mConfigurationController = configurationController;
+        mTunerService = tunerService;
         dumpManager.registerDumpable(TAG, this);
     }
 
@@ -456,10 +468,6 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
             reevaluateSystemTheme(true /* forceReload */);
         });
 
-        if (!mIsMonetEnabled) {
-            return;
-        }
-
         mUserTracker.addCallback(mUserTrackerCallback, mMainExecutor);
 
         mDeviceProvisionedController.addCallback(mDeviceProvisionedListener);
@@ -468,6 +476,8 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
         if (!mIsMonetEnabled) {
             return;
         }
+
+        mTunerService.addTunable(this, SYSTEM_BLACK_THEME);
 
         // Upon boot, make sure we have the most up to date colors
         Runnable updateColors = () -> {
@@ -509,6 +519,18 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
                 }
             }
         });
+        mConfigurationController.addCallback(mConfigurationListener);
+    }
+
+    @Override
+    public void onTuningChanged(String key, String newValue) {
+        switch (key) {
+            case SYSTEM_BLACK_THEME:
+                reevaluateSystemTheme(true /* forceReload */);
+                break;
+            default:
+                break;
+         }
     }
 
     private void reevaluateSystemTheme(boolean forceReload) {
@@ -774,6 +796,13 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
                     .map(key -> key + " -> " + categoryToPackage.get(key)).collect(
                             Collectors.joining(", ")));
         }
+
+        boolean nightMode = (mContext.getResources().getConfiguration().uiMode
+                & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+        boolean isBlackTheme = isBlackThemeEnabled() && nightMode;
+
+        mThemeManager.setIsBlackTheme(isBlackTheme);
+
         if (mNeedsOverlayCreation) {
             mNeedsOverlayCreation = false;
             mThemeManager.applyCurrentUserOverlays(categoryToPackage, new FabricatedOverlay[]{
@@ -783,6 +812,8 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
             mThemeManager.applyCurrentUserOverlays(categoryToPackage, null, currentUser,
                     managedProfiles);
         }
+
+        mThemeManager.applyBlackTheme(isBlackTheme);
     }
 
     private Style fetchThemeStyleFromSetting() {
@@ -812,6 +843,19 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
         }
         return style;
     }
+
+    private boolean isBlackThemeEnabled() {
+        return mSecureSettings.getInt(Settings.Secure.SYSTEM_BLACK_THEME, 0) == 1;
+    }
+
+    private final ConfigurationListener mConfigurationListener = new ConfigurationListener() {
+        @Override
+        public void onUiModeChanged() {
+            if (isBlackThemeEnabled()) {
+                reevaluateSystemTheme(true /* forceReload */);
+            }
+        }
+    };
 
     @Override
     public void dump(@NonNull PrintWriter pw, @NonNull String[] args) {
