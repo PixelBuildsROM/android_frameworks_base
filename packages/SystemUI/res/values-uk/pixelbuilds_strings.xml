@@ -30,4 +30,7 @@
     <string name="accessibility_quick_settings_sync_changed_on">Синхронізацію увімкнено</string>
     <string name="quick_settings_aod_label">AOD</string>
     <string name="quick_settings_aod_off_powersave_label">AOD вимк.\nЕкономія заряду</string>
+    <string name="turn_on_bluetooth">Увімкнути Bluetooth</string>
+    <string name="bluetooth_is_off">Bluetooth вимкнено</string>
+    <string name="tap_a_device_to_connect">Торкніться, щоб підключити пристрій</string>
 </resources>

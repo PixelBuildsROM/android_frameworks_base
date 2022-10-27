@@ -30,4 +30,7 @@
     <string name="accessibility_quick_settings_sync_changed_on">Сінхранізацыя ўключана</string>
     <string name="quick_settings_aod_label">Актыўны дысплей</string>
     <string name="quick_settings_aod_off_powersave_label">Актыўны экран адкл.\nЭканомія батарэі</string>
+    <string name="turn_on_bluetooth">Уключыць Bluetooth</string>
+    <string name="bluetooth_is_off">Bluetooth адключаны</string>
+    <string name="tap_a_device_to_connect">Націсніце, каб падключыць прыладу</string>
 </resources>
