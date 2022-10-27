@@ -30,4 +30,7 @@
     <string name="accessibility_quick_settings_sync_changed_on">Sincronización activada</string>
     <string name="quick_settings_aod_label">Pantalla siempre encendida</string>
     <string name="quick_settings_aod_off_powersave_label">Pantalla siempre encendida\nAhorro de batería</string>
+    <string name="turn_on_bluetooth">Activar Bluetooth</string>
+    <string name="bluetooth_is_off">Bluetooth está apagado</string>
+    <string name="tap_a_device_to_connect">Toca para conectar un dispositivo</string>
 </resources>
