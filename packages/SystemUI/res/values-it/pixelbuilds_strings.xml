@@ -30,4 +30,7 @@
     <string name="accessibility_quick_settings_sync_changed_on">Sincronizzazione attivata</string>
     <string name="quick_settings_aod_label">AOD</string>
     <string name="quick_settings_aod_off_powersave_label">AOD off\nRisparmio energetico</string>
+    <string name="turn_on_bluetooth">Attiva il Bluetooth</string>
+    <string name="bluetooth_is_off">Il Bluetooth è disattivato</string>
+    <string name="tap_a_device_to_connect">Tocca per connettere un dispositivo</string>
 </resources>
