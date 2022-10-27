@@ -247,7 +247,7 @@ public class BluetoothControllerImpl implements BluetoothController, BluetoothCa
         return null;
     }
 
-    private Collection<CachedBluetoothDevice> getDevices() {
+    public Collection<CachedBluetoothDevice> getDevices() {
         return mLocalBluetoothManager != null
                 ? mLocalBluetoothManager.getCachedDeviceManager().getCachedDevicesCopy()
                 : Collections.emptyList();

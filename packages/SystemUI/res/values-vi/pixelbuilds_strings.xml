@@ -21,4 +21,7 @@
     <string name="accessibility_quick_settings_sync_changed_on">Đồng bộ bật</string>
     <string name="quick_settings_aod_label">AOD</string>
     <string name="quick_settings_aod_off_powersave_label">AOD tắt\nTiết kiệm pin</string>
+    <string name="turn_on_bluetooth">Bật Bluetooth</string>
+    <string name="bluetooth_is_off">Bluetooth đã tắt</string>
+    <string name="tap_a_device_to_connect">Nhấn để kết nối một thiết bị</string>
 </resources>
