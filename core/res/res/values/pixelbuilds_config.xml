@@ -25,6 +25,10 @@
     <string-array name="config_deviceKeyHandlerClasses" translatable="false">
     </string-array>
 
+    <!-- Ignore post running notifications for selected apps -->
+    <string-array name="config_postNotificationIgnoredApps" translatable="false">
+    </string-array>
+    
     <!-- The list of package IDs that are allowed to use aux cameras.
          NOTE: If this list is empty then all apps will be able to use aux cameras. -->
     <string-array name="config_cameraAuxPackageAllowList" translatable="false" />
