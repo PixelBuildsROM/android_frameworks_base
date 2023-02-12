@@ -5,4 +5,7 @@
 
     <!-- If not zero, limits the internal screen recorder's framerate to the set value. -->
     <integer name="config_screenRecorderMaxFramerate">0</integer>
+
+    <!-- Unlock ripple animation -->
+    <bool name="config_enableUnlockRippleAnimation">true</bool>
 </resources>
