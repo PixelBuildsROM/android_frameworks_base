@@ -227,6 +227,7 @@ import com.android.server.webkit.WebViewUpdateService;
 import com.android.server.wm.ActivityTaskManagerService;
 import com.android.server.wm.WindowManagerGlobalLock;
 import com.android.server.wm.WindowManagerService;
+import com.android.server.lineage.health.HealthInterfaceService;
 
 import dalvik.system.VMRuntime;
 
@@ -2588,6 +2589,25 @@ public final class SystemServer implements Dumpable {
             t.traceBegin("StartBackgroundInstallControlService");
             mSystemServiceManager.startService(BackgroundInstallControlService.class);
             t.traceEnd();
+<<<<<<< HEAD
+=======
+
+            // CustomDeviceConfigService
+            t.traceBegin("StartCustomDeviceConfigService");
+            mSystemServiceManager.startService(CustomDeviceConfigService.class);
+
+            t.traceBegin("StartHealthService");
+            mSystemServiceManager.startService(HealthInterfaceService.class);
+            t.traceEnd();
+            t.traceEnd();
+
+            if (!context.getResources().getString(
+                    com.android.internal.R.string.config_pocketBridgeSysfsInpocket).isEmpty()) {
+                t.traceBegin("StartPocketBridgeService");
+                mSystemServiceManager.startService(PocketBridgeService.class);
+                t.traceEnd();
+            }
+>>>>>>> 233042ce99a5 (base: Implement Lineage Health Service)
         }
 
         t.traceBegin("StartMediaProjectionManager");
