@@ -180,7 +180,6 @@ constructor(
             .stateIn(scope, SharingStarted.WhileSubscribed(), false)
 
     override val activityContainerVisible: Flow<Boolean> =
-        activity
-            .map { it != null && (it.hasActivityIn || it.hasActivityOut) }
+            flowOf(constants.shouldShowActivityConfig)
             .stateIn(scope, SharingStarted.WhileSubscribed(), false)
 }
