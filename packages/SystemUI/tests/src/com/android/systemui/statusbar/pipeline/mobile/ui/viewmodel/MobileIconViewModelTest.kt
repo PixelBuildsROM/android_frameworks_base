@@ -23,6 +23,7 @@ import com.android.settingslib.mobile.MobileMappings
 import com.android.settingslib.mobile.TelephonyIcons.G
 import com.android.settingslib.mobile.TelephonyIcons.THREE_G
 import com.android.settingslib.mobile.TelephonyIcons.UNKNOWN
+import com.android.systemui.Flags.FLAG_STATUS_BAR_STATIC_INOUT_INDICATORS
 import com.android.systemui.SysuiTestCase
 import com.android.systemui.common.shared.model.ContentDescription
 import com.android.systemui.common.shared.model.Icon
@@ -62,6 +63,8 @@ import org.mockito.MockitoAnnotations
 @SmallTest
 class MobileIconViewModelTest : SysuiTestCase() {
     private var connectivityRepository = FakeConnectivityRepository()
+
+    private val setFlagsRule = SetFlagsRule()
 
     private lateinit var underTest: MobileIconViewModel
     private lateinit var interactor: MobileIconInteractorImpl
@@ -542,8 +545,11 @@ class MobileIconViewModelTest : SysuiTestCase() {
         }
 
     @Test
-    fun dataActivity_configOn_testIndicators() =
+    fun dataActivity_configOn_testIndicators_staticFlagOff() =
         testScope.runTest {
+            // GIVEN STATUS_BAR_STATIC_NETWORK_INDICATORS flag is off
+            setFlagsRule.disableFlags(FLAG_STATUS_BAR_STATIC_INOUT_INDICATORS)
+
             // Create a new view model here so the constants are properly read
             whenever(constants.shouldShowActivityConfig).thenReturn(true)
             createAndSetViewModel()

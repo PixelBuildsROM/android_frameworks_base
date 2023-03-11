@@ -37,9 +37,7 @@
                 android:adjustViewBounds="true"
                 android:layout_width="wrap_content"
                 android:src="@drawable/ic_activity_down"
-                android:visibility="gone"
-                android:paddingTop="2.5dp"
-                android:paddingEnd="2.5dp"
+                android:paddingEnd="2dp"
             />
             <ImageView
                 android:id="@+id/wifi_out"
@@ -47,9 +45,7 @@
                 android:adjustViewBounds="true"
                 android:layout_width="wrap_content"
                 android:src="@drawable/ic_activity_up"
-                android:paddingTop="2.5dp"
-                android:paddingEnd="2.5dp"
-                android:visibility="gone"
+                android:paddingEnd="2dp"
             />
         </FrameLayout>
         <FrameLayout

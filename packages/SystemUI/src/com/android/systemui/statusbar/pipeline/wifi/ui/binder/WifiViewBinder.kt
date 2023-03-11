@@ -30,6 +30,8 @@ import com.android.systemui.statusbar.StatusBarIconView
 import com.android.systemui.statusbar.StatusBarIconView.STATE_HIDDEN
 import com.android.systemui.statusbar.pipeline.shared.ui.binder.ModernStatusBarViewBinding
 import com.android.systemui.statusbar.pipeline.shared.ui.binder.ModernStatusBarViewVisibilityHelper
+import com.android.systemui.statusbar.pipeline.shared.ui.binder.StatusBarViewBinderConstants.ALPHA_ACTIVE
+import com.android.systemui.statusbar.pipeline.shared.ui.binder.StatusBarViewBinderConstants.ALPHA_INACTIVE
 import com.android.systemui.statusbar.pipeline.wifi.ui.model.WifiIcon
 import com.android.systemui.statusbar.pipeline.wifi.ui.viewmodel.LocationBasedWifiViewModel
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -118,15 +120,20 @@ object WifiViewBinder {
 
                 launch { decorTint.collect { tint -> dotView.setDecorColor(tint) } }
 
+                // Set the opacity of the activity indicators
                 launch {
-                    viewModel.isActivityInViewVisible.distinctUntilChanged().collect { visible ->
-                        activityInView.isVisible = visible
+                    viewModel.isActivityInViewVisible.distinctUntilChanged().collect { visible
+                        ->
+                        activityInView.imageAlpha =
+                            (if (visible) ALPHA_ACTIVE else ALPHA_INACTIVE)
                     }
                 }
 
                 launch {
-                    viewModel.isActivityOutViewVisible.distinctUntilChanged().collect { visible ->
-                        activityOutView.isVisible = visible
+                    viewModel.isActivityOutViewVisible.distinctUntilChanged().collect { visible
+                        ->
+                        activityOutView.imageAlpha =
+                            (if (visible) ALPHA_ACTIVE else ALPHA_INACTIVE)
                     }
                 }
 
