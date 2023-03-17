@@ -17,6 +17,7 @@
 package com.android.internal.util;
 
 import static android.view.WindowManager.TAKE_SCREENSHOT_FULLSCREEN;
+import static android.view.WindowManager.TAKE_SCREENSHOT_SELECTED_REGION;
 import static android.view.WindowManager.TAKE_SCREENSHOT_PROVIDED_IMAGE;
 
 import static junit.framework.Assert.assertNull;
@@ -83,6 +84,12 @@ public final class ScreenshotHelperTest {
     @Test
     public void testFullscreenScreenshot() {
         mScreenshotHelper.takeScreenshot(
+                WindowManager.ScreenshotSource.SCREENSHOT_OTHER, mHandler, null);
+    }
+
+    @Test
+    public void testSelectedRegionScreenshot() {
+        mScreenshotHelper.takeScreenshot(TAKE_SCREENSHOT_SELECTED_REGION,
                 WindowManager.ScreenshotSource.SCREENSHOT_OTHER, mHandler, null);
     }
 
