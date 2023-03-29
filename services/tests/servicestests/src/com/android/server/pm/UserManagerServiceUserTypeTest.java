@@ -91,7 +91,8 @@ public class UserManagerServiceUserTypeTest {
                 .setCredentialShareableWithParent(false)
                 .setShowInSettings(900)
                 .setInheritDevicePolicy(340)
-                .setDeleteAppWithParent(true);
+                .setDeleteAppWithParent(true)
+                .setAlwaysVisible(true);
 
         final UserTypeDetails type = new UserTypeDetails.Builder()
                 .setName("a.name")
@@ -160,6 +161,7 @@ public class UserManagerServiceUserTypeTest {
         assertEquals(340, type.getDefaultUserPropertiesReference()
                 .getInheritDevicePolicy());
         assertTrue(type.getDefaultUserPropertiesReference().getDeleteAppWithParent());
+        assertTrue(type.getDefaultUserPropertiesReference().getAlwaysVisible());
 
         assertEquals(23, type.getBadgeLabel(0));
         assertEquals(24, type.getBadgeLabel(1));
@@ -210,6 +212,8 @@ public class UserManagerServiceUserTypeTest {
                 props.getCrossProfileIntentResolutionStrategy());
         assertFalse(props.isMediaSharedWithParent());
         assertFalse(props.isCredentialShareableWithParent());
+        assertFalse(props.getDeleteAppWithParent());
+        assertFalse(props.getAlwaysVisible());
 
         assertFalse(type.hasBadge());
     }
@@ -298,7 +302,8 @@ public class UserManagerServiceUserTypeTest {
                 .setCredentialShareableWithParent(true)
                 .setShowInSettings(20)
                 .setInheritDevicePolicy(21)
-                .setDeleteAppWithParent(true);
+                .setDeleteAppWithParent(true)
+                .setAlwaysVisible(false);
 
         final ArrayMap<String, UserTypeDetails.Builder> builders = new ArrayMap<>();
         builders.put(userTypeAosp1, new UserTypeDetails.Builder()
@@ -339,6 +344,7 @@ public class UserManagerServiceUserTypeTest {
         assertEquals(21, aospType.getDefaultUserPropertiesReference()
                 .getInheritDevicePolicy());
         assertTrue(aospType.getDefaultUserPropertiesReference().getDeleteAppWithParent());
+        assertFalse(aospType.getDefaultUserPropertiesReference().getAlwaysVisible());
 
         // userTypeAosp2 should be modified.
         aospType = builders.get(userTypeAosp2).createUserTypeDetails();
@@ -381,8 +387,8 @@ public class UserManagerServiceUserTypeTest {
         assertEquals(23, aospType.getDefaultUserPropertiesReference().getShowInSettings());
         assertEquals(450, aospType.getDefaultUserPropertiesReference()
                 .getInheritDevicePolicy());
-        assertFalse(aospType.getDefaultUserPropertiesReference()
-                .getDeleteAppWithParent());
+        assertFalse(aospType.getDefaultUserPropertiesReference().getDeleteAppWithParent());
+        assertTrue(aospType.getDefaultUserPropertiesReference().getAlwaysVisible());
 
         // userTypeOem1 should be created.
         UserTypeDetails.Builder customType = builders.get(userTypeOem1);
