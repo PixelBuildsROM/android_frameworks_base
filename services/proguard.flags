@@ -139,3 +139,5 @@
 # CoverageService guards optional jacoco class references with a runtime guard, so we can safely
 # suppress build-time warnings.
 -dontwarn org.jacoco.agent.rt.*
+# Lineage
+-keep,allowoptimization,allowaccessmodification class vendor.lineage.** { *; }
