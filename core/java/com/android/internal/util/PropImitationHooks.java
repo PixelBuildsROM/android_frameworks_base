@@ -17,9 +17,15 @@
 
 package com.android.internal.util;
 
+import android.app.ActivityTaskManager;
 import android.app.Application;
+import android.app.TaskStackListener;
+import android.content.Context;
+import android.content.ComponentName;
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.Binder;
+import android.os.Process;
 import android.os.Build.VERSION;
 import android.os.SystemProperties;
 import android.util.Log;
@@ -66,6 +72,8 @@ public class PropImitationHooks {
             "cheetah", "Pixel 7 Pro", "google/cheetah/cheetah:13/TQ3A.230705.001/10216780:user/release-keys");
     private static final Map<String, Object> gPhotosProps = createGoogleSpoofProps(
             "marlin", "Pixel XL", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
+    private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
+            "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
 
     private static Map<String, Object> createGoogleSpoofProps(String device, String model, String fingerprint) {
         Map<String, Object> props = new HashMap<>();
@@ -78,8 +86,8 @@ public class PropImitationHooks {
         return props;
     }
 
-    private static volatile boolean sIsGms = false;
-    private static volatile boolean sIsFinsky = false;
+    private static volatile boolean sIsGms, sIsFinsky;
+    private static volatile String sProcessName;
 
     public static void setProps(Application app) {
         final String packageName = app.getPackageName();
@@ -92,6 +100,7 @@ public class PropImitationHooks {
         boolean isPackageGms = packageName.toLowerCase().contains(ANDROIDX_TEST) 
         	    || packageName.equals(PACKAGE_GMS_RESTORE) 
         	    || packageName.equals(PACKAGE_GMS);
+        sProcessName = processName;
         sIsGms = isPackageGms && processName.toLowerCase().contains(PROCESS_GMS_UNSTABLE) 
                 || processName.toLowerCase().contains(PROCESS_GMS_PERSISTENT) 
                 || processName.toLowerCase().contains(PROCESS_GMS_PIXEL_MIGRATE)
@@ -100,7 +109,7 @@ public class PropImitationHooks {
 
         if (sIsGms) {
             dlog("Setting Pixel 2 fingerprint for: " + packageName);
-            spoofBuildGms();
+            setCertifiedPropsForGms();
         } else if (!sCertifiedFp.isEmpty() && sIsFinsky) {
             dlog("Setting certified fingerprint for: " + packageName);
             setPropValue("FINGERPRINT", sCertifiedFp);
@@ -130,7 +139,59 @@ public class PropImitationHooks {
         }
     }
 
-    private static void setPropValue(String key, Object value){
+    private static void setCertifiedPropsForGms() {
+        final boolean was = isGmsAddAccountActivityOnTop();
+        final TaskStackListener taskStackListener = new TaskStackListener() {
+            @Override
+            public void onTaskStackChanged() {
+                final boolean is = isGmsAddAccountActivityOnTop();
+                if (is ^ was) {
+                    dlog("GmsAddAccountActivityOnTop is:" + is + " was:" + was +
+                            ", killing myself!"); // process will restart automatically later
+                    Process.killProcess(Process.myPid());
+                }
+            }
+        };
+        if (!was) {
+            dlog("Spoofing build for GMS");
+            spoofBuildGms();
+        } else {
+            dlog("Skip spoofing build for GMS, because GmsAddAccountActivityOnTop");
+        }
+        try {
+            ActivityTaskManager.getService().registerTaskStackListener(taskStackListener);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to register task stack listener!", e);
+        }
+    }
+
+    private static boolean isGmsAddAccountActivityOnTop() {
+        try {
+            final ActivityTaskManager.RootTaskInfo focusedTask =
+                    ActivityTaskManager.getService().getFocusedRootTaskInfo();
+            return focusedTask != null && focusedTask.topActivity != null
+                    && focusedTask.topActivity.equals(GMS_ADD_ACCOUNT_ACTIVITY);
+        } catch (Exception e) {
+            Log.e(TAG, "Unable to get top activity!", e);
+        }
+        return false;
+    }
+
+    public static boolean shouldBypassTaskPermission(Context context) {
+        // GMS doesn't have MANAGE_ACTIVITY_TASKS permission
+        final int callingUid = Binder.getCallingUid();
+        final int gmsUid;
+        try {
+            gmsUid = context.getPackageManager().getApplicationInfo(PACKAGE_GMS, 0).uid;
+            dlog("shouldBypassTaskPermission: gmsUid:" + gmsUid + " callingUid:" + callingUid);
+        } catch (Exception e) {
+            Log.e(TAG, "shouldBypassTaskPermission: unable to get gms uid", e);
+            return false;
+        }
+        return gmsUid == callingUid;
+    }
+
+    private static void setPropValue(String key, Object value) {
         try {
             dlog("Setting prop " + key + " to " + value.toString());
             Field field = Build.class.getDeclaredField(key);
@@ -179,6 +240,6 @@ public class PropImitationHooks {
     }
 
     public static void dlog(String msg) {
-      if (DEBUG) Log.d(TAG, msg);
+      if (DEBUG) Log.d(TAG, "[" + sProcessName + "] " + msg);
     }
 }
