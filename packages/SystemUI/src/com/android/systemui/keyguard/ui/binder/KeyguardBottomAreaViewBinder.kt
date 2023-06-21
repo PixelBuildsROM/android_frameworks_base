@@ -414,7 +414,12 @@ object KeyguardBottomAreaViewBinder {
                         CycleInterpolator(KeyguardBottomAreaVibrations.ShakeAnimationCycles)
                     shakeAnimator.start()
 
-                    vibratorHelper?.vibrate(KeyguardBottomAreaVibrations.Shake)
+                    vibratorHelper?.vibrate(
+                          if (KeyguardBottomAreaVibrations.areAllPrimitivesSupported) {
+                              KeyguardBottomAreaVibrations.Shake
+                          } else {
+                              KeyguardBottomAreaVibrations.ShakeAlt
+                          })
                 }
                 view.onLongClickListener =
                     OnLongClickListener(falsingManager, viewModel, vibratorHelper, onTouchListener)
@@ -484,9 +489,17 @@ object KeyguardBottomAreaViewBinder {
                 )
                 vibratorHelper?.vibrate(
                     if (viewModel.isActivated) {
-                        KeyguardBottomAreaVibrations.Activated
+                        if (KeyguardBottomAreaVibrations.areAllPrimitivesSupported) {
+                            KeyguardBottomAreaVibrations.Activated
+                        } else {
+                            KeyguardBottomAreaVibrations.ActivatedAlt
+                        }
                     } else {
-                        KeyguardBottomAreaVibrations.Deactivated
+                        if (KeyguardBottomAreaVibrations.areAllPrimitivesSupported) {
+                            KeyguardBottomAreaVibrations.Deactivated
+                        } else {
+                            KeyguardBottomAreaVibrations.DeactivatedAlt
+                        }
                     }
                 )
             }
