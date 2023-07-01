@@ -16,6 +16,8 @@
 
 package com.android.externalstorage;
 
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.usage.StorageStatsManager;
@@ -68,6 +70,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 /**
  * Presents content of the shared (a.k.a. "external") storage.
@@ -93,6 +96,12 @@ public class ExternalStorageProvider extends FileSystemProvider {
     private static final String PRIMARY_EMULATED_STORAGE_PATH = "/storage/emulated/";
 
     private static final String STORAGE_PATH = "/storage/";
+    /**
+     * Regex for detecting {@code /Android/data/}, {@code /Android/obb/} and
+     * {@code /Android/sandbox/} along with all their subdirectories and content.
+     */
+    private static final Pattern PATTERN_RESTRICTED_ANDROID_SUBTREES =
+            Pattern.compile("^Android/(?:data|obb|sandbox)(?:/.+)?", CASE_INSENSITIVE);
 
     private static final String[] DEFAULT_ROOT_PROJECTION = new String[] {
             Root.COLUMN_ROOT_ID, Root.COLUMN_FLAGS, Root.COLUMN_ICON, Root.COLUMN_TITLE,
@@ -313,8 +322,6 @@ public class ExternalStorageProvider extends FileSystemProvider {
             return isRestrictedPath(root.rootId, canonicalPath);
         } catch (Exception e) {
             return true;
-        }
-    }
 
     /**
      * Based on the given root id and path, we restrict path access if file is Android/data or
