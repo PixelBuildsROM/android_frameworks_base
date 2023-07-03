@@ -441,6 +441,10 @@ public class DisplayPolicy {
 
                 @Override
                 public void onSwipeFromTop() {
+                    if (mService.mPowerManagerInternal != null) {
+                        mService.mPowerManagerInternal.setPowerBoost(
+                                Boost.INTERACTION, 80);
+                    }
                     synchronized (mLock) {
                         requestTransientBars(mTopGestureHost,
                                 getControllableInsets(mTopGestureHost).top > 0);
@@ -449,6 +453,10 @@ public class DisplayPolicy {
 
                 @Override
                 public void onSwipeFromBottom() {
+                    if (mService.mPowerManagerInternal != null) {
+                        mService.mPowerManagerInternal.setPowerBoost(
+                                Boost.INTERACTION, 80);
+                    }
                     synchronized (mLock) {
                         requestTransientBars(mBottomGestureHost,
                                 getControllableInsets(mBottomGestureHost).bottom > 0);
@@ -462,6 +470,10 @@ public class DisplayPolicy {
 
                 @Override
                 public void onSwipeFromRight() {
+                    if (mService.mPowerManagerInternal != null) {
+                        mService.mPowerManagerInternal.setPowerBoost(
+                                Boost.INTERACTION, 80);
+                    }
                     final Region excludedRegion = Region.obtain();
                     synchronized (mLock) {
                         mDisplayContent.calculateSystemGestureExclusion(
@@ -477,6 +489,10 @@ public class DisplayPolicy {
 
                 @Override
                 public void onSwipeFromLeft() {
+                    if (mService.mPowerManagerInternal != null) {
+                        mService.mPowerManagerInternal.setPowerBoost(
+                                Boost.INTERACTION, 80);
+                    }
                     final Region excludedRegion = Region.obtain();
                     synchronized (mLock) {
                         mDisplayContent.calculateSystemGestureExclusion(
@@ -495,6 +511,32 @@ public class DisplayPolicy {
                     if (mService.mPowerManagerInternal != null) {
                         mService.mPowerManagerInternal.setPowerBoost(
                                 Boost.INTERACTION, duration);
+                    }
+                }
+
+                @Override
+                public void onVerticalFling(int duration) {
+                    if (mService.mPowerManagerInternal != null) {
+                        mService.mPowerManagerInternal.setPowerBoost(
+                                Boost.INTERACTION, duration + 80);
+                    }
+                }
+
+                @Override
+                public void onHorizontalFling(int duration) {
+                    if (mService.mPowerManagerInternal != null) {
+                        mService.mPowerManagerInternal.setPowerBoost(
+                               Boost.INTERACTION, duration + 80);
+                    }
+                }
+
+                @Override
+                public void onScroll(boolean started) {
+                    if (started) {
+                       if (mService.mPowerManagerInternal != null) {
+                           mService.mPowerManagerInternal.setPowerBoost(
+                                  Boost.DISPLAY_UPDATE_IMMINENT, 80);
+                       }
                     }
                 }
 
