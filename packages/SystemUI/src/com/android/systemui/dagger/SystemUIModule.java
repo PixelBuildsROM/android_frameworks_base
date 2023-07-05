@@ -327,9 +327,9 @@ public abstract class SystemUIModule {
 
     @Provides
     @SysUISingleton
-    static KeyguardSmartspaceController provideKeyguardSmartspaceController(FeatureFlags featureFlags,
+    static KeyguardSmartspaceController provideKeyguardSmartspaceController(
             KeyguardZenAlarmViewController keyguardZenAlarmViewController, KeyguardMediaViewController keyguardMediaViewController) {
-        return new KeyguardSmartspaceController(featureFlags, keyguardZenAlarmViewController, keyguardMediaViewController);
+        return new KeyguardSmartspaceController(keyguardZenAlarmViewController, keyguardMediaViewController);
     }
 
     @Provides

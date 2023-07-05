@@ -6134,7 +6134,7 @@
     <integer name="config_powerPressCode">-1</integer>
 
     <!-- Whether to show weather on the lock screen by default. -->
-    <bool name="config_lockscreenWeatherEnabledByDefault">false</bool>
+    <bool name="config_lockscreenWeatherEnabledByDefault">true</bool>
 
     <!-- Whether we should persist the brightness value in nits for the default display even if
          the underlying display device changes. -->
