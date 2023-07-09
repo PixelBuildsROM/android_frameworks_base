@@ -42,10 +42,15 @@ public class PropImitationHooks {
     private static final String sStockFp =
             Resources.getSystem().getString(R.string.config_stockFingerprint);
 
+    private static final String ANDROIDX_TEST = "androidx.test";
     private static final String PACKAGE_ARCORE = "com.google.ar.core";
     private static final String PACKAGE_FINSKY = "com.android.vending";
+    private static final String PACKAGE_GMS_RESTORE = "com.google.android.apps.restore";
     private static final String PACKAGE_GMS = "com.google.android.gms";
-    private static final String PROCESS_GMS_UNSTABLE = PACKAGE_GMS + ".unstable";
+    private static final String PROCESS_GMS_UNSTABLE = "unstable";
+    private static final String PROCESS_GMS_PERSISTENT = "persistent";
+    private static final String PROCESS_GMS_PIXEL_MIGRATE = "pixelmigrate";
+    private static final String PROCESS_INSTRUMENTATION = "instrumentation";
 
     private static final String PACKAGE_SUBSCRIPTION_RED = "com.google.android.apps.subscriptions.red";
     private static final String PACKAGE_TURBO = "com.google.android.apps.turbo";
@@ -83,7 +88,13 @@ public class PropImitationHooks {
             return;
         }
 
-        sIsGms = packageName.equals(PACKAGE_GMS) && processName.equals(PROCESS_GMS_UNSTABLE);
+        boolean isPackageGms = packageName.toLowerCase().contains(ANDROIDX_TEST) 
+        	    || packageName.equals(PACKAGE_GMS_RESTORE) 
+        	    || packageName.equals(PACKAGE_GMS);
+        sIsGms = isPackageGms && processName.toLowerCase().contains(PROCESS_GMS_UNSTABLE) 
+                || processName.toLowerCase().contains(PROCESS_GMS_PERSISTENT) 
+                || processName.toLowerCase().contains(PROCESS_GMS_PIXEL_MIGRATE)
+                || processName.toLowerCase().contains(PROCESS_INSTRUMENTATION);
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
 
         if (packageName.equals("com.google.android.apps.photos")) {
