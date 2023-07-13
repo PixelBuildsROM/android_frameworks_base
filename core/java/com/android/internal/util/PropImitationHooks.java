@@ -54,6 +54,7 @@ public class PropImitationHooks {
     private static final String PROCESS_GMS_PIXEL_MIGRATE = "pixelmigrate";
     private static final String PROCESS_INSTRUMENTATION = "instrumentation";
 
+    private static final String PACKAGE_AIAI = "com.google.android.apps.miphone.aiai.AiaiApplication";
     private static final String PACKAGE_GPHOTOS = "com.google.android.apps.photos";
     private static final String PACKAGE_SUBSCRIPTION_RED = "com.google.android.apps.subscriptions.red";
     private static final String PACKAGE_TURBO = "com.google.android.apps.turbo";
@@ -84,7 +85,7 @@ public class PropImitationHooks {
         final String packageName = app.getPackageName();
         final String processName = app.getProcessName();
 
-        if (packageName == null || processName == null) {
+        if (packageName == null || processName == null || packageName.equals(PACKAGE_AIAI)) {
             return;
         }
 
