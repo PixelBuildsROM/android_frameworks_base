@@ -31,6 +31,8 @@ import android.os.Parcel;
 import androidx.test.filters.SmallTest;
 
 import com.android.internal.config.sysui.SystemUiSystemPropertiesFlags;
+import com.android.internal.config.sysui.SystemUiSystemPropertiesFlags.Flag;
+import com.android.internal.config.sysui.SystemUiSystemPropertiesFlags.FlagResolver;
 
 import org.junit.After;
 import org.junit.Before;
@@ -61,11 +63,24 @@ public class NotificationRankingUpdateTest {
         mNotificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "test channel",
                 NotificationManager.IMPORTANCE_DEFAULT);
 
-        SystemUiSystemPropertiesFlags.TEST_RESOLVER = flag -> {
-            if (flag.mSysPropKey.equals(RANKING_UPDATE_ASHMEM.mSysPropKey)) {
-                return mRankingUpdateAshmem;
+        SystemUiSystemPropertiesFlags.TEST_RESOLVER = new FlagResolver() {
+            @Override
+            public boolean isEnabled(Flag flag) {
+                if (flag.mSysPropKey.equals(RANKING_UPDATE_ASHMEM.mSysPropKey)) {
+                    return mRankingUpdateAshmem;
+                }
+                return new SystemUiSystemPropertiesFlags.DebugResolver().isEnabled(flag);
             }
-            return new SystemUiSystemPropertiesFlags.DebugResolver().isEnabled(flag);
+
+            @Override
+            public int getIntValue(Flag flag) {
+                return 0;
+            }
+
+            @Override
+            public String getStringValue(Flag flag) {
+                return null;
+            }
         };
     }
 
