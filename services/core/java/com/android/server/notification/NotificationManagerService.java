@@ -285,6 +285,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.compat.IPlatformCompat;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.config.sysui.SystemUiSystemPropertiesFlags;
+import com.android.internal.config.sysui.SystemUiSystemPropertiesFlags.NotificationFlags;
 import com.android.internal.logging.InstanceId;
 import com.android.internal.logging.InstanceIdSequence;
 import com.android.internal.logging.MetricsLogger;
@@ -313,6 +314,7 @@ import com.android.server.SystemService;
 import com.android.server.job.JobSchedulerInternal;
 import com.android.server.lights.LightsManager;
 import com.android.server.lights.LogicalLight;
+import com.android.server.notification.Flags;
 import com.android.server.notification.ManagedServices.ManagedServiceInfo;
 import com.android.server.notification.ManagedServices.UserProfiles;
 import com.android.server.notification.toast.CustomToastRecord;
@@ -678,6 +680,7 @@ public class NotificationManagerService extends SystemService {
     private boolean mIsAutomotive;
     private boolean mNotificationEffectsEnabledForAutomotive;
     private DeviceConfig.OnPropertiesChangedListener mDeviceConfigChangedListener;
+    protected NotificationAttentionHelper mAttentionHelper;
 
     private int mWarnRemoteViewsSizeBytes;
     private int mStripRemoteViewsSizeBytes;
@@ -1116,13 +1119,7 @@ public class NotificationManagerService extends SystemService {
         @Override
         public void onSetDisabled(int status) {
             synchronized (mNotificationLock) {
-                mDisableNotificationEffects =
-                        (status & StatusBarManager.DISABLE_NOTIFICATION_ALERTS) != 0;
-                if (disableNotificationEffects(null) != null) {
-                    // cancel whatever's going on
-                    clearSoundLocked();
-                    clearVibrateLocked();
-                }
+                mAttentionHelper.updateDisableNotificationEffectsLocked(status);
             }
         }
 
@@ -1258,9 +1255,7 @@ public class NotificationManagerService extends SystemService {
         public void clearEffects() {
             synchronized (mNotificationLock) {
                 if (DBG) Slog.d(TAG, "clearEffects");
-                clearSoundLocked();
-                clearVibrateLocked();
-                clearLightsLocked();
+                mAttentionHelper.clearAttentionEffects();
             }
         }
 
@@ -1483,7 +1478,7 @@ public class NotificationManagerService extends SystemService {
                         int changedFlags = data.getFlags() ^ flags;
                         if ((changedFlags & FLAG_SUPPRESS_NOTIFICATION) != 0) {
                             // Suppress notification flag changed, clear any effects
-                            clearEffectsLocked(key);
+                            mAttentionHelper.clearEffectsLocked(key);
                         }
                         data.setFlags(flags);
                         // Shouldn't alert again just because of a flag change.
@@ -1573,6 +1568,12 @@ public class NotificationManagerService extends SystemService {
             }
         }
 
+    };
+
+    NotificationManagerPrivate mNotificationManagerPrivate = key -> {
+        synchronized (mNotificationLock) {
+            return mNotificationsByKey.get(key);
+        }
     };
 
     @VisibleForTesting
@@ -1832,9 +1833,16 @@ public class NotificationManagerService extends SystemService {
                 updateNotificationPulse();
             } else if (action.equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
                 mInCallStateOffHook = TelephonyManager.EXTRA_STATE_OFFHOOK
-                        .equals(intent.getStringExtra(TelephonyManager.EXTRA_STATE));
+                    .equals(intent.getStringExtra(TelephonyManager.EXTRA_STATE));
                 updateNotificationPulse();
-            } else if (action.equals(Intent.ACTION_USER_STOPPED)) {
+            } else if (action.equals(Intent.ACTION_USER_PRESENT)) {
+                // turn off LED when user passes through lock screen
+                if (mNotificationLight != null) {
+                    mNotificationLight.turnOff();
+                }
+            }
+
+            if (action.equals(Intent.ACTION_USER_STOPPED)) {
                 int userHandle = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
                 if (userHandle >= 0) {
                     cancelAllNotificationsInt(MY_UID, MY_PID, null, null, 0, 0, userHandle,
@@ -1846,11 +1854,6 @@ public class NotificationManagerService extends SystemService {
                     cancelAllNotificationsInt(MY_UID, MY_PID, null, null, 0, 0, userHandle,
                             REASON_PROFILE_TURNED_OFF);
                     mSnoozeHelper.clearData(userHandle);
-                }
-            } else if (action.equals(Intent.ACTION_USER_PRESENT)) {
-                // turn off LED when user passes through lock screen
-                if (mNotificationLight != null) {
-                    mNotificationLight.turnOff();
                 }
             } else if (action.equals(Intent.ACTION_USER_SWITCHED)) {
                 final int userId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, USER_NULL);
@@ -1950,8 +1953,8 @@ public class NotificationManagerService extends SystemService {
             ContentResolver resolver = getContext().getContentResolver();
             if (uri == null || NOTIFICATION_LIGHT_PULSE_URI.equals(uri)) {
                 boolean pulseEnabled = Settings.System.getIntForUser(resolver,
-                            Settings.System.NOTIFICATION_LIGHT_PULSE, 0, UserHandle.USER_CURRENT)
-                        != 0;
+                    Settings.System.NOTIFICATION_LIGHT_PULSE, 0, UserHandle.USER_CURRENT)
+                    != 0;
                 if (mNotificationPulseEnabled != pulseEnabled) {
                     mNotificationPulseEnabled = pulseEnabled;
                     updateNotificationPulse();
@@ -2442,6 +2445,10 @@ public class NotificationManagerService extends SystemService {
 
         mToastRateLimiter = toastRateLimiter;
 
+        mAttentionHelper = new NotificationAttentionHelper(getContext(), lightsManager,
+            mAccessibilityManager, mPackageManagerClient, usageStats,
+            mNotificationManagerPrivate, mZenModeHelper, flagResolver);
+
         // register for various Intents.
         // If this is called within a test, make sure to unregister the intent receivers by
         // calling onDestroy()
@@ -2769,6 +2776,7 @@ public class NotificationManagerService extends SystemService {
             }
             registerNotificationPreferencesPullers();
             new LockPatternUtils(getContext()).registerStrongAuthTracker(mStrongAuthTracker);
+            mAttentionHelper.onSystemReady();
         } else if (phase == SystemService.PHASE_THIRD_PARTY_APPS_CAN_START) {
             // This observer will force an update when observe is called, causing us to
             // bind to listener services.
@@ -6377,6 +6385,7 @@ public class NotificationManagerService extends SystemService {
                     pw.println("  mMaxPackageEnqueueRate=" + mMaxPackageEnqueueRate);
                     pw.println("  hideSilentStatusBar="
                             + mPreferencesHelper.shouldHideSilentStatusIcons());
+                    mAttentionHelper.dump(pw, "    ", filter);
                 }
                 pw.println("  mArchive=" + mArchive.toString());
                 mArchive.dumpImpl(pw, filter);
@@ -7591,7 +7600,7 @@ public class NotificationManagerService extends SystemService {
             boolean wasPosted = removeFromNotificationListsLocked(r);
             cancelNotificationLocked(r, false, REASON_SNOOZED, wasPosted, null,
                     SystemClock.elapsedRealtime());
-            updateLightsLocked();
+            mAttentionHelper.updateLightsLocked();
             if (isSnoozable(r)) {
                 if (mSnoozeCriterionId != null) {
                     mAssistants.notifyAssistantSnoozedLocked(r, mSnoozeCriterionId);
@@ -7720,7 +7729,7 @@ public class NotificationManagerService extends SystemService {
                     cancelGroupChildrenLocked(r, mCallingUid, mCallingPid, listenerName,
                             mSendDelete, childrenFlagChecker, mReason,
                             mCancellationElapsedTimeMs);
-                    updateLightsLocked();
+                    mAttentionHelper.updateLightsLocked();
                     if (mShortcutHelper != null) {
                         mShortcutHelper.maybeListenForShortcutChangesForBubbles(r,
                                 true /* isRemoved */,
@@ -8018,7 +8027,10 @@ public class NotificationManagerService extends SystemService {
 
                     int buzzBeepBlinkLoggingCode = 0;
                     if (!r.isHidden()) {
-                        buzzBeepBlinkLoggingCode = buzzBeepBlinkLocked(r);
+                        buzzBeepBlinkLoggingCode = mAttentionHelper.buzzBeepBlinkLocked(r,
+                            new NotificationAttentionHelper.Signals(
+                                mUserProfiles.isCurrentProfile(r.getUserId()),
+                                mListenerHints));
                     }
 
                     if (notification.getSmallIcon() != null) {
@@ -8998,7 +9010,9 @@ public class NotificationManagerService extends SystemService {
                     || interruptiveChanged;
             if (interceptBefore && !record.isIntercepted()
                     && record.isNewEnoughForAlerting(System.currentTimeMillis())) {
-                buzzBeepBlinkLocked(record);
+                mAttentionHelper.buzzBeepBlinkLocked(record,
+                    new NotificationAttentionHelper.Signals(
+                        mUserProfiles.isCurrentProfile(record.getUserId()), mListenerHints));
 
                 // Log alert after change in intercepted state to Zen Log as well
                 ZenLog.traceAlertOnUpdatedIntercept(record);
@@ -9371,19 +9385,7 @@ public class NotificationManagerService extends SystemService {
                     }
                 });
             }
-
-            // sound
-            if (canceledKey.equals(mSoundNotificationKey)) {
-                clearSoundLocked();
-            }
-
-            // vibrate
-            if (canceledKey.equals(mVibrateNotificationKey)) {
-                clearVibrateLocked();
-            }
-
-            // light
-            mLights.remove(canceledKey);
+            mAttentionHelper.clearEffectsLocked(canceledKey);
         }
 
         // Record usage stats
@@ -9732,7 +9734,7 @@ public class NotificationManagerService extends SystemService {
                             cancellationElapsedTimeMs);
                 }
             }
-            updateLightsLocked();
+            mAttentionHelper.updateLightsLocked();
         }
     }
 
