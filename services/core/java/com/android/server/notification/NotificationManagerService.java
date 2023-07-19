@@ -314,7 +314,6 @@ import com.android.server.SystemService;
 import com.android.server.job.JobSchedulerInternal;
 import com.android.server.lights.LightsManager;
 import com.android.server.lights.LogicalLight;
-import com.android.server.notification.Flags;
 import com.android.server.notification.ManagedServices.ManagedServiceInfo;
 import com.android.server.notification.ManagedServices.UserProfiles;
 import com.android.server.notification.toast.CustomToastRecord;
@@ -2446,7 +2445,7 @@ public class NotificationManagerService extends SystemService {
         mToastRateLimiter = toastRateLimiter;
 
         mAttentionHelper = new NotificationAttentionHelper(getContext(), lightsManager,
-            mAccessibilityManager, mPackageManagerClient, usageStats,
+            mAccessibilityManager, mPackageManagerClient, userManager, usageStats,
             mNotificationManagerPrivate, mZenModeHelper, flagResolver);
 
         // register for various Intents.
@@ -3274,6 +3273,8 @@ public class NotificationManagerService extends SystemService {
         mAppUsageStats.reportEvent(r.getSbn().getPackageName(),
                 getRealUserId(r.getSbn().getUserId()),
                 UsageEvents.Event.USER_INTERACTION);
+
+        mAttentionHelper.onUserInteraction(r);
     }
 
     private int getRealUserId(int userId) {
@@ -8485,7 +8486,7 @@ public class NotificationManagerService extends SystemService {
                     .setCategory(MetricsEvent.NOTIFICATION_ALERT)
                     .setType(MetricsEvent.TYPE_OPEN)
                     .setSubtype(buzzBeepBlink));
-            EventLogTags.writeNotificationAlert(key, buzz ? 1 : 0, beep ? 1 : 0, blink ? 1 : 0);
+            EventLogTags.writeNotificationAlert(key, buzz ? 1 : 0, beep ? 1 : 0, blink ? 1 : 0, 0);
         }
         record.setAudiblyAlerted(buzz || beep);
         return buzzBeepBlink;

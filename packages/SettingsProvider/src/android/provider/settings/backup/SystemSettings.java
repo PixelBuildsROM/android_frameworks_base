@@ -101,5 +101,8 @@ public class SystemSettings {
         Settings.System.CAMERA_FLASH_NOTIFICATION,
         Settings.System.SCREEN_FLASH_NOTIFICATION,
         Settings.System.SCREEN_FLASH_NOTIFICATION_COLOR,
+        Settings.System.NOTIFICATION_COOLDOWN_ENABLED,
+        Settings.System.NOTIFICATION_COOLDOWN_ALL,
+        Settings.System.NOTIFICATION_COOLDOWN_VIBRATE_UNLOCKED,
     };
 }
