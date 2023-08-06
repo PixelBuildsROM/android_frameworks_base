@@ -29,7 +29,9 @@ import com.android.internal.R;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class PropImitationHooks {
 
@@ -52,30 +54,28 @@ public class PropImitationHooks {
     private static final String PROCESS_GMS_PIXEL_MIGRATE = "pixelmigrate";
     private static final String PROCESS_INSTRUMENTATION = "instrumentation";
 
+    private static final String PACKAGE_GPHOTOS = "com.google.android.apps.photos";
     private static final String PACKAGE_SUBSCRIPTION_RED = "com.google.android.apps.subscriptions.red";
     private static final String PACKAGE_TURBO = "com.google.android.apps.turbo";
     private static final String PACKAGE_VELVET = "com.google.android.googlequicksearchbox";
     private static final String PACKAGE_GBOARD = "com.google.android.inputmethod.latin";
     private static final String PACKAGE_SETUPWIZARD = "com.google.android.setupwizard";
-    private static final Map<String, Object> sP7Props = new HashMap<>();
-    static {
-        sP7Props.put("BRAND", "google");
-        sP7Props.put("MANUFACTURER", "Google");
-        sP7Props.put("DEVICE", "cheetah");
-        sP7Props.put("PRODUCT", "cheetah");
-        sP7Props.put("MODEL", "Pixel 7 Pro");
-        sP7Props.put("FINGERPRINT", "google/cheetah/cheetah:13/TQ3A.230705.001/10216780:user/release-keys");
-    }
 
-     private static final Map<String, Object> sPXLProps = new HashMap<>();
-     static {
-         sPXLProps.put("BRAND", "google");
-         sPXLProps.put("MANUFACTURER", "Google");
-         sPXLProps.put("DEVICE", "marlin");
-         sPXLProps.put("PRODUCT", "marlin");
-         sPXLProps.put("MODEL", "Pixel XL");
-         sPXLProps.put("FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
-     }
+    private static final Map<String, Object> sP7Props = createGoogleSpoofProps(
+            "cheetah", "Pixel 7 Pro", "google/cheetah/cheetah:13/TQ3A.230705.001/10216780:user/release-keys");
+    private static final Map<String, Object> gPhotosProps = createGoogleSpoofProps(
+            "marlin", "Pixel XL", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
+
+    private static Map<String, Object> createGoogleSpoofProps(String device, String model, String fingerprint) {
+        Map<String, Object> props = new HashMap<>();
+        props.put("BRAND", "google");
+        props.put("MANUFACTURER", "Google");
+        props.put("DEVICE", device);
+        props.put("PRODUCT", device);
+        props.put("MODEL", model);
+        props.put("FINGERPRINT", fingerprint);
+        return props;
+    }
 
     private static volatile boolean sIsGms = false;
     private static volatile boolean sIsFinsky = false;
@@ -97,11 +97,7 @@ public class PropImitationHooks {
                 || processName.toLowerCase().contains(PROCESS_INSTRUMENTATION);
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
 
-        if (packageName.equals("com.google.android.apps.photos")) {
-            if (SystemProperties.getBoolean("persist.sys.pixelprops.gphotos", true)) {
-                sPXLProps.forEach((k, v) -> setPropValue(k, v));
-            }
-        } else if (sIsGms) {
+        if (sIsGms) {
             dlog("Setting Pixel 2 fingerprint for: " + packageName);
             spoofBuildGms();
         } else if (!sCertifiedFp.isEmpty() && sIsFinsky) {
@@ -110,10 +106,26 @@ public class PropImitationHooks {
         } else if (!sStockFp.isEmpty() && packageName.equals(PACKAGE_ARCORE)) {
             dlog("Setting stock fingerprint for: " + packageName);
             setPropValue("FINGERPRINT", sStockFp);
-        } else if (packageName.equals(PACKAGE_SUBSCRIPTION_RED) || packageName.equals(PACKAGE_TURBO)
-                   || packageName.equals(PACKAGE_VELVET) || packageName.equals(PACKAGE_GBOARD) || packageName.equals(PACKAGE_SETUPWIZARD) || packageName.equals(PACKAGE_GMS)) {
-            dlog("Spoofing Pixel 7 Pro for: " + packageName);
-            sP7Props.forEach((k, v) -> setPropValue(k, v));
+        } else {
+            switch (packageName) {
+                case PACKAGE_SUBSCRIPTION_RED:
+                case PACKAGE_TURBO:
+                case PACKAGE_VELVET:
+                case PACKAGE_GBOARD:
+                case PACKAGE_SETUPWIZARD:
+                case PACKAGE_GMS:
+                    dlog("Spoofing Pixel 7 Pro for: " + packageName);
+                    sP7Props.forEach((k, v) -> setPropValue(k, v));
+                    break;
+                case PACKAGE_GPHOTOS:
+                    if (SystemProperties.getBoolean("persist.sys.pixelprops.gphotos", true)) {
+                        dlog("Spoofing as Pixel XL for: " + packageName);
+                        gPhotosProps.forEach((k, v) -> setPropValue(k, v));
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
