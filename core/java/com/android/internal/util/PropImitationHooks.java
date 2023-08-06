@@ -69,19 +69,21 @@ public class PropImitationHooks {
     private static final String PACKAGE_SETUPWIZARD = "com.google.android.setupwizard";
 
     private static final Map<String, Object> sP7Props = createGoogleSpoofProps(
-            "cheetah", "Pixel 7 Pro", "google/cheetah/cheetah:13/TQ3A.230705.001/10216780:user/release-keys");
+            "cheetah", "Pixel 7 Pro", "TQ3A.230705.001", "google/cheetah/cheetah:13/TQ3A.230705.001/10216780:user/release-keys");
     private static final Map<String, Object> gPhotosProps = createGoogleSpoofProps(
-            "marlin", "Pixel XL", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
+            "marlin", "Pixel XL", "QP1A.191005.007.A3", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
 
-    private static Map<String, Object> createGoogleSpoofProps(String device, String model, String fingerprint) {
+    private static Map<String, Object> createGoogleSpoofProps(String device, String model, String buildId, String fingerprint) {
         Map<String, Object> props = new HashMap<>();
         props.put("BRAND", "google");
         props.put("MANUFACTURER", "Google");
         props.put("DEVICE", device);
         props.put("PRODUCT", device);
+        props.put("HARDWARE", device);
         props.put("MODEL", model);
+        props.put("ID", buildId);
         props.put("FINGERPRINT", fingerprint);
         return props;
     }
@@ -219,10 +221,14 @@ public class PropImitationHooks {
 
     private static void spoofBuildGms() {
         // Alter model name and fingerprint to Pixel 2 to avoid hardware attestation enforcement
+        setPropValue("BRAND", "google");
+    	setPropValue("MANUFACTURER", "Google");
         setPropValue("DEVICE", "walleye");
-        setPropValue("FINGERPRINT", "google/walleye/walleye:8.1.0/OPM1.171019.011/4448085:user/release-keys");
-        setPropValue("MODEL", "Pixel 2");
         setPropValue("PRODUCT", "walleye");
+        setPropValue("HARDWARE", "walleye");
+        setPropValue("MODEL", "Pixel 2");
+        setPropValue("ID", "OPM1.171019.011");
+        setPropValue("FINGERPRINT", "google/walleye/walleye:8.1.0/OPM1.171019.011/4448085:user/release-keys");
         setVersionField("DEVICE_INITIAL_SDK_INT", Build.VERSION_CODES.O);
     }
 
