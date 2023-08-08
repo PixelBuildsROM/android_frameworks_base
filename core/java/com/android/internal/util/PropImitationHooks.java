@@ -69,7 +69,7 @@ public class PropImitationHooks {
     private static final String PACKAGE_SETUPWIZARD = "com.google.android.setupwizard";
 
     private static final Map<String, Object> sP7Props = createGoogleSpoofProps(
-            "cheetah", "Pixel 7 Pro", "TQ3A.230705.001", "google/cheetah/cheetah:13/TQ3A.230705.001/10216780:user/release-keys");
+            "cheetah", "Pixel 7 Pro", "TQ3A.230805.001", "google/cheetah/cheetah:13/TQ3A.230805.001/10316531:user/release-keys");
     private static final Map<String, Object> gPhotosProps = createGoogleSpoofProps(
             "marlin", "Pixel XL", "QP1A.191005.007.A3", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
