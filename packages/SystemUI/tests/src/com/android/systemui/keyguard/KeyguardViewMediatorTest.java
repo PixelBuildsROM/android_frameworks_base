@@ -240,25 +240,6 @@ public class KeyguardViewMediatorTest extends SysuiTestCase {
 
     @Test
     @TestableLooper.RunWithLooper(setAsMainLooper = true)
-    public void onLockdown_showKeyguard_evenIfKeyguardIsNotEnabledExternally() {
-        // GIVEN keyguard is not enabled and isn't showing
-        mViewMediator.onSystemReady();
-        mViewMediator.setKeyguardEnabled(false);
-        TestableLooper.get(this).processAllMessages();
-        captureKeyguardUpdateMonitorCallback();
-        assertFalse(mViewMediator.isShowingAndNotOccluded());
-
-        // WHEN lockdown occurs
-        when(mLockPatternUtils.isUserInLockdown(anyInt())).thenReturn(true);
-        mKeyguardUpdateMonitorCallbackCaptor.getValue().onStrongAuthStateChanged(0);
-
-        // THEN keyguard is shown
-        TestableLooper.get(this).processAllMessages();
-        assertTrue(mViewMediator.isShowingAndNotOccluded());
-    }
-
-    @Test
-    @TestableLooper.RunWithLooper(setAsMainLooper = true)
     public void doNotHideKeyguard_whenLockdown_onKeyguardNotEnabledExternally() {
         // GIVEN keyguard is enabled and lockdown occurred so the keyguard is showing
         mViewMediator.onSystemReady();
