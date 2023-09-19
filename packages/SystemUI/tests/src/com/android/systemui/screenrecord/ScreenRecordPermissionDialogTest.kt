@@ -24,7 +24,6 @@ import android.widget.Spinner
 import androidx.test.filters.SmallTest
 import com.android.systemui.R
 import com.android.systemui.SysuiTestCase
-import com.android.systemui.animation.DialogLaunchAnimator
 import com.android.systemui.flags.FeatureFlags
 import com.android.systemui.flags.Flags
 import com.android.systemui.plugins.ActivityStarter
@@ -37,8 +36,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when` as whenever
 import org.mockito.MockitoAnnotations
+import org.mockito.Mockito.`when` as whenever
 
 @SmallTest
 @RunWith(AndroidTestingRunner::class)
@@ -49,7 +48,6 @@ class ScreenRecordPermissionDialogTest : SysuiTestCase() {
     @Mock private lateinit var controller: RecordingController
     @Mock private lateinit var userContextProvider: UserContextProvider
     @Mock private lateinit var flags: FeatureFlags
-    @Mock private lateinit var dialogLaunchAnimator: DialogLaunchAnimator
     @Mock private lateinit var onStartRecordingClicked: Runnable
 
     private lateinit var dialog: ScreenRecordPermissionDialog
@@ -64,7 +62,6 @@ class ScreenRecordPermissionDialogTest : SysuiTestCase() {
                 UserHandle.of(0),
                 controller,
                 starter,
-                dialogLaunchAnimator,
                 userContextProvider,
                 onStartRecordingClicked
             )
