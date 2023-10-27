@@ -49,18 +49,19 @@ public class PixelPropsUtils {
     private static final boolean DEBUG = false;
 
     private static final Map<String, Object> propsToChangeGeneric;
-    private static final Map<String, Object> propsToChangePixel7Pro;
+    private static final Map<String, Object> propsToChangePixel8Pro;
     private static final Map<String, Object> propsToChangePixel5;
     private static final Map<String, Object> propsToChangePixelXL;
     private static final Map<String, ArrayList<String>> propsToKeep;
 
-    private static final String[] packagesToChangePixel7Pro = {
+    private static final String[] packagesToChangePixel8Pro = {
             "com.google.android.apps.privacy.wildlife",
             "com.google.android.apps.wallpaper.pixel",
             "com.google.android.apps.wallpaper",
             "com.google.android.apps.subscriptions.red",
             "com.google.pixel.livewallpaper",
             "com.google.android.wallpaper.effects",
+            "com.google.android.apps.aiwallpapers",
             "com.google.android.apps.emojiwallpaper",
             "com.google.android.apps.turbo",
             "com.google.android.gms",
@@ -98,6 +99,8 @@ public class PixelPropsUtils {
 
     // Codenames for currently supported Pixels by Google
     private static final String[] pixelCodenames = {
+            "husky",
+            "shiba",
             "felix",
             "tangorpro",
             "lynx",
@@ -108,8 +111,7 @@ public class PixelPropsUtils {
             "raven",
             "barbet",
             "redfin",
-            "bramble",
-            "sunfish"
+            "bramble"
     };
 
     private static volatile boolean sIsGms, sIsFinsky, sIsPhotos;
@@ -120,20 +122,20 @@ public class PixelPropsUtils {
         propsToChangeGeneric = new HashMap<>();
         propsToChangeGeneric.put("TYPE", "user");
         propsToChangeGeneric.put("TAGS", "release-keys");
-        propsToChangePixel7Pro = new HashMap<>();
-        propsToChangePixel7Pro.put("BRAND", "google");
-        propsToChangePixel7Pro.put("MANUFACTURER", "Google");
-        propsToChangePixel7Pro.put("DEVICE", "cheetah");
-        propsToChangePixel7Pro.put("PRODUCT", "cheetah");
-        propsToChangePixel7Pro.put("MODEL", "Pixel 7 Pro");
-        propsToChangePixel7Pro.put("FINGERPRINT", "google/cheetah/cheetah:13/TQ3A.230805.001/10316531:user/release-keys");
+        propsToChangePixel8Pro = new HashMap<>();
+        propsToChangePixel8Pro.put("BRAND", "google");
+        propsToChangePixel8Pro.put("MANUFACTURER", "Google");
+        propsToChangePixel8Pro.put("DEVICE", "husky");
+        propsToChangePixel8Pro.put("PRODUCT", "husky");
+        propsToChangePixel8Pro.put("MODEL", "Pixel 8 Pro");
+        propsToChangePixel8Pro.put("FINGERPRINT", "google/husky/husky:14/UD1A.230803.041/10808477:user/release-keys");
         propsToChangePixel5 = new HashMap<>();
         propsToChangePixel5.put("BRAND", "google");
         propsToChangePixel5.put("MANUFACTURER", "Google");
-        propsToChangePixel5.put("DEVICE", "redfin");
-        propsToChangePixel5.put("PRODUCT", "redfin");
-        propsToChangePixel5.put("MODEL", "Pixel 5");
-        propsToChangePixel5.put("FINGERPRINT", "google/redfin/redfin:13/TQ3A.230805.001/10316531:user/release-keys");
+        propsToChangePixel5.put("DEVICE", "barbet");
+        propsToChangePixel5.put("PRODUCT", "barbet");
+        propsToChangePixel5.put("MODEL", "Pixel 5a");
+        propsToChangePixel5.put("FINGERPRINT", "google/barbet/barbet:14/UP1A.231005.007/10754064:user/release-keys");
         propsToChangePixelXL = new HashMap<>();
         propsToChangePixelXL.put("BRAND", "google");
         propsToChangePixelXL.put("MANUFACTURER", "Google");
@@ -221,8 +223,8 @@ public class PixelPropsUtils {
             } else if (isPixelDevice) {
                 return;
             } else {
-                if (Arrays.asList(packagesToChangePixel7Pro).contains(packageName)) {
-                    propsToChange.putAll(propsToChangePixel7Pro);
+                if (Arrays.asList(packagesToChangePixel8Pro).contains(packageName)) {
+                    propsToChange.putAll(propsToChangePixel8Pro);
                 } else {
                     propsToChange.putAll(propsToChangePixel5);
                 }

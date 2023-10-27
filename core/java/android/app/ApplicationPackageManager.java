@@ -810,6 +810,8 @@ public class ApplicationPackageManager extends PackageManager {
             };
 
     private static final String[] pTensorCodenames = {
+            "husky",
+            "shiba",
             "felix",
             "tangorpro",
             "lynx",
@@ -838,6 +840,10 @@ public class ApplicationPackageManager extends PackageManager {
     };
 
     private static final String[] featuresTensor = {
+            "com.google.android.feature.PIXEL_2024_EXPERIENCE",
+            "com.google.android.feature.PIXEL_2024_MIDYEAR_EXPERIENCE",
+            "com.google.android.feature.PIXEL_2023_EXPERIENCE",
+            "com.google.android.feature.PIXEL_2023_MIDYEAR_EXPERIENCE",
             "com.google.android.feature.PIXEL_2022_EXPERIENCE",
             "com.google.android.feature.PIXEL_2022_MIDYEAR_EXPERIENCE",
             "com.google.android.feature.PIXEL_2021_EXPERIENCE",
