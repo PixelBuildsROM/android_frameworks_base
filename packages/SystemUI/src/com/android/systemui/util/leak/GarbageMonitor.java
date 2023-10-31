@@ -92,7 +92,7 @@ public class GarbageMonitor implements Dumpable {
     public static final boolean HEAP_TRACKING_ENABLED = Build.IS_DEBUGGABLE;
 
     // Tell QSTileHost.java to toss this into the default tileset?
-    public static final boolean ADD_MEMORY_TILE_TO_DEFAULT_ON_DEBUGGABLE_BUILDS = true;
+    public static final boolean ADD_MEMORY_TILE_TO_DEFAULT_ON_DEBUGGABLE_BUILDS = false;
 
     // whether to use ActivityManager.setHeapLimit (and post a notification to the user asking
     // to dump the heap). Off by default unless you set the appropriate sysprop on userdebug
