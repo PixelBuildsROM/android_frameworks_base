@@ -105,6 +105,7 @@ import com.android.server.SystemService;
 import com.android.server.SystemServiceManager;
 import com.android.server.pm.parsing.PackageParser2;
 import com.android.server.pm.pkg.PackageStateInternal;
+import com.android.server.pm.pkg.parsing.ParsingPackageUtils;
 import com.android.server.pm.utils.RequestThrottle;
 
 import libcore.io.IoUtils;
@@ -665,17 +666,22 @@ public class PackageInstallerService extends IPackageInstaller.Stub implements
 
         // App package name and label length is restricted so that really long strings aren't
         // written to disk.
-        if (params.appPackageName != null
-                && params.appPackageName.length() > SessionParams.MAX_PACKAGE_NAME_LENGTH) {
+        if (params.appPackageName != null && !isValidPackageName(params.appPackageName)) {
             params.appPackageName = null;
         }
 
         params.appLabel = TextUtils.trimToSize(params.appLabel,
                 PackageItemInfo.MAX_SAFE_LABEL_LENGTH);
 
-        String requestedInstallerPackageName = (params.installerPackageName != null
-                && params.installerPackageName.length() < SessionParams.MAX_PACKAGE_NAME_LENGTH)
-                ? params.installerPackageName : installerPackageName;
+        // Validate installer package name.
+        if (params.installerPackageName != null && !isValidPackageName(
+                params.installerPackageName)) {
+            params.installerPackageName = null;
+        }
+
+        String requestedInstallerPackageName =
+                params.installerPackageName != null ? params.installerPackageName
+                        : installerPackageName;
 
         if (PackageManagerServiceUtils.isRootOrShell(callingUid)
                 || PackageInstallerSession.isSystemDataLoaderInstallation(params)
@@ -1066,6 +1072,19 @@ public class PackageInstallerService extends IPackageInstaller.Stub implements
         } while (n++ < 32);
 
         throw new IllegalStateException("Failed to allocate session ID");
+    }
+
+    private static boolean isValidPackageName(@NonNull String packageName) {
+        if (packageName.length() > SessionParams.MAX_PACKAGE_NAME_LENGTH) {
+            return false;
+        }
+        // "android" is a valid package name
+        String errorMessage = ParsingPackageUtils.validateName(
+                packageName, /* requireSeparator= */ false, /* requireFilename */ true);
+        if (errorMessage != null) {
+            return false;
+        }
+        return true;
     }
 
     static boolean isStageName(String name) {
