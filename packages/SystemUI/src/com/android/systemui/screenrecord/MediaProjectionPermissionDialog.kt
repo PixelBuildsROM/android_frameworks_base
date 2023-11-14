@@ -74,12 +74,13 @@ class MediaProjectionPermissionDialog(
                     R.string.media_projection_entry_app_permission_dialog_warning_entire_screen
                 }
 
+            val singleAppOptionDisabled =
+                appName != null &&
+                    mediaProjectionConfig?.regionToCapture ==
+                        MediaProjectionConfig.CAPTURE_REGION_FIXED_DISPLAY
+
             val singleAppDisabledText =
-                if (
-                    appName != null &&
-                        mediaProjectionConfig?.regionToCapture ==
-                            MediaProjectionConfig.CAPTURE_REGION_FIXED_DISPLAY
-                ) {
+                if (singleAppOptionDisabled) {
                     context.getString(
                         R.string.media_projection_entry_app_permission_dialog_single_app_disabled,
                         appName
@@ -87,19 +88,26 @@ class MediaProjectionPermissionDialog(
                 } else {
                     null
                 }
-            return listOf(
-                ScreenShareOption(
-                    mode = SINGLE_APP,
-                    spinnerText = R.string.screen_share_permission_dialog_option_single_app,
-                    warningText = singleAppWarningText,
-                    spinnerDisabledText = singleAppDisabledText,
-                ),
-                ScreenShareOption(
-                    mode = ENTIRE_SCREEN,
-                    spinnerText = R.string.screen_share_permission_dialog_option_entire_screen,
-                    warningText = entireScreenWarningText
+            val options =
+                listOf(
+                    ScreenShareOption(
+                        mode = SINGLE_APP,
+                        spinnerText = R.string.screen_share_permission_dialog_option_single_app,
+                        warningText = singleAppWarningText,
+                        spinnerDisabledText = singleAppDisabledText,
+                    ),
+                    ScreenShareOption(
+                        mode = ENTIRE_SCREEN,
+                        spinnerText = R.string.screen_share_permission_dialog_option_entire_screen,
+                        warningText = entireScreenWarningText
+                    )
                 )
-            )
+            return if (singleAppOptionDisabled) {
+                // Make sure "Entire screen" is the first option when "Single App" is disabled.
+                options.reversed()
+            } else {
+                options
+            }
         }
     }
 }
