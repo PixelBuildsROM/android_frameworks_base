@@ -61,6 +61,7 @@ public class PixelPropsUtils {
             "com.google.android.apps.subscriptions.red",
             "com.google.pixel.livewallpaper",
             "com.google.android.wallpaper.effects",
+            "com.google.android.apps.aiwallpapers",
             "com.google.android.apps.emojiwallpaper",
             "com.google.android.apps.turbo",
             "com.google.android.gms",
