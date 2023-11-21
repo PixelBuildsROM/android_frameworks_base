@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStub
 import android.view.WindowManager
+import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ImageView
@@ -88,6 +89,19 @@ open class BaseScreenSharePermissionDialog(
         screenShareModeSpinner = requireViewById(R.id.screen_share_mode_spinner)
         screenShareModeSpinner.adapter = adapter
         screenShareModeSpinner.onItemSelectedListener = this
+
+        // disable redundant Touch & Hold accessibility action for Switch Access
+        screenShareModeSpinner.accessibilityDelegate =
+            object : View.AccessibilityDelegate() {
+                override fun onInitializeAccessibilityNodeInfo(
+                    host: View,
+                    info: AccessibilityNodeInfo
+                ) {
+                    info.removeAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_LONG_CLICK)
+                    super.onInitializeAccessibilityNodeInfo(host, info)
+                }
+            }
+        screenShareModeSpinner.isLongClickable = false
     }
 
     override fun onItemSelected(adapterView: AdapterView<*>?, view: View, pos: Int, id: Long) {
