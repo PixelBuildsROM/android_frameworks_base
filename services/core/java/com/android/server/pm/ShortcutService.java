@@ -122,6 +122,7 @@ import com.android.modules.utils.TypedXmlPullParser;
 import com.android.modules.utils.TypedXmlSerializer;
 import com.android.server.LocalServices;
 import com.android.server.SystemService;
+import com.android.server.pm.ShortcutService.Stats;
 import com.android.server.uri.UriGrantsManagerInternal;
 
 import org.json.JSONArray;
@@ -369,7 +370,7 @@ public class ShortcutService extends IShortcutService.Stub {
     private CompressFormat mIconPersistFormat;
     private int mIconPersistQuality;
 
-    private int mSaveDelayMillis;
+    int mSaveDelayMillis;
 
     private final IPackageManager mIPackageManager;
     private final PackageManagerInternal mPackageManagerInternal;
@@ -2282,7 +2283,7 @@ public class ShortcutService extends IShortcutService.Stub {
 
         packageShortcutsChanged(ps, changedShortcuts, removedShortcuts);
 
-        reportShortcutUsedInternal(packageName, shortcut.getId(), userId);
+        ps.reportShortcutUsed(mUsageStatsManagerInternal, shortcut.getId());
 
         verifyStates();
     }
@@ -2686,25 +2687,17 @@ public class ShortcutService extends IShortcutService.Stub {
             Slog.d(TAG, String.format("reportShortcutUsed: Shortcut %s package %s used on user %d",
                     shortcutId, packageName, userId));
         }
+        final ShortcutPackage ps;
         synchronized (mLock) {
             throwIfUserLockedL(userId);
-            final ShortcutPackage ps = getPackageShortcutsForPublisherLocked(packageName, userId);
+            ps = getPackageShortcutsForPublisherLocked(packageName, userId);
             if (ps.findShortcutById(shortcutId) == null) {
                 Log.w(TAG, String.format("reportShortcutUsed: package %s doesn't have shortcut %s",
                         packageName, shortcutId));
                 return;
             }
         }
-        reportShortcutUsedInternal(packageName, shortcutId, userId);
-    }
-
-    private void reportShortcutUsedInternal(String packageName, String shortcutId, int userId) {
-        final long token = injectClearCallingIdentity();
-        try {
-            mUsageStatsManagerInternal.reportShortcutUsage(packageName, shortcutId, userId);
-        } finally {
-            injectRestoreCallingIdentity(token);
-        }
+        ps.reportShortcutUsed(mUsageStatsManagerInternal, shortcutId);
     }
 
     @Override
