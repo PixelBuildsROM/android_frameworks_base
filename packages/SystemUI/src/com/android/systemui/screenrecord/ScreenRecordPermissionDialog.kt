@@ -29,6 +29,7 @@ import android.view.MotionEvent.ACTION_MOVE
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
@@ -115,6 +116,19 @@ class ScreenRecordPermissionDialog(
         options.setOnItemClickListenerInt { _: AdapterView<*>?, _: View?, _: Int, _: Long ->
             audioSwitch.isChecked = true
         }
+
+        // disable redundant Touch & Hold accessibility action for Switch Access
+        options.accessibilityDelegate =
+            object : View.AccessibilityDelegate() {
+                override fun onInitializeAccessibilityNodeInfo(
+                    host: View,
+                    info: AccessibilityNodeInfo
+                ) {
+                    info.removeAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_LONG_CLICK)
+                    super.onInitializeAccessibilityNodeInfo(host, info)
+                }
+            }
+        options.isLongClickable = false
     }
 
     override fun onItemSelected(adapterView: AdapterView<*>?, view: View, pos: Int, id: Long) {
