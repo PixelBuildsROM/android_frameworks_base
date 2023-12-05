@@ -29,6 +29,7 @@ import android.view.MotionEvent.ACTION_MOVE
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.view.ViewGroup
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -58,8 +59,10 @@ class ScreenRecordPermissionDialog(
         R.color.screenrecord_icon_color
     ) {
     private lateinit var tapsSwitch: Switch
+    private lateinit var tapsSwitchContainer: ViewGroup
     private lateinit var tapsView: View
     private lateinit var audioSwitch: Switch
+    private lateinit var audioSwitchContainer: ViewGroup
     private lateinit var options: Spinner
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,6 +103,8 @@ class ScreenRecordPermissionDialog(
     private fun initRecordOptionsView() {
         audioSwitch = requireViewById(R.id.screenrecord_audio_switch)
         tapsSwitch = requireViewById(R.id.screenrecord_taps_switch)
+        audioSwitchContainer = requireViewById(R.id.screenrecord_audio_switch_container)
+        tapsSwitchContainer = requireViewById(R.id.screenrecord_taps_switch_container)
 
         // Add these listeners so that the switch only responds to movement
         // within its target region, to meet accessibility requirements
@@ -107,6 +112,9 @@ class ScreenRecordPermissionDialog(
         tapsSwitch.setOnTouchListener { _, event -> event.action == ACTION_MOVE }
 
         tapsView = requireViewById(R.id.show_taps)
+        audioSwitchContainer.setOnClickListener { audioSwitch.toggle() }
+        tapsSwitchContainer.setOnClickListener { tapsSwitch.toggle() }
+
         updateTapsViewVisibility()
         options = requireViewById(R.id.screen_recording_options)
         val a: ArrayAdapter<*> =
