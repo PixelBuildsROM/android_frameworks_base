@@ -73,7 +73,6 @@ public class PixelPropsUtils {
             "com.android.chrome",
             "com.breel.wallpapers20",
             "com.nhs.online.nhsonline",
-            "com.netflix.mediaclient",
             "com.nothing.smartcenter"
     };
 
