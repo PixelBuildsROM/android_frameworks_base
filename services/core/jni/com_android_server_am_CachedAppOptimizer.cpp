@@ -426,6 +426,8 @@ static void compactProcessOrFallback(int pid, int compactionFlags) {
     // Set when the system does not support process_madvise syscall to avoid
     // gathering VMAs in subsequent calls prior to falling back to procfs
     static bool shouldForceProcFs = false;
+    static std::once_flag checkProcFsFlag;
+
     std::string compactionType;
     VmaToAdviseFunc vmaToAdviseFunc;
 
@@ -441,6 +443,16 @@ static void compactProcessOrFallback(int pid, int compactionFlags) {
         compactionType = "file";
         vmaToAdviseFunc = getFilePageAdvice;
     }
+
+    // check once if per-process reclaim available
+    // we don't need to carry it forward once Kernel 5.4 becomes obsolete
+    std::call_once(checkProcFsFlag, []() {
+        FILE *fp = fopen("/proc/self/reclaim", "w");
+        if (fp != NULL) {
+            fclose(fp);
+            shouldForceProcFs = true;
+        }
+    });
 
     if (shouldForceProcFs || compactProcess(pid, vmaToAdviseFunc) == -ENOSYS) {
         shouldForceProcFs = true;
