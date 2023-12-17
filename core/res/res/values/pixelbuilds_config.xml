@@ -46,4 +46,14 @@
          the sensor embedded in the power key and listening all the time
          causes a poor experience. -->
     <bool name="config_fingerprintWakeAndUnlock">true</bool>
+
+    <!-- Build properties from a GMS certified device against current platform SPL level -->
+    <string-array name="config_certifiedBuildProperties" translatable="false">
+     <!--
+       <item>"device"</item>
+       <item>"product"</item>
+       <item>"model"</item>
+       <item>"fingerprint"</item>
+     -->
+    </string-array>
 </resources>

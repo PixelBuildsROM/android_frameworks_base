@@ -24,11 +24,14 @@ import android.app.Application;
 import android.app.TaskStackListener;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
 import android.os.SystemProperties;
 import android.util.Log;
+
+import com.android.internal.R;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -47,6 +50,9 @@ public class PixelPropsUtils {
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
 
     private static final boolean DEBUG = false;
+
+    private static final String[] sCertifiedProps =
+    Resources.getSystem().getStringArray(R.array.config_certifiedBuildProperties);
 
     private static final Map<String, Object> propsToChangeGeneric;
     private static final Map<String, Object> propsToChangePixel8Pro;
@@ -154,6 +160,14 @@ public class PixelPropsUtils {
         if (packageName.equals("com.android.vending")) {
             sIsFinsky = true;
         }
+
+        // Give up if not appropriate props array
+        if (sCertifiedProps.length != 4) {
+            Log.e(TAG, "Insufficient size of the certified props array: "
+                    + sCertifiedProps.length + ", required 4");
+            return false;
+        }
+
         if (packageName.equals(PACKAGE_GMS)
                 || packageName.toLowerCase().contains("androidx.test")
                 || packageName.equalsIgnoreCase("com.google.android.apps.restore")) {
@@ -183,12 +197,10 @@ public class PixelPropsUtils {
                 if (was) return true;
 
                 dlog("Spoofing build for GMS");
-                // Alter build parameters to pixel 2 for avoiding hardware attestation enforcement
-                setBuildField("DEVICE", "walleye");
-                setBuildField("FINGERPRINT", "google/walleye/walleye:8.1.0/OPM1.171019.011/4448085:user/release-keys");
-                setBuildField("MODEL", "Pixel 2");
-                setBuildField("PRODUCT", "walleye");
-                setVersionField("DEVICE_INITIAL_SDK_INT", Build.VERSION_CODES.O);
+                setBuildField("DEVICE", sCertifiedProps[0]);
+                setBuildField("PRODUCT", sCertifiedProps[1]);
+                setBuildField("MODEL", sCertifiedProps[2]);
+                setBuildField("FINGERPRINT", sCertifiedProps[3]);
                 return true;
             }
         }
