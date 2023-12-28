@@ -2458,9 +2458,8 @@ public class PackageManagerService implements PackageSender, TestUtilityService 
             Slog.v(TAG, "Changing enabled state of " + name + " to " + enable);
             String className = cn.getClassName();
             PackageSetting pkgSetting = mSettings.mPackages.get(cn.getPackageName());
-            AndroidPackage pkg = pkgSetting.getPkg();
-            if (pkgSetting == null || pkg == null
-                    || !AndroidPackageUtils.hasComponentClassName(pkg, className)) {
+            if (pkgSetting == null || pkgSetting.getPkg() == null
+                    || !AndroidPackageUtils.hasComponentClassName(pkgSetting.getPkg(), className)) {
                 Slog.w(TAG, "Unable to change enabled state of " + name + " to " + enable);
                 continue;
             }
