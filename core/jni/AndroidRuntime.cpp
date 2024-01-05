@@ -903,6 +903,11 @@ int AndroidRuntime::startVm(JavaVM** pJavaVM, JNIEnv** pEnv, bool zygote, bool p
       addOption("-XX:LowMemoryMode");
     }
 
+    property_get("ro.config.art_lowmem", propBuf, "");
+    if (strcmp(propBuf, "true") == 0) {
+      addOption("-XX:LowMemoryMode");
+    }
+
     /*
      * Garbage-collection related options.
      */
