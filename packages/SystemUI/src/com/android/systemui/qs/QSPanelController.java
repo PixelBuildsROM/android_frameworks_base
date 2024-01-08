@@ -54,11 +54,15 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
     private final QSCustomizerController mQsCustomizerController;
     private final QSTileRevealController.Factory mQsTileRevealControllerFactory;
     private final FalsingManager mFalsingManager;
-    private final BrightnessController mBrightnessController;
-    private final BrightnessSliderController mBrightnessSliderController;
-    private final BrightnessMirrorHandler mBrightnessMirrorHandler;
+    private BrightnessController mBrightnessController;
+    private BrightnessSliderController mBrightnessSliderController;
+    private BrightnessMirrorHandler mBrightnessMirrorHandler;
     private final StatusBarKeyguardViewManager mStatusBarKeyguardViewManager;
     private boolean mListening;
+
+    private int mLastDensity;
+    private final BrightnessSliderController.Factory mBrightnessSliderControllerFactory;
+    private final BrightnessController.Factory mBrightnessControllerFactory;
 
     private View.OnTouchListener mTileLayoutTouchListener = new View.OnTouchListener() {
         @Override
@@ -87,6 +91,8 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
         mQsCustomizerController = qsCustomizerController;
         mQsTileRevealControllerFactory = qsTileRevealControllerFactory;
         mFalsingManager = falsingManager;
+        mBrightnessSliderControllerFactory = brightnessSliderFactory;
+        mBrightnessControllerFactory = brightnessControllerFactory;
 
         mBrightnessSliderController = brightnessSliderFactory.create(getContext(), mView);
         mView.setBrightnessView(mBrightnessSliderController.getRootView());
@@ -95,6 +101,7 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
                 mBrightnessSliderController.getIconView(), mBrightnessSliderController);
         mBrightnessMirrorHandler = new BrightnessMirrorHandler(mBrightnessController);
         mStatusBarKeyguardViewManager = statusBarKeyguardViewManager;
+        mLastDensity = view.getResources().getConfiguration().densityDpi;
     }
 
     @Override
@@ -140,10 +147,31 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
     @Override
     protected void onConfigurationChanged() {
         mView.updateResources();
+        int newDensity = mView.getResources().getConfiguration().densityDpi;
+        if (newDensity != mLastDensity) {
+            mLastDensity = newDensity;
+            reinflateBrightnessSlider();
+        }
+
         if (mView.isListening()) {
             refreshAllTiles();
         }
     }
+
+    private void reinflateBrightnessSlider() {
+        mBrightnessController.unregisterCallbacks();
+        mBrightnessSliderController =
+                mBrightnessSliderControllerFactory.create(getContext(), mView);
+        mView.setBrightnessView(mBrightnessSliderController.getRootView());
+        mBrightnessController = mBrightnessControllerFactory.create(
+                mBrightnessSliderController.getIconView(), mBrightnessSliderController);
+        mBrightnessMirrorHandler.setBrightnessController(mBrightnessController);
+        mBrightnessSliderController.init();
+        if (mListening) {
+            mBrightnessController.registerCallbacks();
+        }
+    }
+
 
     @Override
     protected void onSplitShadeChanged(boolean shouldUseSplitNotificationShade) {
