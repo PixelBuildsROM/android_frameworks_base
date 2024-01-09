@@ -629,6 +629,12 @@ class Owners {
         }
     }
 
+    boolean isMigratedPostUpdate() {
+        synchronized (mData) {
+            return mData.mPoliciesMigratedPostUpdate;
+        }
+    }
+
     @GuardedBy("mData")
     void pushToAppOpsLocked() {
         if (!mSystemReady) {

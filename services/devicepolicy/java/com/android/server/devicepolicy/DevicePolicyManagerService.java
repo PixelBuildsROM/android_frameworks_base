@@ -24278,6 +24278,12 @@ public class DevicePolicyManagerService extends IDevicePolicyManager.Stub {
                 migrated &= migratePoliciesPostUpgradeToDevicePolicyEngineLocked();
                 return migrated;
             }
+<<<<<<< HEAD
+=======
+            boolean migrated = migrateV1PoliciesToDevicePolicyEngine();
+            migrated &= migratePoliciesPostUpgradeToDevicePolicyEngineLocked();
+            return migrated;
+>>>>>>> 996050c7ce41 (Fix bug in screen capture and lock task migrations)
         });
     }
 
@@ -24332,6 +24338,34 @@ public class DevicePolicyManagerService extends IDevicePolicyManager.Stub {
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Migrates the initial set of policies to use policy engine.
+     * [b/318497672] Migrate policies that weren't migrated properly in the initial migration on
+     * update from Android T to Android U
+     */
+    private void maybeMigratePoliciesPostUpgradeToDevicePolicyEngineLocked() {
+        if (!mOwners.isMigratedToPolicyEngine() || mOwners.isMigratedPostUpdate()) {
+            return;
+        }
+        migratePoliciesPostUpgradeToDevicePolicyEngineLocked();
+        mOwners.markPostUpgradeMigration();
+    }
+
+    private boolean migratePoliciesPostUpgradeToDevicePolicyEngineLocked() {
+        try {
+            migrateScreenCapturePolicyLocked();
+            migrateLockTaskPolicyLocked();
+            return true;
+        } catch (Exception e) {
+            Slogf.e(LOG_TAG, e, "Error occurred during post upgrade migration to the device "
+                    + "policy engine.");
+            return false;
+        }
+    }
+
+    /**
+>>>>>>> 996050c7ce41 (Fix bug in screen capture and lock task migrations)
      * @return {@code true} if policies were migrated successfully, {@code false} otherwise.
      */
     private boolean migratePoliciesToDevicePolicyEngine() {

@@ -89,6 +89,8 @@ class OwnersData {
 
     private static final String ATTR_MIGRATED_POST_UPGRADE = "migratedPostUpgrade";
 
+    private static final String ATTR_MIGRATED_POST_UPGRADE = "migratedPostUpgrade";
+
     // Internal state for the device owner package.
     OwnerInfo mDeviceOwner;
     int mDeviceOwnerUserId = UserHandle.USER_NULL;
@@ -115,6 +117,8 @@ class OwnersData {
     private final PolicyPathProvider mPathProvider;
 
     boolean mMigratedToPolicyEngine = false;
+
+    boolean mPoliciesMigratedPostUpdate = false;
 
     boolean mPoliciesMigratedPostUpdate = false;
 
