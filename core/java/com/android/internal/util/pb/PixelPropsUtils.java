@@ -87,7 +87,8 @@ public class PixelPropsUtils {
             "com.google.android.as",
             "com.google.android.apps.restore",
             "com.google.android.apps.privacy.wildlife",
-            "com.google.android.apps.subscriptions.red"
+            "com.google.android.apps.subscriptions.red",
+            "com.google.android.apps.nexuslauncher"
     };
 
     private static final String[] customGoogleCameraPackages = {
