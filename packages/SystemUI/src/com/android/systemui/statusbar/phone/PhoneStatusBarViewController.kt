@@ -60,11 +60,8 @@ class PhoneStatusBarViewController private constructor(
     private val userChipViewModel: StatusBarUserChipViewModel,
     private val viewUtil: ViewUtil,
     private val featureFlags: FeatureFlags,
-    private val configurationController: ConfigurationController,
-    private val statusOverlayHoverListenerFactory: StatusOverlayHoverListenerFactory,
+    private val configurationController: ConfigurationController
 ) : ViewController<PhoneStatusBarView>(view) {
-
-    private lateinit var statusContainer: View
 
     private val configurationListener = object : ConfigurationController.ConfigurationListener {
         override fun onDensityOrFontScaleChanged() {
@@ -73,10 +70,6 @@ class PhoneStatusBarViewController private constructor(
     }
 
     override fun onViewAttached() {
-        statusContainer = mView.requireViewById(R.id.system_icons)
-        statusContainer.setOnHoverListener(
-            statusOverlayHoverListenerFactory.createDarkAwareListener(statusContainer))
-
         progressProvider?.setReadyToHandleTransition(true)
         configurationController.addCallback(configurationListener)
 
@@ -109,7 +102,6 @@ class PhoneStatusBarViewController private constructor(
     }
 
     override fun onViewDetached() {
-        statusContainer.setOnHoverListener(null)
         progressProvider?.setReadyToHandleTransition(false)
         moveFromCenterAnimationController?.onViewDetached()
         configurationController.removeCallback(configurationListener)
@@ -248,7 +240,6 @@ class PhoneStatusBarViewController private constructor(
         private val shadeLogger: ShadeLogger,
         private val viewUtil: ViewUtil,
         private val configurationController: ConfigurationController,
-        private val statusOverlayHoverListenerFactory: StatusOverlayHoverListenerFactory,
     ) {
         fun create(
             view: PhoneStatusBarView
@@ -272,8 +263,7 @@ class PhoneStatusBarViewController private constructor(
                 userChipViewModel,
                 viewUtil,
                 featureFlags,
-                configurationController,
-                statusOverlayHoverListenerFactory,
+                configurationController
             )
         }
     }

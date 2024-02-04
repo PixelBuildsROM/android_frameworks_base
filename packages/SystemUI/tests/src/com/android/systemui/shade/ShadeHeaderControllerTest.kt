@@ -55,7 +55,6 @@ import com.android.systemui.shade.carrier.ShadeCarrierGroupController
 import com.android.systemui.statusbar.phone.StatusBarContentInsetsProvider
 import com.android.systemui.statusbar.phone.StatusBarIconController
 import com.android.systemui.statusbar.phone.StatusIconContainer
-import com.android.systemui.statusbar.phone.StatusOverlayHoverListenerFactory
 import com.android.systemui.statusbar.policy.Clock
 import com.android.systemui.statusbar.policy.FakeConfigurationController
 import com.android.systemui.statusbar.policy.NextAlarmController
@@ -124,7 +123,6 @@ class ShadeHeaderControllerTest : SysuiTestCase() {
     @Mock private lateinit var qsBatteryModeController: QsBatteryModeController
     @Mock private lateinit var nextAlarmController: NextAlarmController
     @Mock private lateinit var activityStarter: ActivityStarter
-    @Mock private lateinit var mStatusOverlayHoverListenerFactory: StatusOverlayHoverListenerFactory
 
     @JvmField @Rule val mockitoRule = MockitoJUnit.rule()
     var viewVisibility = View.GONE
@@ -196,7 +194,6 @@ class ShadeHeaderControllerTest : SysuiTestCase() {
                 qsBatteryModeController,
                 nextAlarmController,
                 activityStarter,
-                mStatusOverlayHoverListenerFactory
             )
         whenever(view.isAttachedToWindow).thenReturn(true)
         shadeHeaderController.init()

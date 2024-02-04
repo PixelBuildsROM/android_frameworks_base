@@ -69,8 +69,6 @@ class PhoneStatusBarViewControllerTest : SysuiTestCase() {
     @Mock
     private lateinit var configurationController: ConfigurationController
     @Mock
-    private lateinit var mStatusOverlayHoverListenerFactory: StatusOverlayHoverListenerFactory
-    @Mock
     private lateinit var userChipViewModel: StatusBarUserChipViewModel
     @Mock
     private lateinit var centralSurfacesImpl: CentralSurfacesImpl
@@ -221,8 +219,7 @@ class PhoneStatusBarViewControllerTest : SysuiTestCase() {
             windowRootView,
             shadeLogger,
             viewUtil,
-            configurationController,
-            mStatusOverlayHoverListenerFactory
+            configurationController
         ).create(view).also {
             it.init()
         }

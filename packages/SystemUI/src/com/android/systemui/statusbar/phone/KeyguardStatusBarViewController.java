@@ -69,14 +69,14 @@ import com.android.systemui.user.ui.viewmodel.StatusBarUserChipViewModel;
 import com.android.systemui.util.ViewController;
 import com.android.systemui.util.settings.SecureSettings;
 
+import kotlin.Unit;
+
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
-
-import kotlin.Unit;
 
 /** View Controller for {@link com.android.systemui.statusbar.phone.KeyguardStatusBarView}. */
 public class KeyguardStatusBarViewController extends ViewController<KeyguardStatusBarView> {
@@ -118,9 +118,6 @@ public class KeyguardStatusBarViewController extends ViewController<KeyguardStat
     private final Executor mMainExecutor;
     private final Object mLock = new Object();
     private final KeyguardLogger mLogger;
-
-    private View mSystemIconsContainer;
-    private final StatusOverlayHoverListenerFactory mStatusOverlayHoverListenerFactory;
 
     // TODO(b/273443374): remove
     private NotificationMediaManager mNotificationMediaManager;
@@ -289,8 +286,7 @@ public class KeyguardStatusBarViewController extends ViewController<KeyguardStat
             CommandQueue commandQueue,
             @Main Executor mainExecutor,
             KeyguardLogger logger,
-            NotificationMediaManager notificationMediaManager,
-            StatusOverlayHoverListenerFactory statusOverlayHoverListenerFactory
+            NotificationMediaManager notificationMediaManager
     ) {
         super(view);
         mCarrierTextController = carrierTextController;
@@ -343,7 +339,6 @@ public class KeyguardStatusBarViewController extends ViewController<KeyguardStat
                 this::updateViewState
         );
         mNotificationMediaManager = notificationMediaManager;
-        mStatusOverlayHoverListenerFactory = statusOverlayHoverListenerFactory;
     }
 
     @Override
@@ -368,10 +363,6 @@ public class KeyguardStatusBarViewController extends ViewController<KeyguardStat
             mTintedIconManager.setBlockList(getBlockedIcons());
             mStatusBarIconController.addIconGroup(mTintedIconManager);
         }
-        mSystemIconsContainer = mView.findViewById(R.id.system_icons);
-        StatusOverlayHoverListener hoverListener = mStatusOverlayHoverListenerFactory
-                .createDarkAwareListener(mSystemIconsContainer, mView.darkChangeFlow());
-        mSystemIconsContainer.setOnHoverListener(hoverListener);
         mView.setOnApplyWindowInsetsListener(
                 (view, windowInsets) -> mView.updateWindowInsets(windowInsets, mInsetsProvider));
         mSecureSettings.registerContentObserverForUser(
@@ -385,7 +376,6 @@ public class KeyguardStatusBarViewController extends ViewController<KeyguardStat
 
     @Override
     protected void onViewDetached() {
-        mSystemIconsContainer.setOnHoverListener(null);
         mConfigurationController.removeCallback(mConfigurationListener);
         mAnimationScheduler.removeCallback(mAnimationCallback);
         mUserInfoController.removeCallback(mOnUserInfoChangedListener);
