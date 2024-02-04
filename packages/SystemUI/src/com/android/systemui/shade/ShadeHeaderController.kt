@@ -61,7 +61,6 @@ import com.android.systemui.statusbar.phone.StatusBarContentInsetsProvider
 import com.android.systemui.statusbar.phone.StatusBarIconController
 import com.android.systemui.statusbar.phone.StatusBarLocation
 import com.android.systemui.statusbar.phone.StatusIconContainer
-import com.android.systemui.statusbar.phone.StatusOverlayHoverListenerFactory
 import com.android.systemui.statusbar.policy.Clock
 import com.android.systemui.statusbar.policy.ConfigurationController
 import com.android.systemui.statusbar.policy.NextAlarmController
@@ -100,7 +99,6 @@ constructor(
     private val qsBatteryModeController: QsBatteryModeController,
     private val nextAlarmController: NextAlarmController,
     private val activityStarter: ActivityStarter,
-    private val statusOverlayHoverListenerFactory: StatusOverlayHoverListenerFactory,
 ) : ViewController<View>(header), Dumpable {
 
     companion object {
@@ -335,9 +333,6 @@ constructor(
         demoModeController.addCallback(demoModeReceiver)
         statusBarIconController.addIconGroup(iconManager)
         nextAlarmController.addCallback(nextAlarmCallback)
-        systemIcons.setOnHoverListener(
-            statusOverlayHoverListenerFactory.createListener(systemIcons)
-        )
     }
 
     override fun onViewDetached() {
@@ -348,7 +343,6 @@ constructor(
         demoModeController.removeCallback(demoModeReceiver)
         statusBarIconController.removeIconGroup(iconManager)
         nextAlarmController.removeCallback(nextAlarmCallback)
-        systemIcons.setOnHoverListener(null)
     }
 
     fun disable(state1: Int, state2: Int, animate: Boolean) {
