@@ -46,6 +46,7 @@ public class PixelPropsUtils {
     private static final String DEVICE = "ro.build.version.device";
 
     private static final String PACKAGE_GMS = "com.google.android.gms";
+    private static final String PACKAGE_AIAI = "com.google.android.apps.miphone.aiai.AiaiApplication";
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
 
@@ -81,6 +82,7 @@ public class PixelPropsUtils {
     };
 
     private static final String[] packagesToKeep = {
+            PACKAGE_AIAI,
             "com.google.android.dialer",
             "com.google.android.euicc",
             "com.google.ar.core",
