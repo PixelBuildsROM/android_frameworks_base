@@ -15,5 +15,10 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_quick_settings_sync_off">Tắt đồng bộ</string>
+    <string name="accessibility_quick_settings_sync_on">Bật đồng bộ</string>
+    <string name="accessibility_quick_settings_sync_changed_off">Đồng bộ tắt</string>
+    <string name="accessibility_quick_settings_sync_changed_on">Đồng bộ bật</string>
     <string name="quick_settings_aod_label">AOD</string>
+    <string name="quick_settings_aod_off_powersave_label">AOD tắt\nTiết kiệm pin</string>
 </resources>

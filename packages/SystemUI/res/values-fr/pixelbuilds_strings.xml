@@ -15,5 +15,9 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="quick_settings_caffeine_label">Caféine </string>
+    <string name="accessibility_quick_settings_caffeine_off">Arrêt de la caféine</string>
+    <string name="accessibility_quick_settings_caffeine_on">Caféine activée</string>
+    <string name="quick_settings_heads_up_label">La tête haute</string>
     <string name="quick_settings_aod_label">AOD</string>
 </resources>

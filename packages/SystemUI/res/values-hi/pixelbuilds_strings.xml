@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2021 The PixelDust Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="quick_settings_caffeine_label">कैफीन</string>
+    <string name="accessibility_quick_settings_caffeine_off">कैफीन मोड बंद</string>
+    <string name="accessibility_quick_settings_caffeine_on">कैफीन मोड चालू</string>
+    <string name="quick_settings_heads_up_label">हेड्स अप</string>
+    <string name="accessibility_quick_settings_heads_up_off">हेड्स अप बैंड</string>
+    <string name="accessibility_quick_settings_heads_up_on">हेड्स अप चालू</string>
+    <string name="accessibility_quick_settings_heads_up_changed_off">हेड्स अप बंद है</string>
+    <string name="accessibility_quick_settings_heads_up_changed_on">हेड्स अप चालू है</string>
+    <string name="quick_settings_sync_label">सिंक</string>
+    <string name="accessibility_quick_settings_sync_off">सिंक बंद</string>
+    <string name="accessibility_quick_settings_sync_on">सिंक चालू</string>
+    <string name="accessibility_quick_settings_sync_changed_off">सिंक बंद है</string>
+    <string name="accessibility_quick_settings_sync_changed_on">सिंक चालू है</string>
+    <string name="quick_settings_aod_label">AOD</string>
+    <string name="quick_settings_aod_off_powersave_label">AOD बंद\n बैटरी सेवर</string>
+</resources>

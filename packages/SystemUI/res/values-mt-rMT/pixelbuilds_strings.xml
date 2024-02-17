@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2021 The PixelDust Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Text to use when the number in a notification info is too large
+         (greater than status_bar_notification_info_maxnum, defined in
+         values/config.xml) and must be truncated.
+         [CHAR LIMIT=4] -->
+    <!-- QS Tiles -->
+    <!-- Caffeine tile -->
+    <string name="quick_settings_caffeine_label">Caffeine</string>
+    <string name="accessibility_quick_settings_caffeine_off">Caffeine mitfi</string>
+    <string name="accessibility_quick_settings_caffeine_on">Caffeine mixgħul</string>
+    <!-- Heads Up QS Tile -->
+    <string name="quick_settings_heads_up_label">Heads up</string>
+    <string name="accessibility_quick_settings_heads_up_off">Heads up mitfi.</string>
+    <string name="accessibility_quick_settings_heads_up_on">Heads up mixgħul.</string>
+    <string name="accessibility_quick_settings_heads_up_changed_off">Heads up intfiet.</string>
+    <string name="accessibility_quick_settings_heads_up_changed_on">Heads up inxtegħel.</string>
+    <!-- Sync QS Tile -->
+    <string name="quick_settings_sync_label">Sinkronizza</string>
+    <string name="accessibility_quick_settings_sync_off">Sinkronizzazzjoni mitfi</string>
+    <string name="accessibility_quick_settings_sync_on">Sinkronizzazzjoni mixgħul</string>
+    <string name="accessibility_quick_settings_sync_changed_off">Sinkronizzazzjoni mitfija</string>
+    <string name="accessibility_quick_settings_sync_changed_on">Sinkronizzazzjoni mixgħula</string>
+    <!-- AOD QS tile -->
+    <string name="quick_settings_aod_label">AOD</string>
+    <string name="quick_settings_aod_off_powersave_label">AOD mitfi\nBattery saver</string>
+</resources>
