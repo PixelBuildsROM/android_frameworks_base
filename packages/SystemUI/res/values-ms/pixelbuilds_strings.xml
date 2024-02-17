@@ -15,5 +15,19 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="quick_settings_caffeine_label">Kafein</string>
+    <string name="accessibility_quick_settings_caffeine_off">Tutup Kafein</string>
+    <string name="accessibility_quick_settings_caffeine_on">Buka Kafein</string>
+    <string name="quick_settings_heads_up_label">Heads up</string>
+    <string name="accessibility_quick_settings_heads_up_off">Buka Heads up.</string>
+    <string name="accessibility_quick_settings_heads_up_on">Tutup Heads up.</string>
+    <string name="accessibility_quick_settings_heads_up_changed_off">Heads up ditutup.</string>
+    <string name="accessibility_quick_settings_heads_up_changed_on">Heads up dibuka.</string>
+    <string name="quick_settings_sync_label">Sync</string>
+    <string name="accessibility_quick_settings_sync_off">Tutup Sync</string>
+    <string name="accessibility_quick_settings_sync_on">Buka Sync</string>
+    <string name="accessibility_quick_settings_sync_changed_off">Sync ditutup</string>
+    <string name="accessibility_quick_settings_sync_changed_on">Sync dibuka</string>
     <string name="quick_settings_aod_label">AOD</string>
+    <string name="quick_settings_aod_off_powersave_label">AOD ditutup\nPenjimat bateri</string>
 </resources>

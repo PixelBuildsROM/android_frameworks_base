@@ -19,4 +19,15 @@
     <string name="accessibility_quick_settings_caffeine_off">Кафеін выкл</string>
     <string name="accessibility_quick_settings_caffeine_on">Кафеін вкл</string>
     <string name="quick_settings_heads_up_label">Усплыв паведамленні</string>
+    <string name="accessibility_quick_settings_heads_up_off">Усплываючыя апавяшчэнні адкл.</string>
+    <string name="accessibility_quick_settings_heads_up_on">Усплываючыя апавяшчэнні ўкл.</string>
+    <string name="accessibility_quick_settings_heads_up_changed_off">Усплывальныя апавяшчэнні адключаны.</string>
+    <string name="accessibility_quick_settings_heads_up_changed_on">Усплывальныя апавяшчэнні актываваны.</string>
+    <string name="quick_settings_sync_label">Сінхранізацыя</string>
+    <string name="accessibility_quick_settings_sync_off">Сінхранізацыя адкл</string>
+    <string name="accessibility_quick_settings_sync_on">Сінхранізацыя ўкл</string>
+    <string name="accessibility_quick_settings_sync_changed_off">Сінхранізацыя адключана</string>
+    <string name="accessibility_quick_settings_sync_changed_on">Сінхранізацыя ўключана</string>
+    <string name="quick_settings_aod_label">Актыўны дысплей</string>
+    <string name="quick_settings_aod_off_powersave_label">Актыўны экран адкл.\nЭканомія батарэі</string>
 </resources>
