@@ -16,6 +16,24 @@
       "message": "Squash into the previous commit",
       "revId": "c5e286fa667229f38c97473694a190cdb9c03378",
       "serverId": "54889931-03f6-4e00-8ab8-119c55947771"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24390dfc_66a88be3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000013
+      },
+      "writtenOn": "2024-02-20T13:36:38Z",
+      "side": 1,
+      "message": "Done, squashed into previous commit :)",
+      "parentUuid": "89420eeb_9c570bf0",
+      "revId": "c5e286fa667229f38c97473694a190cdb9c03378",
+      "serverId": "54889931-03f6-4e00-8ab8-119c55947771"
     }
   ]
 }
