@@ -619,6 +619,7 @@ public class FrameworkServicesModule {
 
     @Provides
     @Singleton
+    @Nullable
     static CarrierConfigManager provideCarrierConfigManager(Context context) {
         return context.getSystemService(CarrierConfigManager.class);
     }
