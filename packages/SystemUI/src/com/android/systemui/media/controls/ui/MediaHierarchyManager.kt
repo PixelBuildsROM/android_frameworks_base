@@ -602,6 +602,13 @@ constructor(
         mediaCarouselController.closeGuts()
     }
 
+    /** Return true if the carousel should be hidden because lockscreen is currently visible */
+    fun isLockedAndHidden(): Boolean {
+        return !notifLockscreenUserManager.shouldShowLockscreenNotifications() &&
+                (statusbarState == StatusBarState.SHADE_LOCKED ||
+                        statusbarState == StatusBarState.KEYGUARD)
+    }
+
     private fun createUniqueObjectHost(): UniqueObjectHostView {
         val viewHost = UniqueObjectHostView(context)
         viewHost.addOnAttachStateChangeListener(
@@ -1184,6 +1191,7 @@ constructor(
         val mediaVisible = qsExpanded || hasActiveMediaOrRecommendation
         mediaCarouselController.mediaCarouselScrollHandler.visibleToUser =
             shadeVisible && mediaVisible
+        mediaCarouselController.updateHostVisibility()
     }
 
     private fun isLockScreenVisibleToUser(): Boolean {

@@ -46,6 +46,7 @@ import com.android.systemui.util.settings.FakeSettings
 import com.android.systemui.utils.os.FakeHandler
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertNotNull
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -123,6 +124,7 @@ class MediaHierarchyManagerTest : SysuiTestCase() {
             )
         verify(wakefulnessLifecycle).addObserver(wakefullnessObserver.capture())
         verify(statusBarStateController).addCallback(statusBarCallback.capture())
+        `when`(mediaCarouselController.updateHostVisibility).thenReturn({})
         verify(dreamOverlayStateController).addCallback(dreamOverlayCallback.capture())
         setupHost(lockHost, MediaHierarchyManager.LOCATION_LOCKSCREEN, LOCKSCREEN_TOP)
         setupHost(qsHost, MediaHierarchyManager.LOCATION_QS, QS_TOP)
@@ -365,6 +367,34 @@ class MediaHierarchyManagerTest : SysuiTestCase() {
         mediaHierarchyManager.closeGuts()
 
         verify(mediaCarouselController).closeGuts()
+    }
+
+    @Test
+    fun keyguardState_allowedOnLockscreen_updateVisibility() {
+        `when`(notificationLockscreenUserManager.shouldShowLockscreenNotifications())
+                .thenReturn(true)
+        statusBarCallback.value.onStatePreChange(StatusBarState.SHADE, StatusBarState.KEYGUARD)
+        statusBarCallback.value.onStateChanged(StatusBarState.KEYGUARD)
+        verify(mediaCarouselController).updateHostVisibility
+        assertThat(mediaHiearchyManager.isLockedAndHidden()).isFalse()
+    }
+    @Test
+    fun keyguardState_notAllowedOnLockscreen_updateVisibility() {
+        `when`(notificationLockscreenUserManager.shouldShowLockscreenNotifications())
+                .thenReturn(false)
+        statusBarCallback.value.onStatePreChange(StatusBarState.SHADE, StatusBarState.KEYGUARD)
+        statusBarCallback.value.onStateChanged(StatusBarState.KEYGUARD)
+        verify(mediaCarouselController).updateHostVisibility
+        assertThat(mediaHiearchyManager.isLockedAndHidden()).isTrue()
+    }
+    @Test
+    fun keyguardGone_updateVisibility() {
+        `when`(notificationLockscreenUserManager.shouldShowLockscreenNotifications())
+                .thenReturn(false)
+        statusBarCallback.value.onStatePreChange(StatusBarState.KEYGUARD, StatusBarState.SHADE)
+        statusBarCallback.value.onStateChanged(StatusBarState.SHADE)
+        verify(mediaCarouselController).updateHostVisibility
+        assertThat(mediaHiearchyManager.isLockedAndHidden()).isFalse()
     }
 
     @Test
