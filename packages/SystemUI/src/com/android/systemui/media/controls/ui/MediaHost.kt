@@ -198,12 +198,13 @@ constructor(
      * the visibility has changed
      */
     fun updateViewVisibility() {
-        state.visible =
-            if (showsOnlyActiveMedia) {
-                mediaDataManager.hasActiveMediaOrRecommendation()
-            } else {
-                mediaDataManager.hasAnyMediaOrRecommendation()
-            }
+        state.visible = if (mediaHierarchyManager.isLockedAndHidden()) {
+            false
+        } else if (showsOnlyActiveMedia) {
+            mediaDataManager.hasActiveMediaOrRecommendation()
+        } else {
+            mediaDataManager.hasAnyMediaOrRecommendation()
+        }
         val newVisibility = if (visible) View.VISIBLE else View.GONE
         if (newVisibility != hostView.visibility) {
             hostView.visibility = newVisibility

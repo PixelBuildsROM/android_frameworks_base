@@ -49,6 +49,7 @@ import com.android.systemui.statusbar.CrossFadeHelper
 import com.android.systemui.statusbar.StatusBarState
 import com.android.systemui.statusbar.SysuiStatusBarStateController
 import com.android.systemui.statusbar.notification.stack.StackStateAnimator
+import com.android.systemui.statusbar.NotificationLockscreenUserManager
 import com.android.systemui.statusbar.phone.KeyguardBypassController
 import com.android.systemui.statusbar.policy.ConfigurationController
 import com.android.systemui.statusbar.policy.KeyguardStateController
@@ -96,6 +97,7 @@ constructor(
     private val mediaManager: MediaDataManager,
     private val keyguardViewController: KeyguardViewController,
     private val dreamOverlayStateController: DreamOverlayStateController,
+    private val notifLockscreenUserManager: NotificationLockscreenUserManager,
     configurationController: ConfigurationController,
     wakefulnessLifecycle: WakefulnessLifecycle,
     panelEventsEvents: ShadeStateEvents,
@@ -600,6 +602,13 @@ constructor(
     /** Close the guts in all players in [MediaCarouselController]. */
     fun closeGuts() {
         mediaCarouselController.closeGuts()
+    }
+
+    /** Return true if the carousel should be hidden because lockscreen is currently visible */
+    fun isLockedAndHidden(): Boolean {
+        return !notifLockscreenUserManager.shouldShowLockscreenNotifications() &&
+                (statusbarState == StatusBarState.SHADE_LOCKED ||
+                        statusbarState == StatusBarState.KEYGUARD)
     }
 
     private fun createUniqueObjectHost(): UniqueObjectHostView {
@@ -1184,6 +1193,7 @@ constructor(
         val mediaVisible = qsExpanded || hasActiveMediaOrRecommendation
         mediaCarouselController.mediaCarouselScrollHandler.visibleToUser =
             shadeVisible && mediaVisible
+        mediaCarouselController.updateHostVisibility()
     }
 
     private fun isLockScreenVisibleToUser(): Boolean {
