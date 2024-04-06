@@ -168,9 +168,9 @@ public class PixelPropsUtils {
         }
 
         // Give up if not appropriate props array
-        if (sCertifiedProps.length != 4) {
+        if (sCertifiedProps.length != 7) {
             Log.e(TAG, "Insufficient size of the certified props array: "
-                    + sCertifiedProps.length + ", required 4");
+                    + sCertifiedProps.length + ", required 7");
             return false;
         }
 
@@ -203,10 +203,13 @@ public class PixelPropsUtils {
                 if (was) return true;
 
                 dlog("Spoofing build for GMS");
-                setBuildField("DEVICE", sCertifiedProps[0]);
-                setBuildField("PRODUCT", sCertifiedProps[1]);
-                setBuildField("MODEL", sCertifiedProps[2]);
-                setBuildField("FINGERPRINT", sCertifiedProps[3]);
+                setBuildField("BRAND", sCertifiedProps[0]);
+                setBuildField("MANUFACTURER", sCertifiedProps[1]);
+                setBuildField("DEVICE", sCertifiedProps[2]);
+                setBuildField("PRODUCT", sCertifiedProps[3]);
+                setBuildField("MODEL", sCertifiedProps[4]);
+                setBuildField("ID", sCertifiedProps[5]);
+                setBuildField("FINGERPRINT", sCertifiedProps[6]);
                 return true;
             }
         }
