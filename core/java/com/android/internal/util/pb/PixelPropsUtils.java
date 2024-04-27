@@ -71,6 +71,7 @@ public class PixelPropsUtils {
             "com.google.android.apps.turbo",
             "com.google.android.gms",
             "com.google.android.inputmethod.latin",
+            "com.google.android.googlequicksearchbox",
             "com.google.android.setupwizard"
     };
 
