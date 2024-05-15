@@ -679,7 +679,7 @@ public class PackageInstallerService extends IPackageInstaller.Stub implements
             params.installerPackageName = null;
         }
 
-        String requestedInstallerPackageName =
+        var requestedInstallerPackageName =
                 params.installerPackageName != null ? params.installerPackageName
                         : installerPackageName;
 
@@ -1079,7 +1079,7 @@ public class PackageInstallerService extends IPackageInstaller.Stub implements
             return false;
         }
         // "android" is a valid package name
-        String errorMessage = FrameworkParsingPackageUtils.validateName(
+        var errorMessage = FrameworkParsingPackageUtils.validateName(
                 packageName, /* requireSeparator= */ false, /* requireFilename */ true);
         if (errorMessage != null) {
             return false;
