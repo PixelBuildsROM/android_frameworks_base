@@ -1415,7 +1415,7 @@ public class ClipboardService extends SystemService {
                                 .getDrawable(R.drawable.ic_safety_protection);
                         toastToShow = Toast.makeCustomToastWithIcon(toastContext,
                                 UiThread.get().getLooper(), message,
-                                Toast.LENGTH_SHORT, safetyProtectionIcon);
+                                Toast.LENGTH_LONG, safetyProtectionIcon);
                     } else {
                         toastToShow = Toast.makeText(
                                 toastContext, UiThread.get().getLooper(), message,

@@ -30,6 +30,7 @@ import static com.android.systemui.theme.ThemeOverlayApplier.OVERLAY_COLOR_INDEX
 import static com.android.systemui.theme.ThemeOverlayApplier.OVERLAY_COLOR_SOURCE;
 import static com.android.systemui.theme.ThemeOverlayApplier.TIMESTAMP_FIELD;
 
+import android.app.ActivityManager;
 import android.app.UiModeManager;
 import android.app.WallpaperColors;
 import android.app.WallpaperManager;
@@ -142,6 +143,7 @@ public class ThemeOverlayController implements CoreStartable, Dumpable, TunerSer
     // Current wallpaper colors associated to a user.
     private final SparseArray<WallpaperColors> mCurrentColors = new SparseArray<>();
     private final WallpaperManager mWallpaperManager;
+    private final ActivityManager mActivityManager;
     @VisibleForTesting
     protected ColorScheme mColorScheme;
     // If fabricated overlays were already created for the current theme.
@@ -405,7 +407,8 @@ public class ThemeOverlayController implements CoreStartable, Dumpable, TunerSer
             WakefulnessLifecycle wakefulnessLifecycle,
             UiModeManager uiModeManager,
             ConfigurationController configurationController,
-            TunerService tunerService) {
+            TunerService tunerService,
+            ActivityManager activityManager) {
         mContext = context;
         mIsMonochromaticEnabled = featureFlags.isEnabled(Flags.MONOCHROMATIC_THEME);
         mIsMonetEnabled = featureFlags.isEnabled(Flags.MONET);
@@ -425,6 +428,7 @@ public class ThemeOverlayController implements CoreStartable, Dumpable, TunerSer
         mUiModeManager = uiModeManager;
         mConfigurationController = configurationController;
         mTunerService = tunerService;
+        mActivityManager = activityManager;
         dumpManager.registerDumpable(TAG, this);
     }
 
@@ -786,6 +790,17 @@ public class ThemeOverlayController implements CoreStartable, Dumpable, TunerSer
             }
         }
 
+        final Runnable onCompleteCallback = () -> {
+            Log.d(TAG, "ThemeHomeDelay: ThemeOverlayController ready");
+            mActivityManager.setThemeOverlayReady(currentUser);
+        };
+
+        if (colorSchemeIsApplied(managedProfiles)) {
+            Log.d(TAG, "Skipping overlay creation. Theme was already: " + mColorScheme);
+            onCompleteCallback.run();
+            return;
+        }
+
         if (DEBUG) {
             Log.d(TAG, "Applying overlays: " + categoryToPackage.keySet().stream()
                     .map(key -> key + " -> " + categoryToPackage.get(key)).collect(
@@ -797,18 +812,21 @@ public class ThemeOverlayController implements CoreStartable, Dumpable, TunerSer
         boolean isBlackTheme = isBlackThemeEnabled() && nightMode;
 
         mThemeManager.setIsBlackTheme(isBlackTheme);
+        
+        FabricatedOverlay[] fOverlays = null;
 
         if (mNeedsOverlayCreation) {
             mNeedsOverlayCreation = false;
-            mThemeManager.applyCurrentUserOverlays(categoryToPackage, new FabricatedOverlay[]{
+            fOverlays = new FabricatedOverlay[]{
                     mSecondaryOverlay, mNeutralOverlay, mDynamicOverlay
-            }, currentUser, managedProfiles);
-        } else {
-            mThemeManager.applyCurrentUserOverlays(categoryToPackage, null, currentUser,
-                    managedProfiles);
+            };
         }
 
+        mThemeManager.applyCurrentUserOverlays(categoryToPackage, fOverlays, currentUser,
+                managedProfiles, onCompleteCallback);
+
         mThemeManager.applyBlackTheme(isBlackTheme);
+
     }
 
     private Style fetchThemeStyleFromSetting() {
