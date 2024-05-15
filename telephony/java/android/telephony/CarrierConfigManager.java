@@ -3141,6 +3141,15 @@ public class CarrierConfigManager {
     public static final String KEY_ROAMING_OPERATOR_STRING_ARRAY = "roaming_operator_string_array";
 
     /**
+     * Config to show the roaming indicator (i.e. the "R" icon) from the status bar when roaming.
+     * The roaming indicator will be shown if this is {@code true} and will not be shown if this is
+     * {@code false}.
+     *
+     * @hide
+     */
+    public static final String KEY_SHOW_ROAMING_INDICATOR_BOOL = "show_roaming_indicator_bool";
+
+    /**
      * URL from which the proto containing the public key of the Carrier used for
      * IMSI encryption will be downloaded.
      * @hide
@@ -3306,11 +3315,11 @@ public class CarrierConfigManager {
      * If {@code false} the SPN display checks if the current MCC/MNC is different from the
      * SIM card's MCC/MNC.
      *
-     * @see KEY_GSM_ROAMING_NETWORKS_STRING_ARRAY
-     * @see KEY_GSM_NONROAMING_NETWORKS_STRING_ARRAY
-     * @see KEY_NON_ROAMING_OPERATOR_STRING_ARRAY
-     * @see KEY_ROAMING_OPERATOR_STRING_ARRAY
-     * @see KEY_FORCE_HOME_NETWORK_BOOL
+     * @see #KEY_GSM_ROAMING_NETWORKS_STRING_ARRAY
+     * @see #KEY_GSM_NONROAMING_NETWORKS_STRING_ARRAY
+     * @see #KEY_NON_ROAMING_OPERATOR_STRING_ARRAY
+     * @see #KEY_ROAMING_OPERATOR_STRING_ARRAY
+     * @see #KEY_FORCE_HOME_NETWORK_BOOL
      *
      * @hide
      */
@@ -3334,10 +3343,40 @@ public class CarrierConfigManager {
     /**
      * Determines whether we should show a notification when the phone established a data
      * connection in roaming network, to warn users about possible roaming charges.
+     *
+     * @see #KEY_DATA_CONNECTED_ROAMING_NOTIFICATION_EXCLUDED_MCCS_STRING_ARRAY
+     * @see #KEY_DATA_CONNECTED_ROAMING_NOTIFICATION_INCLUDED_MCC_MNCS_STRING_ARRAY
      * @hide
      */
     public static final String KEY_SHOW_DATA_CONNECTED_ROAMING_NOTIFICATION_BOOL =
             "show_data_connected_roaming_notification";
+
+    /**
+     * Determines what MCCs are exceptions for the value of
+     * {@link #KEY_SHOW_DATA_CONNECTED_ROAMING_NOTIFICATION_BOOL}.
+     * An empty list indicates that there are no exceptions.
+     *
+     * @see #KEY_SHOW_DATA_CONNECTED_ROAMING_NOTIFICATION_BOOL
+     * @see #KEY_DATA_CONNECTED_ROAMING_NOTIFICATION_INCLUDED_MCC_MNCS_STRING_ARRAY
+     * @hide
+     */
+    public static final String
+            KEY_DATA_CONNECTED_ROAMING_NOTIFICATION_EXCLUDED_MCCS_STRING_ARRAY =
+            "data_connected_roaming_notification_excluded_mccs_string_array";
+
+    /**
+     * Determines what MCC+MNCs are exceptions for the MCCs specified in
+     * {@link #KEY_DATA_CONNECTED_ROAMING_NOTIFICATION_EXCLUDED_MCCS_STRING_ARRAY}, meaning the
+     * value for the MCC+MNC is {@link #KEY_SHOW_DATA_CONNECTED_ROAMING_NOTIFICATION_BOOL}.
+     * An empty list indicates that there are no MNC-specific exceptions.
+     *
+     * @see #KEY_SHOW_DATA_CONNECTED_ROAMING_NOTIFICATION_BOOL
+     * @see #KEY_DATA_CONNECTED_ROAMING_NOTIFICATION_EXCLUDED_MCCS_STRING_ARRAY
+     * @hide
+     */
+    public static final String
+            KEY_DATA_CONNECTED_ROAMING_NOTIFICATION_INCLUDED_MCC_MNCS_STRING_ARRAY =
+            "data_connected_roaming_notification_included_mcc_mncs_string_array";
 
     /**
      * A list of 4 LTE RSRP thresholds above which a signal level is considered POOR,
@@ -10168,6 +10207,7 @@ public class CarrierConfigManager {
                 false);
         sDefaults.putStringArray(KEY_NON_ROAMING_OPERATOR_STRING_ARRAY, null);
         sDefaults.putStringArray(KEY_ROAMING_OPERATOR_STRING_ARRAY, null);
+        sDefaults.putBoolean(KEY_SHOW_ROAMING_INDICATOR_BOOL, true);
         sDefaults.putBoolean(KEY_SHOW_IMS_REGISTRATION_STATUS_BOOL, false);
         sDefaults.putBoolean(KEY_RTT_SUPPORTED_BOOL, false);
         sDefaults.putBoolean(KEY_TTY_SUPPORTED_BOOL, true);
@@ -10204,6 +10244,11 @@ public class CarrierConfigManager {
         sDefaults.putBoolean(KEY_CARRIER_CONFIG_APPLIED_BOOL, false);
         sDefaults.putBoolean(KEY_CHECK_PRICING_WITH_CARRIER_FOR_DATA_ROAMING_BOOL, false);
         sDefaults.putBoolean(KEY_SHOW_DATA_CONNECTED_ROAMING_NOTIFICATION_BOOL, false);
+        sDefaults.putStringArray(KEY_DATA_CONNECTED_ROAMING_NOTIFICATION_EXCLUDED_MCCS_STRING_ARRAY,
+                new String[0]);
+        sDefaults.putStringArray(
+                KEY_DATA_CONNECTED_ROAMING_NOTIFICATION_INCLUDED_MCC_MNCS_STRING_ARRAY,
+                new String[0]);
         sDefaults.putIntArray(KEY_LTE_RSRP_THRESHOLDS_INT_ARRAY,
                 // Boundaries: [-140 dBm, -44 dBm]
                 new int[] {
