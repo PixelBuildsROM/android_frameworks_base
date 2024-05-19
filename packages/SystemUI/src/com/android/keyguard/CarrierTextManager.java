@@ -206,9 +206,6 @@ public class CarrierTextManager {
                 // This will set/remove the listeners appropriately. Note that it will never double
                 // add the listeners.
                 handleSetListening(mCarrierTextCallback);
-                mainExecutor.execute(() -> {
-                    mKeyguardUpdateMonitor.registerCallback(mCallback);
-                });
             }
         });
     }
@@ -276,6 +273,7 @@ public class CarrierTextManager {
             if (mNetworkSupported.get()) {
                 // Keyguard update monitor expects callbacks from main thread
                 mMainExecutor.execute(() -> {
+                    mKeyguardUpdateMonitor.registerCallback(mCallback);
                     mWakefulnessLifecycle.addObserver(mWakefulnessObserver);
                 });
                 mTelephonyListenerManager.addActiveDataSubscriptionIdListener(mPhoneStateListener);
@@ -288,6 +286,7 @@ public class CarrierTextManager {
         } else {
             mCarrierTextCallback = null;
             mMainExecutor.execute(() -> {
+                mKeyguardUpdateMonitor.removeCallback(mCallback);
                 mWakefulnessLifecycle.removeObserver(mWakefulnessObserver);
             });
             mTelephonyListenerManager.removeActiveDataSubscriptionIdListener(mPhoneStateListener);
