@@ -204,6 +204,7 @@ public class PixelPropsUtils {
                 if (was) return true;
 
                 dlog("Spoofing build for GMS");
+                String[] fpsections = sCertifiedProps[6].split("/");
                 setBuildField("BRAND", sCertifiedProps[0]);
                 setBuildField("MANUFACTURER", sCertifiedProps[1]);
                 setBuildField("DEVICE", sCertifiedProps[2]);
@@ -211,6 +212,10 @@ public class PixelPropsUtils {
                 setBuildField("MODEL", sCertifiedProps[4]);
                 setBuildField("ID", sCertifiedProps[5]);
                 setBuildField("FINGERPRINT", sCertifiedProps[6]);
+                setBuildField("VERSION.SECURITY_PATCH", sCertifiedProps[7]);
+                setBuildField("VERSION.DEVICE_INITIAL_SDK_INT", sCertifiedProps[8]);
+                setBuildField("VERSION.RELEASE", fpsections[2].split(":")[1]);
+                setBuildField("VERSION.INCREMENTAL", fpsections[4].split(":")[0]);
                 return true;
             }
         }
@@ -284,8 +289,14 @@ public class PixelPropsUtils {
 
     private static void setBuildField(String key, String value) {
         try {
+            Field field;
+            if (key startsWith("VERSION.")) {
+                field = Build.VERSION.class.getDeclaredField(
+                    key.substring("VERSION.".length()));
+            } else {
+                field = Build.class.getDeclaredField(key);
+            }
             // Unlock
-            Field field = Build.class.getDeclaredField(key);
             field.setAccessible(true);
 
             // Edit
