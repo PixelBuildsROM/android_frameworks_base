@@ -121,7 +121,7 @@ public class PixelPropsUtils {
             "barbet"
     };
 
-    private static volatile boolean sIsGms, sIsFinsky, sIsPhotos;
+    private static volatile boolean sIsFinsky, sIsPhotos;
 
     static {
         propsToKeep = new HashMap<>();
@@ -182,7 +182,6 @@ public class PixelPropsUtils {
             if (processName.toLowerCase().contains("unstable")
                     || processName.toLowerCase().contains("pixelmigrate")
                     || processName.toLowerCase().contains("instrumentation")) {
-                sIsGms = true;
 
                 final boolean was = isGmsAddAccountActivityOnTop();
                 final TaskStackListener taskStackListener = new TaskStackListener() {
@@ -347,14 +346,15 @@ public class PixelPropsUtils {
     }
 
     private static boolean isCallerSafetyNet() {
-        return sIsGms && Arrays.stream(Thread.currentThread().getStackTrace())
-                .anyMatch(elem -> elem.getClassName().contains("DroidGuard"));
+        return Arrays.stream(Thread.currentThread().getStackTrace())
+                        .anyMatch(elem -> elem.getClassName().toLowerCase()
+                            .contains("droidguard"));
     }
 
     public static void onEngineGetCertificateChain() {
         // Check stack for SafetyNet or Play Integrity
         if (isCallerSafetyNet() || sIsFinsky) {
-            Log.i(TAG, "Blocked key attestation sIsGms=" + sIsGms + " sIsFinsky=" + sIsFinsky);
+            Log.i(TAG, "Blocked key attestation");
             throw new UnsupportedOperationException();
         }
     }
