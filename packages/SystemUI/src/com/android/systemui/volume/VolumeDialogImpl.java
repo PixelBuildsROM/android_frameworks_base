@@ -1766,6 +1766,14 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
                                     mContext.getString(R.string.volume_ringer_hint_mute));
                         }
                         mRingerIcon.setTag(Events.ICON_STATE_UNMUTE);
+                        final VolumeRow ringer = findRow(STREAM_RING);
+                        final VolumeRow notif = findRow(STREAM_NOTIFICATION);
+                        if (ringer != null) {
+                            Util.setText(ringer.header, Utils.formatPercentage(ss.level, ss.levelMax));
+                        }
+                        if (notif != null) {
+                            Util.setText(notif.header, Utils.formatPercentage(notif.ss.level, notif.ss.levelMax));
+                        }
                     }
                     break;
             }
@@ -1934,9 +1942,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
         }
 
         // update header text
-        Util.setText(row.header, getStreamLabelH(ss));
         row.slider.setContentDescription(row.header.getText());
-        mConfigurableTexts.add(row.header, ss.name);
 
         // update icon
         final boolean iconEnabled = (mAutomute || ss.muteSupported) && !zenMuted;
@@ -2120,6 +2126,9 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
                 row.slider.setProgress(newProgress, true);
             }
         }
+        // update header text
+        Util.setText(row.header, Utils.formatPercentage((enable && !row.ss.muted)
+                        ? vlevel : 0, row.ss.levelMax));
     }
 
     private void recheckH(VolumeRow row) {
@@ -2512,6 +2521,17 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
                 }
             }
             final int userLevel = getImpliedLevel(seekBar, progress);
+
+            if ((mRow.stream == STREAM_RING || mRow.stream == STREAM_NOTIFICATION)) {
+                if (mRow.ss.level > mRow.ss.levelMin && userLevel == 0) {
+                    Util.setText(mRow.header,
+                            Utils.formatPercentage(mRow.ss.levelMin + 1, mRow.ss.levelMax));
+                    return;
+                }
+            }
+
+            Util.setText(mRow.header, Utils.formatPercentage(userLevel, mRow.ss.levelMax));
+
             if (mRow.ss.level != userLevel || mRow.ss.muted && userLevel > 0) {
                 mRow.userAttempt = SystemClock.uptimeMillis();
                 if (mRow.requestedLevel != userLevel) {
