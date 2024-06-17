@@ -39,15 +39,15 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceViewHolder;
-import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompatCompat;
 
 import com.android.settingslib.utils.BuildCompatUtils;
 
 /**
- * Version of SwitchPreference that can be disabled by a device admin
+ * Version of SwitchPreferenceCompat that can be disabled by a device admin
  * using a user restriction.
  */
-public class RestrictedSwitchPreference extends SwitchPreference {
+public class RestrictedSwitchPreference extends SwitchPreferenceCompat {
     RestrictedPreferenceHelper mHelper;
     AppOpsManager mAppOpsManager;
     boolean mUseAdditionalSummary = false;

@@ -31,7 +31,7 @@ import android.annotation.NonNull;
 import android.view.View;
 
 import androidx.preference.PreferenceGroupAdapter;
-import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompatCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.internal.jank.InteractionJankMonitor;
@@ -74,7 +74,7 @@ public class SettingsJankMonitorTest {
     private PreferenceGroupAdapter mPreferenceGroupAdapter;
 
     @Mock
-    private SwitchPreference mSwitchPreference;
+    private SwitchPreferenceCompat mSwitchPreference;
 
     @Mock
     private ScheduledExecutorService mScheduledExecutorService;

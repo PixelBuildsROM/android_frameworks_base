@@ -18,9 +18,9 @@ package com.android.settingslib.inputmethod;
 
 import android.content.Context;
 
-import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompatCompat;
 
-public class SwitchWithNoTextPreference extends SwitchPreference {
+public class SwitchWithNoTextPreference extends SwitchPreferenceCompat {
     private static final String EMPTY_TEXT = "";
 
     public SwitchWithNoTextPreference(final Context context) {

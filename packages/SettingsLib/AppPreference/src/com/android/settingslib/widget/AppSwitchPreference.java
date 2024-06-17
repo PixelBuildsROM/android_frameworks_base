@@ -21,12 +21,12 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.preference.PreferenceViewHolder;
-import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompatCompat;
 
 /**
- * The SwitchPreference for the pages need to show apps icon.
+ * The SwitchPreferenceCompat for the pages need to show apps icon.
  */
-public class AppSwitchPreference extends SwitchPreference {
+public class AppSwitchPreference extends SwitchPreferenceCompat {
 
     public AppSwitchPreference(Context context, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
