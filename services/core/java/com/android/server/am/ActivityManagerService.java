@@ -730,7 +730,7 @@ public class ActivityManagerService extends IActivityManager.Stub
     static final int BROADCAST_QUEUE_BG_OFFLOAD = 2;
     static final int BROADCAST_QUEUE_FG_OFFLOAD = 3;
 
-    @GuardedBy("this")
+    @GuardedBy("mStrictModeCallbacks")
     private final SparseArray<IUnsafeIntentStrictModeCallback>
             mStrictModeCallbacks = new SparseArray<>();
 
@@ -9084,17 +9084,21 @@ public class ActivityManagerService extends IActivityManager.Stub
     @Override
     public void registerStrictModeCallback(IBinder callback) {
         int callingPid = Binder.getCallingPid();
-        mStrictModeCallbacks.put(callingPid,
-                IUnsafeIntentStrictModeCallback.Stub.asInterface(callback));
-        try {
-            callback.linkToDeath(new DeathRecipient() {
-                @Override
-                public void binderDied() {
-                    mStrictModeCallbacks.remove(callingPid);
-                }
-            }, 0);
-        } catch (RemoteException e) {
-            mStrictModeCallbacks.remove(callingPid);
+        synchronized (mStrictModeCallbacks) {
+            mStrictModeCallbacks.put(callingPid,
+                    IUnsafeIntentStrictModeCallback.Stub.asInterface(callback));
+            try {
+                callback.linkToDeath(new DeathRecipient() {
+                    @Override
+                    public void binderDied() {
+                        synchronized (mStrictModeCallbacks) {
+                            mStrictModeCallbacks.remove(callingPid);
+                        }
+                    }
+                }, 0);
+            } catch (RemoteException e) {
+                mStrictModeCallbacks.remove(callingPid);
+            }
         }
     }
 
@@ -18994,12 +18998,16 @@ public class ActivityManagerService extends IActivityManager.Stub
 
         @Override
         public IUnsafeIntentStrictModeCallback getRegisteredStrictModeCallback(int callingPid) {
-            return mStrictModeCallbacks.get(callingPid);
+            synchronized (mStrictModeCallbacks) {
+                return mStrictModeCallbacks.get(callingPid);
+            }
         }
 
         @Override
         public void unregisterStrictModeCallback(int callingPid) {
-            mStrictModeCallbacks.remove(callingPid);
+            synchronized (mStrictModeCallbacks) {
+                mStrictModeCallbacks.remove(callingPid);
+            }
         }
 
         @Override
