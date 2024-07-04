@@ -70,6 +70,9 @@ public class PixelPropsUtils {
             "com.google.android.apps.emojiwallpaper",
             "com.google.android.apps.turbo",
             "com.google.android.gms",
+            "com.google.android.gms.ui",
+            "com.google.android.gms.learning",
+            "com.google.android.gms.persistent",
             "com.google.android.inputmethod.latin",
             "com.google.android.googlequicksearchbox",
             "com.google.android.setupwizard"
