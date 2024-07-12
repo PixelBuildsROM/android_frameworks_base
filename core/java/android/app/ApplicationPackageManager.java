@@ -865,8 +865,14 @@ public class ApplicationPackageManager extends PackageManager {
                 packageName.equals("com.google.android.apps.photos")) {
             if (Arrays.asList(featuresPixel).contains(name)) return false;
             if (Arrays.asList(featuresNexus).contains(name)) return true;
+        } else if (packageName != null && 
+                packageName.equals("com.google.android.googlequicksearchbox")) {
+            if (Arrays.asList(featuresPixel).contains(name)) return true;
+            if (Arrays.asList(featuresTensor).contains(name)) return true;
+            if (Arrays.asList(featuresNexus).contains(name)) return true;
+        } else {
+            if (Arrays.asList(featuresPixel).contains(name)) return true;
         }
-        if (Arrays.asList(featuresPixel).contains(name)) return true;
 
         return mHasSystemFeatureCache.query(new HasSystemFeatureQuery(name, version));
     }
