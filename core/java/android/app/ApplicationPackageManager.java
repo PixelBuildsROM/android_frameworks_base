@@ -810,6 +810,7 @@ public class ApplicationPackageManager extends PackageManager {
             };
 
     private static final String[] pTensorCodenames = {
+            "akita",
             "husky",
             "shiba",
             "felix",
@@ -854,6 +855,24 @@ public class ApplicationPackageManager extends PackageManager {
             "com.google.android.apps.photos.nexus_preload"
     };
 
+    private static final String[] featuresOther = {
+        "com.google.android.feature.ASI",
+        "com.google.android.feature.ANDROID_ONE_EXPERIENCE",
+        "com.google.android.feature.GOOGLE_FI_BUNDLED",
+        "com.google.android.feature.LILY_EXPERIENCE",
+        "com.google.android.feature.TURBO_PRELOAD",
+        "com.google.android.feature.WELLBEING",
+        "com.google.lens.feature.IMAGE_INTEGRATION",
+        "com.google.lens.feature.CAMERA_INTEGRATION",
+        "com.google.photos.trust_debug_certs",
+        "com.google.android.feature.AER_OPTIMIZED",
+        "com.google.android.feature.NEXT_GENERATION_ASSISTANT",
+        "android.software.game_service",
+        "com.google.android.feature.EXCHANGE_6_2",
+        "com.google.android.apps.dialer.call_recording_audio",
+        "com.google.android.apps.dialer.SUPPORTED"
+    };
+
     @Override
     public boolean hasSystemFeature(String name, int version) {
         if (name != null && Arrays.asList(featuresTensor).contains(name) &&
@@ -865,8 +884,11 @@ public class ApplicationPackageManager extends PackageManager {
                 packageName.equals("com.google.android.apps.photos")) {
             if (Arrays.asList(featuresPixel).contains(name)) return false;
             if (Arrays.asList(featuresNexus).contains(name)) return true;
+            if (Arrays.asList(featuresOther).contains(name)) return true;
+        } else {
+            if (Arrays.asList(featuresPixel).contains(name)) return true;
+            if (Arrays.asList(featuresOther).contains(name)) return true;
         }
-        if (Arrays.asList(featuresPixel).contains(name)) return true;
 
         return mHasSystemFeatureCache.query(new HasSystemFeatureQuery(name, version));
     }
