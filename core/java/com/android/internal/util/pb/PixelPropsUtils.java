@@ -47,6 +47,7 @@ public class PixelPropsUtils {
 
     private static final String PACKAGE_GMS = "com.google.android.gms";
     private static final String PACKAGE_AIAI = "com.google.android.apps.miphone.aiai.AiaiApplication";
+    private static final String PACKAGE_FINSKY = "com.android.vending";
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
 
@@ -57,9 +58,8 @@ public class PixelPropsUtils {
 
     private static final Map<String, Object> propsToChangeGeneric;
     private static final Map<String, Object> propsToChangePixel8Pro;
-    private static final Map<String, Object> propsToChangePixel5;
+    private static final Map<String, Object> propsToChangePixel6;
     private static final Map<String, Object> propsToChangePixelXL;
-    private static final Map<String, ArrayList<String>> propsToKeep;
 
     private static final String[] packagesToChangePixel8Pro = {
             "com.google.android.apps.wallpaper.pixel",
@@ -69,13 +69,16 @@ public class PixelPropsUtils {
             "com.google.android.apps.aiwallpapers",
             "com.google.android.apps.emojiwallpaper",
             "com.google.android.apps.turbo",
+            "com.google.android.inputmethod.latin",
+            "com.google.android.setupwizard"
+    };
+
+    private static final String[] packagesToChangePixel6 = {
             "com.google.android.gms",
             "com.google.android.gms.ui",
             "com.google.android.gms.learning",
             "com.google.android.gms.persistent",
-            "com.google.android.inputmethod.latin",
-            "com.google.android.googlequicksearchbox",
-            "com.google.android.setupwizard"
+            "com.google.android.googlequicksearchbox"
     };
 
     private static final String[] extraPackagesToChange = {
@@ -83,24 +86,6 @@ public class PixelPropsUtils {
             "com.breel.wallpapers20",
             "com.nhs.online.nhsonline",
             "com.nothing.smartcenter"
-    };
-
-    private static final String[] packagesToKeep = {
-            PACKAGE_AIAI,
-            "com.google.android.dialer",
-            "com.google.android.euicc",
-            "com.google.ar.core",
-            "com.google.android.youtube",
-            "com.google.android.apps.youtube.kids",
-            "com.google.android.apps.youtube.music",
-            "com.google.android.apps.recorder",
-            "com.google.android.apps.tachyon",
-            "com.google.android.apps.tycho",
-            "com.google.android.as",
-            "com.google.android.apps.restore",
-            "com.google.android.apps.privacy.wildlife",
-            "com.google.android.apps.subscriptions.red",
-            "com.google.android.apps.nexuslauncher"
     };
 
     private static final String[] customGoogleCameraPackages = {
@@ -111,6 +96,7 @@ public class PixelPropsUtils {
 
     // Codenames for currently supported Pixels by Google
     private static final String[] pixelCodenames = {
+            "akita",
             "husky",
             "shiba",
             "felix",
@@ -120,11 +106,8 @@ public class PixelPropsUtils {
             "panther",
             "bluejay",
             "oriole",
-            "raven",
-            "barbet"
+            "raven"
     };
-
-    private static volatile boolean sIsFinsky, sIsPhotos;
 
     static {
         propsToKeep = new HashMap<>();
@@ -139,17 +122,17 @@ public class PixelPropsUtils {
         propsToChangePixel8Pro.put("PRODUCT", "husky");
         propsToChangePixel8Pro.put("HARDWARE", "husky");
         propsToChangePixel8Pro.put("MODEL", "Pixel 8 Pro");
-        propsToChangePixel8Pro.put("ID", "AP1A.240505.005");
-        propsToChangePixel8Pro.put("FINGERPRINT", "google/husky/husky:14/AP1A.240505.005/11677807:user/release-keys");
-        propsToChangePixel5 = new HashMap<>();
-        propsToChangePixel5.put("BRAND", "google");
-        propsToChangePixel5.put("MANUFACTURER", "Google");
-        propsToChangePixel5.put("DEVICE", "barbet");
-        propsToChangePixel5.put("PRODUCT", "barbet");
-        propsToChangePixel5.put("HARDWARE", "barbet");
-        propsToChangePixel5.put("MODEL", "Pixel 5a");
-        propsToChangePixel5.put("ID", "AP1A.240505.004");
-        propsToChangePixel5.put("FINGERPRINT", "google/barbet/barbet:14/AP1A.240505.004/11583682:user/release-keys");
+        propsToChangePixel8Pro.put("ID", "AP2A.240705.005");
+        propsToChangePixel8Pro.put("FINGERPRINT", "google/husky/husky:14/AP2A.240705.005/11942872:user/release-keys");
+        propsToChangePixel6 = new HashMap<>();
+        propsToChangePixel6.put("BRAND", "google");
+        propsToChangePixel6.put("MANUFACTURER", "Google");
+        propsToChangePixel6.put("DEVICE", "bluejay");
+        propsToChangePixel6.put("PRODUCT", "bluejay");
+        propsToChangePixel6.put("HARDWARE", "bluejay");
+        propsToChangePixel6.put("MODEL", "Pixel 6a");
+        propsToChangePixel6.put("ID", "AP2A.240705.004");
+        propsToChangePixel6.put("FINGERPRINT", "google/bluejay/bluejay:14/AP2A.240705.004/11875680:user/release-keys");
         propsToChangePixelXL = new HashMap<>();
         propsToChangePixelXL.put("BRAND", "google");
         propsToChangePixelXL.put("MANUFACTURER", "Google");
@@ -161,15 +144,11 @@ public class PixelPropsUtils {
         propsToChangePixelXL.put("FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
     }
 
-    private static boolean isGoogleCameraPackage(String packageName) {
-        return packageName.startsWith("com.google.android.GoogleCamera") ||
-                Arrays.asList(customGoogleCameraPackages).contains(packageName);
-    }
+    private static volatile boolean sIsFinsky = false;
     
     public static boolean setPropsForGms(String packageName) {
-        if (packageName.equals("com.android.vending")) {
-            sIsFinsky = true;
-        }
+
+        sIsFinsky = packageName.equals(PACKAGE_FINSKY);
 
         // Give up if not appropriate props array
         if (sCertifiedProps.length != 9) {
@@ -232,17 +211,11 @@ public class PixelPropsUtils {
         if (setPropsForGms(packageName)){
             return;
         }
-        if (Arrays.asList(packagesToKeep).contains(packageName)) {
-            return;
-        }
-        if (isGoogleCameraPackage(packageName)) {
-            return;
-        }
 
         Map<String, Object> propsToChange = new HashMap<>();
 
         if (packageName.startsWith("com.google.")
-                || packageName.startsWith("com.samsung.")
+                || packageName.startsWith("com.samsung.") 
                 || Arrays.asList(extraPackagesToChange).contains(packageName)) {
 
             boolean isPixelDevice = Arrays.asList(pixelCodenames).contains(SystemProperties.get(DEVICE));
@@ -254,8 +227,9 @@ public class PixelPropsUtils {
             } else {
                 if (Arrays.asList(packagesToChangePixel8Pro).contains(packageName)) {
                     propsToChange.putAll(propsToChangePixel8Pro);
-                } else {
-                    propsToChange.putAll(propsToChangePixel5);
+                } else if (Arrays.asList(packagesToChangePixel6).contains(packageName)
+                            || Arrays.asList(extraPackagesToChange).contains(packageName)){
+                    propsToChange.putAll(propsToChangePixel6);
                 }
             }
 
@@ -348,18 +322,14 @@ public class PixelPropsUtils {
         return gmsUid == callingUid;
     }
 
-    private static boolean isCallerSafetyNet() {
+    private static boolean isCallerDroidGuard() {
         return Arrays.stream(Thread.currentThread().getStackTrace())
                         .anyMatch(elem -> elem.getClassName().toLowerCase()
                             .contains("droidguard"));
     }
 
-    public static void onEngineGetCertificateChain() {
-        // Check stack for SafetyNet or Play Integrity
-        if (isCallerSafetyNet() || sIsFinsky) {
-            Log.i(TAG, "Blocked key attestation");
-            throw new UnsupportedOperationException();
-        }
+    public static boolean getIsKeyAttest() {
+        return sIsFinsky || isDroidGuard();
     }
 
     public static void dlog(String msg) {
