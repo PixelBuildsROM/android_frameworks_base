@@ -32,6 +32,7 @@ import android.os.SystemProperties;
 import android.util.Log;
 
 import com.android.internal.R;
+import com.android.ppuhelper.PixelPropsDownloadHelper;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -54,8 +55,11 @@ public class PixelPropsUtils {
 
     private static final boolean DEBUG = false;
 
-    private static final String[] sCertifiedProps =
+    private static String[] sCertifiedProps =
     Resources.getSystem().getStringArray(R.array.config_certifiedBuildProperties);
+
+    public static final String[] certCredsArr = 
+    Resources.getSystem().getStringArray(R.array.config_certifiedPropertiesCreds);
 
     private static final Map<String, Object> propsToChangeGeneric;
     private static final Map<String, Object> propsToChangeNewerPixel;
@@ -155,10 +159,14 @@ public class PixelPropsUtils {
         }
         return false;
     }
-    
+
     public static boolean setPropsForGms(String packageName) {
 
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
+
+        if (sCertifiedProps.length == 0 && certCredsArr.length == 2) {
+            sCertifiedProps = PixelPropsDownloadHelper.dlProps;
+        }
 
         if (packageName.equals(PACKAGE_GMS)
                 || packageName.toLowerCase().contains("androidx.test")
