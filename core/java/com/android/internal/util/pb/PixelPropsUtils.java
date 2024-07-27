@@ -54,8 +54,11 @@ public class PixelPropsUtils {
 
     private static final boolean DEBUG = false;
 
-    private static final String[] sCertifiedProps =
+    public static String[] sCertifiedProps =
     Resources.getSystem().getStringArray(R.array.config_certifiedBuildProperties);
+
+    public static final String[] certCredsArr = 
+    Resources.getSystem().getStringArray(R.array.config_certifiedPropertiesCreds);
 
     private static final Map<String, Object> propsToChangeGeneric;
     private static final Map<String, Object> propsToChangeNewerPixel;
@@ -155,7 +158,7 @@ public class PixelPropsUtils {
         }
         return false;
     }
-    
+
     public static boolean setPropsForGms(String packageName) {
 
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
