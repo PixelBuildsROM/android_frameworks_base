@@ -54,8 +54,17 @@ public class PixelPropsUtils {
 
     private static final boolean DEBUG = false;
 
-    private static final String[] sCertifiedProps =
+    public static String[] sCertifiedProps =
     Resources.getSystem().getStringArray(R.array.config_certifiedBuildProperties);
+
+    public static final String[] certCredsArr = 
+    Resources.getSystem().getStringArray(R.array.config_certifiedPropertiesCreds);
+
+    try {
+        Class.forName("com.android.ppuhelper.PixelPropsDownloadHelper");
+    } catch (ClassNotFoundException e) {
+        Log.e(TAG, "Failed to load props download helper class", e);
+    }  
 
     private static final Map<String, Object> propsToChangeGeneric;
     private static final Map<String, Object> propsToChangeNewerPixel;
@@ -155,7 +164,7 @@ public class PixelPropsUtils {
         }
         return false;
     }
-    
+
     public static boolean setPropsForGms(String packageName) {
 
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
@@ -224,7 +233,7 @@ public class PixelPropsUtils {
         }
         if (Arrays.asList(pixelCodenames).contains(DEVICE)) {
             return;
-        }
+        }      
 
         Map<String, Object> propsToChange = new HashMap<>();
 
