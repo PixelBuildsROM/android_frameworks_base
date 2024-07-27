@@ -58,6 +58,14 @@
      -->
     </string-array>
 
+    <!-- Credentials for the private certification overlay -->
+    <string-array name="config_certifiedPropertiesCreds" translatable="false">
+     <!--
+       <item>"URL"</item>
+       <item>"personal access token"</item>
+     -->
+    </string-array>
+
     <!-- Whether to cancel fingerprint operation if not idle -->
     <bool name="config_fpCancelIfNotIdle">false</bool>
     

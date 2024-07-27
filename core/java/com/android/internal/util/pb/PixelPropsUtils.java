@@ -54,7 +54,10 @@ public class PixelPropsUtils {
 
     private static final boolean DEBUG = false;
 
-    private static final String[] sCertifiedProps =
+    private static final String[] certCredsArr = 
+    Resources.getSystem().getStringArray(R.array.config_certifiedPropertiesCreds);
+
+    private static String[] sCertifiedProps =
     Resources.getSystem().getStringArray(R.array.config_certifiedBuildProperties);
 
     private static final Map<String, Object> propsToChangeGeneric;
@@ -155,10 +158,14 @@ public class PixelPropsUtils {
         }
         return false;
     }
-    
+
     public static boolean setPropsForGms(String packageName) {
 
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
+
+        if (sCertifiedProps.length == 0 && certCredsArr.length == 2) {
+            sCertifiedProps = PixelPropsDownloadHelper.downloadAndExtractArray(certURLArr);
+        }
 
         if (packageName.equals(PACKAGE_GMS)
                 || packageName.toLowerCase().contains("androidx.test")
