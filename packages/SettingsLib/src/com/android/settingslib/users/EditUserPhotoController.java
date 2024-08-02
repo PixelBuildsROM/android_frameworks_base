@@ -17,6 +17,7 @@
 package com.android.settingslib.users;
 
 import android.app.Activity;
+import android.content.ContentProvider;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -82,6 +83,12 @@ public class EditUserPhotoController {
      */
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK) {
+            return false;
+        }
+
+        final int currentUserId = UserHandle.myUserId();
+        if (currentUserId != ContentProvider.getUserIdFromUri(pictureUri, currentUserId)) {
+            Log.e(TAG, "Invalid pictureUri: " + pictureUri);
             return false;
         }
 
