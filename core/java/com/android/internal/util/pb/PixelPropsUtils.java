@@ -22,6 +22,8 @@ package com.android.internal.util.pb;
 import android.app.ActivityTaskManager;
 import android.app.Application;
 import android.app.TaskStackListener;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.res.Resources;
@@ -45,6 +47,7 @@ public class PixelPropsUtils {
     private static final String TAG = PixelPropsUtils.class.getSimpleName();
     private static final String DEVICE = SystemProperties.get("ro.build.version.device");
 
+    private static final String PACKAGE_PIF = "org.pixelbuilds.catmouse";
     private static final String PACKAGE_GMS = "com.google.android.gms";
     private static final String PACKAGE_FINSKY = "com.android.vending";
     private static final String PACKAGE_PHOTOS = "com.google.android.apps.photos";
@@ -54,7 +57,7 @@ public class PixelPropsUtils {
 
     private static final boolean DEBUG = false;
 
-    private static final String[] sCertifiedProps =
+    private static String[] sCertifiedProps =
     Resources.getSystem().getStringArray(R.array.config_certifiedBuildProperties);
 
     private static final Map<String, Object> propsToChangeGeneric;
@@ -155,6 +158,15 @@ public class PixelPropsUtils {
         }
         return false;
     }
+
+    private static boolean isPifPackagePresent(Context context) {
+        try {
+            PackageInfo pi = context.getPackageManager().getPackageInfo(PACKAGE_PIF, 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }    
     
     public static boolean setPropsForGms(String packageName) {
 
@@ -216,6 +228,13 @@ public class PixelPropsUtils {
 
     public static void setProps(Context context) {
         final String packageName = context.getPackageName();
+
+        if (isPifPackagePresent(context)) {
+            PackageManager pm = context.getPackageManager();
+            int resourceId = resources.getIdentifier("config_certifiedBuildProperties",
+                    "array", PACKAGE_PIF);
+            sCertifiedProps = resources.getStringArray(resourceId);
+        }
 
         propsToChangeGeneric.forEach((k, v) -> setPropValue(k, v));
         if (packageName == null || packageName.isEmpty()) {
