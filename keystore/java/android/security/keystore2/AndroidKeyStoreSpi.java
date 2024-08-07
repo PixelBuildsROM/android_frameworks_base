@@ -24,6 +24,7 @@ import android.hardware.security.keymint.EcCurve;
 import android.hardware.security.keymint.HardwareAuthenticatorType;
 import android.hardware.security.keymint.KeyParameter;
 import android.hardware.security.keymint.SecurityLevel;
+import android.os.SystemProperties;
 import android.security.GateKeeper;
 import android.security.KeyStore2;
 import android.security.KeyStoreParameter;
@@ -113,6 +114,8 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
     public static final String TAG = "AndroidKeyStoreSpi";
     public static final String NAME = "AndroidKeyStore";
 
+    private static final String SPOOF_PIXEL_PI = "persist.sys.pixelprops.pi";
+
     private KeyStore2 mKeyStore;
     private @KeyProperties.Namespace int mNamespace = KeyProperties.NAMESPACE_APPLICATION;
 
@@ -191,7 +194,7 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
 
     @Override
     public Certificate[] engineGetCertificateChain(String alias) {
-        if (PixelPropsUtils.getIsKeyAttest()) {
+        if (!SystemProperties.getBoolean(SPOOF_PIXEL_PI, true) && PixelPropsUtils.getIsKeyAttest()) {
             throw new UnsupportedOperationException("Blocking key attestation");
         }
 
