@@ -231,20 +231,20 @@ class AppOpsUidStateTrackerImpl implements AppOpsUidStateTracker {
             mPendingUidStates.put(uid, uidState);
             mPendingCapability.put(uid, capability);
 
+            boolean hasLostCapability = (prevCapability & ~capability) != 0;
+
             if (procState == PROCESS_STATE_NONEXISTENT) {
                 mPendingGone.put(uid, true);
                 commitUidPendingState(uid);
-            } else if (uidState < prevUidState
-                    || (uidState <= UID_STATE_MAX_LAST_NON_RESTRICTED
-                    && prevUidState > UID_STATE_MAX_LAST_NON_RESTRICTED)) {
+            } else if (uidState < prevUidState) {
                 // We are moving to a more important state, or the new state may be in the
                 // foreground and the old state is in the background, then always do it
                 // immediately.
                 commitUidPendingState(uid);
-            } else if (uidState == prevUidState && capability != prevCapability) {
-                // No change on process state, but process capability has changed.
+            } else if (uidState == prevUidState && !hasLostCapability) {
+                // No change on process state, but process capability has increased.
                 commitUidPendingState(uid);
-            } else if (uidState <= UID_STATE_MAX_LAST_NON_RESTRICTED) {
+            } else if (uidState <= UID_STATE_MAX_LAST_NON_RESTRICTED && !hasLostCapability) {
                 // We are moving to a less important state, but it doesn't cross the restriction
                 // threshold.
                 commitUidPendingState(uid);
