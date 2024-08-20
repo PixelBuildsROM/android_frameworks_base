@@ -191,6 +191,15 @@ class AppWidgetServiceImpl extends IAppWidgetService.Stub implements WidgetBacku
     // Hard limit of number of widgets can be pinned by a host.
     private static final int MAX_NUMBER_OF_WIDGETS_PER_HOST = 200;
 
+    // Hard limit of number of hosts an app can create, note that the app that hosts the widgets
+    // can have multiple instances of {@link AppWidgetHost}, typically in respect to different
+    // surfaces in the host app.
+    // @see AppWidgetHost
+    // @see AppWidgetHost#mHostId
+    private static final int MAX_NUMBER_OF_HOSTS_PER_PACKAGE = 20;
+    // Hard limit of number of widgets can be pinned by a host.
+    private static final int MAX_NUMBER_OF_WIDGETS_PER_HOST = 200;
+
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
