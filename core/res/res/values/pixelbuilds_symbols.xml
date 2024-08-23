@@ -55,4 +55,7 @@
     
     <!-- Dynamic certification API URI -->
     <java-symbol type="string" name="dynamic_certification_URI" />
+    
+    <!-- KeyboxImitationHooks -->
+    <java-symbol type="array" name="config_certifiedKeybox" />
 </resources>

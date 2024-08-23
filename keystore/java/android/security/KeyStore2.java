@@ -31,6 +31,8 @@ import android.system.keystore2.KeyEntryResponse;
 import android.system.keystore2.ResponseCode;
 import android.util.Log;
 
+import com.android.internal.util.pb.KeyboxImitationHooks;
+
 import java.util.Calendar;
 import java.util.Objects;
 
@@ -259,7 +261,8 @@ public class KeyStore2 {
      */
     public KeyEntryResponse getKeyEntry(@NonNull KeyDescriptor descriptor)
             throws KeyStoreException {
-        return handleRemoteExceptionWithRetry((service) -> service.getKeyEntry(descriptor));
+        return KeyboxImitationHooks.onGetKeyEntry(
+                handleRemoteExceptionWithRetry((service) -> service.getKeyEntry(descriptor)));
     }
 
     /**
