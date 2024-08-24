@@ -46,6 +46,7 @@ public class PixelPropsUtils {
 
     private static final String TAG = PixelPropsUtils.class.getSimpleName();
     private static final String DEVICE = SystemProperties.get("ro.build.version.device");
+    private static final String MODEL = SystemProperties.get("ro.product.model", Build.MODEL);
 
     private static final String PACKAGE_PIF = "org.pixelbuilds.catmouse";
     private static final String PACKAGE_GMS = "com.google.android.gms";
@@ -66,7 +67,9 @@ public class PixelPropsUtils {
     private static final Map<String, Object> propsToSpoofPhotos;
     private static final Map<String, ArrayList<String>> propsToKeep;
 
-    private static final String[] packagesToChangeNewerPixel = {
+    private static final ArrayList<String> packagesToChangeNewerPixel =
+    new ArrayList<String> (
+        Arrays.asList(
             "com.google.android.apps.wallpaper.pixel",
             "com.google.android.apps.wallpaper",
             "com.google.pixel.livewallpaper",
@@ -75,10 +78,11 @@ public class PixelPropsUtils {
             "com.google.android.inputmethod.latin",
             "com.google.android.googlequicksearchbox",
             "com.google.android.setupwizard"
-    };
+    ));
 
-    private static final String[] packagesToChangeOlderPixel = {
-            "com.google.android.gms",
+    private static final ArrayList<String> packagesToChangeOlderPixel = 
+    new ArrayList<String> (
+        Arrays.asList(
             "com.google.android.gms.ui",
             "com.google.android.gms.learning",
             "com.google.android.gms.persistent",
@@ -86,10 +90,12 @@ public class PixelPropsUtils {
             "com.breel.wallpapers20",
             "com.nhs.online.nhsonline",
             "com.nothing.smartcenter"
-    };
+    ));
 
     // Codenames for currently supported Pixels by Google
-    private static final String[] pixelCodenames = {
+    private static final ArrayList<String> pixelCodenames = 
+    new ArrayList<String> (
+        Arrays.asList(
             "comet",
             "komodo",
             "caiman",
@@ -105,7 +111,7 @@ public class PixelPropsUtils {
             "bluejay",
             "oriole",
             "raven"
-    };
+    ));
 
     static {
         propsToKeep = new HashMap<>();
@@ -207,46 +213,25 @@ public class PixelPropsUtils {
 
     public static void setProps(Context context) {
         final String packageName = context.getPackageName();
+        final String processName = Application.getProcessName();
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
 
         propsToChangeGeneric.forEach((k, v) -> setPropValue(k, v));
         if (packageName == null || packageName.isEmpty()) {
             return;
         }
-        if (packageName.equals(PACKAGE_GMS) 
-            || packageName.toLowerCase().contains("androidx.test")
-            || packageName.equalsIgnoreCase("com.google.android.apps.restore")) {
-                setPropValue("TIME", System.currentTimeMillis());
-                final String processName = Application.getProcessName();
-                if (processName.toLowerCase().contains("unstable")
-                    || processName.toLowerCase().contains("pixelmigrate")
-                    || processName.toLowerCase().contains("instrumentation")) {
-                        try {
-                            PackageManager pm = context.getPackageManager();
-                            Resources resources = pm.getResourcesForApplication(PACKAGE_PIF);
-                            int resourceId = resources.getIdentifier(
-                                "config_certifiedBuildProperties", "array", PACKAGE_PIF);
-                            String[] packageProps = resources.getStringArray(resourceId);
-                            if (!Arrays.equals(sCertifiedProps, packageProps)) {
-                                sCertifiedProps = packageProps;
-                            }
-                        } catch (PackageManager.NameNotFoundException e) {
-                            if (DEBUG) Log.d(TAG, "PIF package is not found");
-                        }
-                        setPropsForGms();
-                        return;
-                }
-        }
-        if (Arrays.asList(pixelCodenames).contains(DEVICE)) {
+        if (pixelCodenames.contains(DEVICE)) {
             return;
         }
 
         Map<String, Object> propsToChange = new HashMap<>();
 
-        if (Arrays.asList(packagesToChangeNewerPixel).contains(packageName)) {
-            propsToChange.putAll(propsToChangeNewerPixel);
-        } else if (Arrays.asList(packagesToChangeOlderPixel).contains(packageName)) {
-            propsToChange.putAll(propsToChangeOlderPixel);
+        if (packagesToChangeNewerPixel.contains(packageName)
+            || packagesToChangeNewerPixel.contains(processName)) {
+                propsToChange.putAll(propsToChangeNewerPixel);
+        } else if (packagesToChangeOlderPixel.contains(packageName)
+            || packagesToChangeOlderPixel.contains(processName)) {
+                propsToChange.putAll(propsToChangeOlderPixel);
         } else if (packageName.equals(PACKAGE_PHOTOS)) {
             propsToChange.putAll(propsToSpoofPhotos);
         }
@@ -266,9 +251,34 @@ public class PixelPropsUtils {
                     setPropValue(key, value);
             }
         }
+
+        if (packageName.equals(PACKAGE_GMS)) {
+            setPropValue("TIME", System.currentTimeMillis());
+            if (processName.toLowerCase().contains("unstable")) {
+                    try {
+                        PackageManager pm = context.getPackageManager();
+                        Resources resources = pm.getResourcesForApplication(PACKAGE_PIF);
+                        int resourceId = resources.getIdentifier(
+                            "config_certifiedBuildProperties", "array", PACKAGE_PIF);
+                        String[] packageProps = resources.getStringArray(resourceId);
+                        if (!Arrays.equals(sCertifiedProps, packageProps)) {
+                            sCertifiedProps = packageProps;
+                        }
+                    } catch (PackageManager.NameNotFoundException e) {
+                        if (DEBUG) Log.d(TAG, "PIF package is not found");
+                    }
+                    setPropsForGms();
+                    return;
+            }
+        }
+
         // Set proper indexing fingerprint
         if (packageName.equals(PACKAGE_SET_INTEL)) {
             setPropValue("FINGERPRINT", Build.VERSION.INCREMENTAL);
+        }
+        // Show correct model name on gms services
+        if ("com.google.android.gms.ui".equals(processName)) {
+            setPropValue("MODEL", MODEL);
         }
     }
 

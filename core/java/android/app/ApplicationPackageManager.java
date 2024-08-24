@@ -809,7 +809,9 @@ public class ApplicationPackageManager extends PackageManager {
                 }
             };
 
-    private static final String[] pTensorCodenames = {
+    private static final ArrayList<String> pTensorCodenames =
+    new ArrayList<String> (
+        Arrays.asList(
             "comet",
             "komodo",
             "caiman",
@@ -825,9 +827,11 @@ public class ApplicationPackageManager extends PackageManager {
             "bluejay",
             "oriole",
             "raven"
-    };
+    ));
 
-    private static final String[] featuresPixel = {
+    private static final ArrayList<String> featuresPixel =
+    new ArrayList<String> (
+        Arrays.asList(
             "com.google.android.apps.photos.PIXEL_2019_PRELOAD",
             "com.google.android.apps.photos.PIXEL_2019_MIDYEAR_PRELOAD",
             "com.google.android.apps.photos.PIXEL_2018_PRELOAD",
@@ -842,9 +846,11 @@ public class ApplicationPackageManager extends PackageManager {
             "com.google.android.feature.PIXEL_EXPERIENCE",
             "com.google.android.feature.GOOGLE_BUILD",
             "com.google.android.feature.GOOGLE_EXPERIENCE"
-    };
+    ));
 
-    private static final String[] featuresTensor = {
+    private static final ArrayList<String> featuresTensor =
+    new ArrayList<String> (
+        Arrays.asList(
             "com.google.android.feature.PIXEL_2025_EXPERIENCE",
             "com.google.android.feature.PIXEL_2025_MIDYEAR_EXPERIENCE",
             "com.google.android.feature.PIXEL_2024_EXPERIENCE",
@@ -853,15 +859,19 @@ public class ApplicationPackageManager extends PackageManager {
             "com.google.android.feature.PIXEL_2023_MIDYEAR_EXPERIENCE",
             "com.google.android.feature.PIXEL_2022_EXPERIENCE",
             "com.google.android.feature.PIXEL_2022_MIDYEAR_EXPERIENCE",
-            "com.google.android.feature.PIXEL_2021_EXPERIENCE",
-    };
+            "com.google.android.feature.PIXEL_2021_EXPERIENCE"
+    ));
 
-    private static final String[] featuresNexus = {
+    private static final ArrayList<String> featuresNexus =
+    new ArrayList<String> (
+        Arrays.asList(
             "com.google.android.apps.photos.NEXUS_PRELOAD",
             "com.google.android.apps.photos.nexus_preload"
-    };
+    ));
 
-    private static final String[] featuresOther = {
+    private static final ArrayList<String> featuresOther = 
+    new ArrayList<String> (
+        Arrays.asList(
         "com.google.android.feature.ASI",
         "com.google.android.feature.ANDROID_ONE_EXPERIENCE",
         "com.google.android.feature.GOOGLE_FI_BUNDLED",
@@ -877,23 +887,23 @@ public class ApplicationPackageManager extends PackageManager {
         "com.google.android.feature.EXCHANGE_6_2",
         "com.google.android.apps.dialer.call_recording_audio",
         "com.google.android.apps.dialer.SUPPORTED"
-    };
+    ));
 
     @Override
     public boolean hasSystemFeature(String name, int version) {
-        if (name != null && Arrays.asList(featuresTensor).contains(name) &&
-                !Arrays.asList(pTensorCodenames).contains(SystemProperties.get("ro.product.device"))) {
+        if (name != null && featuresTensor.contains(name) &&
+                !pTensorCodenames.contains(SystemProperties.get("ro.product.device"))) {
             return false;
         }
         String packageName = ActivityThread.currentPackageName();
         if (packageName != null &&
                 packageName.equals("com.google.android.apps.photos")) {
-            if (Arrays.asList(featuresPixel).contains(name)) return false;
-            if (Arrays.asList(featuresNexus).contains(name)) return true;
-            if (Arrays.asList(featuresOther).contains(name)) return true;
+            if (featuresPixel.contains(name)) return false;
+            if (featuresNexus.contains(name)) return true;
+            if (featuresOther.contains(name)) return true;
         } else {
-            if (Arrays.asList(featuresPixel).contains(name)) return true;
-            if (Arrays.asList(featuresOther).contains(name)) return true;
+            if (featuresPixel.contains(name)) return true;
+            if (featuresOther.contains(name)) return true;
         }
 
         return mHasSystemFeatureCache.query(new HasSystemFeatureQuery(name, version));
