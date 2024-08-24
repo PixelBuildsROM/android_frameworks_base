@@ -810,6 +810,10 @@ public class ApplicationPackageManager extends PackageManager {
             };
 
     private static final String[] pTensorCodenames = {
+            "comet",
+            "komodo",
+            "caiman",
+            "tokay",
             "akita",
             "husky",
             "shiba",
@@ -841,6 +845,8 @@ public class ApplicationPackageManager extends PackageManager {
     };
 
     private static final String[] featuresTensor = {
+            "com.google.android.feature.PIXEL_2025_EXPERIENCE",
+            "com.google.android.feature.PIXEL_2025_MIDYEAR_EXPERIENCE",
             "com.google.android.feature.PIXEL_2024_EXPERIENCE",
             "com.google.android.feature.PIXEL_2024_MIDYEAR_EXPERIENCE",
             "com.google.android.feature.PIXEL_2023_EXPERIENCE",
