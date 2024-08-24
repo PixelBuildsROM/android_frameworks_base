@@ -90,6 +90,10 @@ public class PixelPropsUtils {
 
     // Codenames for currently supported Pixels by Google
     private static final String[] pixelCodenames = {
+            "comet",
+            "komodo",
+            "caiman",
+            "tokay",
             "akita",
             "husky",
             "shiba",
@@ -110,9 +114,9 @@ public class PixelPropsUtils {
         propsToChangeGeneric.put("TYPE", "user");
         propsToChangeGeneric.put("TAGS", "release-keys");
         propsToChangeNewerPixel = new HashMap<>();
-        String fingerprint_newer_pixel = "google/husky/husky:14/AP2A.240805.005/12025142:user/release-keys";
+        String fingerprint_newer_pixel = "google/caiman/caiman:14/AD1A.240530.047.U1/12150698:user/release-keys";
         propsToChangeNewerPixel.put("MANUFACTURER", "Google");
-        propsToChangeNewerPixel.put("MODEL", "Pixel 8 Pro");
+        propsToChangeNewerPixel.put("MODEL", "Pixel 9 Pro");
         propsToChangeNewerPixel.put("FINGERPRINT", fingerprint_newer_pixel);
         String[] fpsections_newer_pixel = fingerprint_newer_pixel.split("/");
         propsToChangeNewerPixel.put("BRAND", fpsections_newer_pixel[0]);
