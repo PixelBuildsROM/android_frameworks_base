@@ -394,6 +394,7 @@ public final class KeyboardShortcuts {
         mReceivedImeShortcutGroups = null;
         mWindowManager.requestAppKeyboardShortcuts(
                 result -> {
+                    sanitiseShortcuts(result);
                     mReceivedAppShortcutGroups = result;
                     maybeMergeAndShowKeyboardShortcuts();
                 }, deviceId);
@@ -402,6 +403,14 @@ public final class KeyboardShortcuts {
                     mReceivedImeShortcutGroups = result;
                     maybeMergeAndShowKeyboardShortcuts();
                 }, deviceId);
+    }
+
+    static void sanitiseShortcuts(List<KeyboardShortcutGroup> shortcutGroups) {
+        for (KeyboardShortcutGroup group : shortcutGroups) {
+            for (KeyboardShortcutInfo info : group.getItems()) {
+                info.clearIcon();
+            }
+        }
     }
 
     private void maybeMergeAndShowKeyboardShortcuts() {
