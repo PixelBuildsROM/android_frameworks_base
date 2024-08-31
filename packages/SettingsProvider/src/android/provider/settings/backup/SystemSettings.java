@@ -104,5 +104,6 @@ public class SystemSettings {
         Settings.System.NOTIFICATION_COOLDOWN_ENABLED,
         Settings.System.NOTIFICATION_COOLDOWN_ALL,
         Settings.System.NOTIFICATION_COOLDOWN_VIBRATE_UNLOCKED,
+        Settings.System.NAVBAR_LONG_PRESS_GESTURE
     };
 }
