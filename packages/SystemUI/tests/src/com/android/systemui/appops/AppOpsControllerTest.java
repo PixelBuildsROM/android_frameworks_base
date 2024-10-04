@@ -99,11 +99,10 @@ public class AppOpsControllerTest extends SysuiTestCase {
     @Mock()
     private BroadcastDispatcher mDispatcher;
     @Mock(stubOnly = true)
-    private AudioManager.AudioRecordingCallback mRecordingCallback;
-    @Mock(stubOnly = true)
     private AudioRecordingConfiguration mPausedMockRecording;
 
     private AppOpsControllerImpl mController;
+    private AudioManager.AudioRecordingCallback mRecordingCallback;
     private TestableLooper mTestableLooper;
 
     private String mExemptedRolePkgName;
@@ -872,6 +871,76 @@ public class AppOpsControllerTest extends SysuiTestCase {
         assertEquals(2, list.size());
         int cameraIdx = list.get(0).getCode() == AppOpsManager.OP_PHONE_CALL_CAMERA ? 0 : 1;
         assertEquals(AppOpsManager.OP_PHONE_CALL_CAMERA, list.get(cameraIdx).getCode());
+    }
+
+    private void verifyUnPausedSentActive(int micOpCode) {
+        // Setup stubs the initial active recording list with a single silenced client
+        mController.addCallback(new int[]{micOpCode}, mCallback);
+        mBgExecutor.runAllReady();
+        mTestableLooper.processAllMessages();
+        mController.onOpActiveChanged(AppOpsManager.opToPublicName(micOpCode), TEST_UID,
+                TEST_PACKAGE_NAME, true);
+
+        mTestableLooper.processAllMessages();
+
+        // Update with multiple recording configs, of which one is unsilenced
+        var mockARCUnsilenced = mock(AudioRecordingConfiguration.class);
+        when(mockARCUnsilenced.getClientUid()).thenReturn(TEST_UID);
+        when(mockARCUnsilenced.isClientSilenced()).thenReturn(false);
+
+        mRecordingCallback.onRecordingConfigChanged(List.of(
+                    mockARCUnsilenced, mPausedMockRecording));
+
+        mTestableLooper.processAllMessages();
+
+        verify(mCallback).onActiveStateChanged(micOpCode, TEST_UID, TEST_PACKAGE_NAME, true);
+        // For consistency since this runs in a loop
+        mController.removeCallback(new int[]{micOpCode}, mCallback);
+    }
+
+    private void verifyAudioPausedSentInactive(int micOpCode) {
+        mController.addCallback(new int[]{micOpCode}, mCallback);
+        mBgExecutor.runAllReady();
+        mTestableLooper.processAllMessages();
+        mController.onOpActiveChanged(AppOpsManager.opToPublicName(micOpCode), TEST_UID_OTHER,
+                TEST_PACKAGE_NAME, true);
+        mTestableLooper.processAllMessages();
+
+        // Multiple recording configs, which are all silenced
+        AudioRecordingConfiguration mockARCOne = mock(AudioRecordingConfiguration.class);
+        when(mockARCOne.getClientUid()).thenReturn(TEST_UID_OTHER);
+        when(mockARCOne.isClientSilenced()).thenReturn(true);
+
+        AudioRecordingConfiguration mockARCTwo = mock(AudioRecordingConfiguration.class);
+        when(mockARCTwo.getClientUid()).thenReturn(TEST_UID_OTHER);
+        when(mockARCTwo.isClientSilenced()).thenReturn(true);
+
+        mRecordingCallback.onRecordingConfigChanged(List.of(mockARCOne, mockARCTwo));
+        mTestableLooper.processAllMessages();
+
+        InOrder inOrder = inOrder(mCallback);
+        inOrder.verify(mCallback).onActiveStateChanged(
+                micOpCode, TEST_UID_OTHER, TEST_PACKAGE_NAME, true);
+        inOrder.verify(mCallback).onActiveStateChanged(
+                micOpCode, TEST_UID_OTHER, TEST_PACKAGE_NAME, false);
+        // For consistency since this runs in a loop
+        mController.removeCallback(new int[]{micOpCode}, mCallback);
+    }
+
+    private void verifySingleActiveOps(int op) {
+        List<AppOpItem> list = mController.getActiveAppOps();
+        assertEquals(1, list.size());
+        assertEquals(op, list.get(0).getCode());
+        assertFalse(list.get(0).isDisabled());
+    }
+
+    private void verifyActiveOps(int micOp, int nonMicOp) {
+        List<AppOpItem> list = mController.getActiveAppOps();
+        assertEquals(2, list.size());
+        List<Integer> codes = Arrays.asList(list.get(0).getCode(), list.get(1).getCode());
+        assertThat(codes).containsExactly(micOp, nonMicOp);
+        assertFalse(list.get(0).isDisabled());
+        assertFalse(list.get(1).isDisabled());
     }
 
     private AppOpsManager.PackageOps createPackageOp(
