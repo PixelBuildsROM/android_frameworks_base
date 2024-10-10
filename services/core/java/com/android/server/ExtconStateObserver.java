@@ -53,6 +53,9 @@ public abstract class ExtconStateObserver<S> extends ExtconUEventObserver {
     public void onUEvent(ExtconInfo extconInfo, UEvent event) {
         if (LOG) Slog.d(TAG, extconInfo.getName() + " UEVENT: " + event);
         String name = event.get("NAME");
+        if(name == null) {
+            return;
+        }
         S state = parseState(extconInfo, event.get("STATE"));
         if (state != null) {
             updateState(extconInfo, name, state);
