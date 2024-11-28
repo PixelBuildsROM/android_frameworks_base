@@ -1130,6 +1130,10 @@ public final class LoadedApk {
 
     @UnsupportedAppUsage
     public ClassLoader getClassLoader() {
+        ClassLoader ret = mClassLoader;
+        if (ret != null) {
+            return ret;
+        }
         synchronized (mLock) {
             if (mClassLoader == null) {
                 createOrUpdateClassLoaderLocked(null /*addedPaths*/);
