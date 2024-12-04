@@ -858,9 +858,7 @@ public class ThemeOverlayController implements CoreStartable, Dumpable, TunerSer
     private final ConfigurationListener mConfigurationListener = new ConfigurationListener() {
         @Override
         public void onUiModeChanged() {
-            if (isBlackThemeEnabled()) {
-                reevaluateSystemTheme(true /* forceReload */);
-            }
+            reevaluateSystemTheme(true /* forceReload */);
         }
     };
 
