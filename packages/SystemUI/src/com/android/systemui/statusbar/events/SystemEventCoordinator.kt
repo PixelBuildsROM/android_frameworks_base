@@ -18,6 +18,7 @@ package com.android.systemui.statusbar.events
 
 import android.annotation.IntRange
 import android.content.Context
+import android.os.PowerManager;
 import android.provider.DeviceConfig
 import android.provider.DeviceConfig.NAMESPACE_PRIVACY
 import com.android.systemui.R
@@ -52,6 +53,7 @@ constructor(
     private val privacyController: PrivacyItemController,
     private val context: Context,
     private val featureFlags: FeatureFlags,
+    private val powerManager: PowerManager,
     @Application private val appScope: CoroutineScope,
     connectedDisplayInteractor: ConnectedDisplayInteractor
 ) {
@@ -79,8 +81,9 @@ constructor(
     }
 
     fun notifyPluggedIn(@IntRange(from = 0, to = 100) batteryLevel: Int) {
-        if (featureFlags.isEnabled(Flags.PLUG_IN_STATUS_BAR_CHIP)) {
-            scheduler.onStatusEvent(BatteryEvent(batteryLevel))
+        if (featureFlags.isEnabled(Flags.PLUG_IN_STATUS_BAR_CHIP) && 
+            !powerManager.isPowerSaveMode()) {
+                scheduler.onStatusEvent(BatteryEvent(batteryLevel))
         }
     }
 
