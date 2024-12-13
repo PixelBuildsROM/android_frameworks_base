@@ -750,8 +750,7 @@ object Flags {
 
     // TODO(b/283740863): Tracking Bug
     @JvmField
-    val ENABLE_NEW_PRIVACY_DIALOG =
-        unreleasedFlag("enable_new_privacy_dialog", teamfood = true)
+    val ENABLE_NEW_PRIVACY_DIALOG = releasedFlag("enable_new_privacy_dialog")
 
     // TODO(b/289573946): Tracking Bug
     @JvmField val PRECOMPUTED_TEXT = unreleasedFlag("precomputed_text")
@@ -783,7 +782,7 @@ object Flags {
 
     /** Enable the share wifi button in Quick Settings internet dialog. */
     @JvmField
-    val SHARE_WIFI_QS_BUTTON = unreleasedFlag("share_wifi_qs_button")
+    val SHARE_WIFI_QS_BUTTON = releasedFlag("share_wifi_qs_button")
 
     /** Enable haptic slider component in the brightness slider */
     @JvmField
