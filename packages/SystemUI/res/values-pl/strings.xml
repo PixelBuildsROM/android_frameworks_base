@@ -57,6 +57,7 @@
     <string name="hdmi_cec_set_menu_language_description" msgid="8176716678074126619">"Inny użytkownik poprosił o zmianę języka systemu"</string>
     <string name="hdmi_cec_set_menu_language_accept" msgid="2513689457281009578">"Zmień język"</string>
     <string name="hdmi_cec_set_menu_language_decline" msgid="7650721096558646011">"Zachowaj bieżący język"</string>
+    <string name="share_wifi_button_text" msgid="1285273973812029240">"Udostępnij Wi‑Fi"</string>
     <string name="wifi_debugging_title" msgid="7300007687492186076">"Zezwolić na debugowanie bezprzewodowe w tej sieci?"</string>
     <string name="wifi_debugging_message" msgid="5461204211731802995">"Nazwa sieci (SSID)\n<xliff:g id="SSID_0">%1$s</xliff:g>\n\nAdres Wi‑Fi (BSSID)\n<xliff:g id="BSSID_1">%2$s</xliff:g>"</string>
     <string name="wifi_debugging_always" msgid="2968383799517975155">"Zawsze zezwalaj w tej sieci"</string>

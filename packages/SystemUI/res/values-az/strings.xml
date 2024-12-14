@@ -57,6 +57,7 @@
     <string name="hdmi_cec_set_menu_language_description" msgid="8176716678074126619">"Sistem dilinin dəyişdirilməsi başqa cihaz tərəfindən tələb olunur"</string>
     <string name="hdmi_cec_set_menu_language_accept" msgid="2513689457281009578">"Dili dəyişin"</string>
     <string name="hdmi_cec_set_menu_language_decline" msgid="7650721096558646011">"Cari dili saxlayın"</string>
+    <string name="share_wifi_button_text" msgid="1285273973812029240">"Wi‑Fi-ı paylaşın"</string>
     <string name="wifi_debugging_title" msgid="7300007687492186076">"Bu şəbəkədə WiFi sazlamasına icazə verilsin?"</string>
     <string name="wifi_debugging_message" msgid="5461204211731802995">"Şəbəkə Adı (SSID)\n<xliff:g id="SSID_0">%1$s</xliff:g>\n\nWi‑Fi Ünvanı (BSSID)\n<xliff:g id="BSSID_1">%2$s</xliff:g>"</string>
     <string name="wifi_debugging_always" msgid="2968383799517975155">"Bu şəbəkədə həmişə icazə verilsin"</string>

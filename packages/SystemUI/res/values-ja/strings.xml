@@ -57,6 +57,7 @@
     <string name="hdmi_cec_set_menu_language_description" msgid="8176716678074126619">"他のデバイスからシステム言語の変更が要求されました"</string>
     <string name="hdmi_cec_set_menu_language_accept" msgid="2513689457281009578">"言語を変更"</string>
     <string name="hdmi_cec_set_menu_language_decline" msgid="7650721096558646011">"現在の言語を変更しない"</string>
+    <string name="share_wifi_button_text" msgid="1285273973812029240">"Wi-Fi を共有"</string>
     <string name="wifi_debugging_title" msgid="7300007687492186076">"このネットワークでワイヤレス デバッグを許可しますか？"</string>
     <string name="wifi_debugging_message" msgid="5461204211731802995">"ネットワーク名（SSID）\n<xliff:g id="SSID_0">%1$s</xliff:g>\n\nWi‑Fi アドレス（BSSID）\n<xliff:g id="BSSID_1">%2$s</xliff:g>"</string>
     <string name="wifi_debugging_always" msgid="2968383799517975155">"このネットワークで常に許可する"</string>

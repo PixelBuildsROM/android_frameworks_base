@@ -57,6 +57,7 @@
     <string name="hdmi_cec_set_menu_language_description" msgid="8176716678074126619">"Друго устройство е заявило промяна на езика на системата"</string>
     <string name="hdmi_cec_set_menu_language_accept" msgid="2513689457281009578">"Промяна на езика"</string>
     <string name="hdmi_cec_set_menu_language_decline" msgid="7650721096558646011">"Текущ език: Запазване"</string>
+    <string name="share_wifi_button_text" msgid="1285273973812029240">"Споделяне на Wi‑Fi"</string>
     <string name="wifi_debugging_title" msgid="7300007687492186076">"Разрешаване на безжичното отстраняване на грешки?"</string>
     <string name="wifi_debugging_message" msgid="5461204211731802995">"Име на мрежата (SSID)\n<xliff:g id="SSID_0">%1$s</xliff:g>\n\nАдрес на Wi‑Fi мрежата (BSSID)\n<xliff:g id="BSSID_1">%2$s</xliff:g>"</string>
     <string name="wifi_debugging_always" msgid="2968383799517975155">"Винаги да се разрешава в тази мрежа"</string>

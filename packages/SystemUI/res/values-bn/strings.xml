@@ -57,6 +57,7 @@
     <string name="hdmi_cec_set_menu_language_description" msgid="8176716678074126619">"অন্য ডিভাইসের দ্বারা সিস্টেমের ভাষা পরিবর্তনের অনুরোধ করা হয়েছে"</string>
     <string name="hdmi_cec_set_menu_language_accept" msgid="2513689457281009578">"ভাষা পরিবর্তন করুন"</string>
     <string name="hdmi_cec_set_menu_language_decline" msgid="7650721096558646011">"বর্তমান ভাষা রাখুন"</string>
+    <string name="share_wifi_button_text" msgid="1285273973812029240">"ওয়াই-ফাই শেয়ার করুন"</string>
     <string name="wifi_debugging_title" msgid="7300007687492186076">"এই নেটওয়ার্কে ওয়্যারলেস ডিবাগিংয়ের অনুমতি দেবেন?"</string>
     <string name="wifi_debugging_message" msgid="5461204211731802995">"নেটওয়ার্কের নাম (SSID)\n<xliff:g id="SSID_0">%1$s</xliff:g>\n\nওয়াই-ফাই অ্যাড্রেস (BSSID)\n<xliff:g id="BSSID_1">%2$s</xliff:g>"</string>
     <string name="wifi_debugging_always" msgid="2968383799517975155">"এই নেটওয়ার্কে সবসময় অনুমতি দিন"</string>

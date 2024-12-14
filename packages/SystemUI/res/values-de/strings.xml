@@ -57,6 +57,7 @@
     <string name="hdmi_cec_set_menu_language_description" msgid="8176716678074126619">"Von einem anderen Gerät wurde eine Änderung der Systemsprache angefordert"</string>
     <string name="hdmi_cec_set_menu_language_accept" msgid="2513689457281009578">"Sprache ändern"</string>
     <string name="hdmi_cec_set_menu_language_decline" msgid="7650721096558646011">"Aktuelle Sprache nutzen"</string>
+    <string name="share_wifi_button_text" msgid="1285273973812029240">"WLAN teilen"</string>
     <string name="wifi_debugging_title" msgid="7300007687492186076">"Debugging über WLAN in diesem Netzwerk zulassen?"</string>
     <string name="wifi_debugging_message" msgid="5461204211731802995">"Netzwerkname (SSID)\n<xliff:g id="SSID_0">%1$s</xliff:g>\n\nWLAN-Adresse (BSSID)\n<xliff:g id="BSSID_1">%2$s</xliff:g>"</string>
     <string name="wifi_debugging_always" msgid="2968383799517975155">"Immer in diesem Netzwerk zulassen"</string>

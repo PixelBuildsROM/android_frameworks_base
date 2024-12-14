@@ -57,6 +57,7 @@
     <string name="hdmi_cec_set_menu_language_description" msgid="8176716678074126619">"Получен запрос на изменение системного языка от другого устройства."</string>
     <string name="hdmi_cec_set_menu_language_accept" msgid="2513689457281009578">"Изменить язык"</string>
     <string name="hdmi_cec_set_menu_language_decline" msgid="7650721096558646011">"Оставить текущий язык"</string>
+    <string name="share_wifi_button_text" msgid="1285273973812029240">"Поделиться Wi‑Fi"</string>
     <string name="wifi_debugging_title" msgid="7300007687492186076">"Разрешить отладку по Wi-Fi в этой сети?"</string>
     <string name="wifi_debugging_message" msgid="5461204211731802995">"Название сети (SSID):\n<xliff:g id="SSID_0">%1$s</xliff:g>\n\nMAC-адрес точки доступа (BSSID):\n<xliff:g id="BSSID_1">%2$s</xliff:g>"</string>
     <string name="wifi_debugging_always" msgid="2968383799517975155">"Всегда разрешать отладку в этой сети"</string>
