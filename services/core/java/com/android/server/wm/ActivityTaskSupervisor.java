@@ -1061,6 +1061,11 @@ public class ActivityTaskSupervisor implements RecentTasks.Callbacks {
         boolean knownToBeDead = false;
         if (wpc != null && wpc.hasThread()) {
             try {
+                android.os.PowerManagerInternal localPowerManager = LocalServices.getService(android.os.PowerManagerInternal.class);
+                if (localPowerManager != null) {
+                    localPowerManager.setPowerBoost(
+                                    android.os.PowerManagerInternal.BOOST_INTERACTION, 1000);
+                }
                 realStartActivityLocked(r, wpc, andResume, checkConfig);
                 return;
             } catch (RemoteException e) {

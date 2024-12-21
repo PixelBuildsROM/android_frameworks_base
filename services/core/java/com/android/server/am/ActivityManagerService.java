@@ -4674,6 +4674,13 @@ public class ActivityManagerService extends IActivityManager.Stub
 
         EventLogTags.writeAmProcBound(app.userId, pid, app.processName);
 
+        if (app.getHostingRecord() != null && app.getHostingRecord().isTopApp()) {
+            if (mLocalPowerManager != null) {
+                mLocalPowerManager.setPowerBoost(
+                                PowerManagerInternal.BOOST_INTERACTION, 1000);
+            }
+        }
+
         synchronized (mProcLock) {
             mOomAdjuster.setAttachingProcessStatesLSP(app);
             clearProcessForegroundLocked(app);
