@@ -39,6 +39,9 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+import android.os.Handler
+import android.os.Looper
+
 /**
  * Listens for system events (battery, privacy, connectivity) and allows listeners to show status
  * bar animations when they happen
@@ -80,7 +83,9 @@ constructor(
 
     fun notifyPluggedIn(@IntRange(from = 0, to = 100) batteryLevel: Int) {
         if (featureFlags.isEnabled(Flags.PLUG_IN_STATUS_BAR_CHIP)) {
+            Handler(Looper.getMainLooper()).postDelayed({
             scheduler.onStatusEvent(BatteryEvent(batteryLevel))
+            }, 1200) // 1200 milliseconds delay
         }
     }
 

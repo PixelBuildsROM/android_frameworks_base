@@ -99,7 +99,7 @@ val STATUS_CHIP_HEIGHT_TO_DOT_KEYFRAME_1 = PathInterpolator(0.4f, 0f, 0.17f, 1f)
 val STATUS_CHIP_HEIGHT_TO_DOT_KEYFRAME_2 = PathInterpolator(0.3f, 0f, 0f, 1f)
 val STATUS_CHIP_MOVE_TO_DOT = PathInterpolator(0f, 0f, 0.05f, 1f)
 
-internal const val DEBOUNCE_DELAY = 1100L
+internal const val DEBOUNCE_DELAY = 100L
 
 /**
  * The total time spent on the chip animation is 1500ms, broken up into 3 sections:
