@@ -220,6 +220,27 @@ public class PixelPropsUtils {
         if (packageName == null || packageName.isEmpty()) {
             return;
         }
+        // Detect and spoof GMS first
+        if (packageName.equals(PACKAGE_GMS)) {
+            setPropValue("TIME", System.currentTimeMillis());
+            if (processName.toLowerCase().contains("unstable")) {
+                    try {
+                        PackageManager pm = context.getPackageManager();
+                        Resources resources = pm.getResourcesForApplication(PACKAGE_PIF);
+                        int resourceId = resources.getIdentifier(
+                            "config_certifiedBuildProperties", "array", PACKAGE_PIF);
+                        String[] packageProps = resources.getStringArray(resourceId);
+                        if (!Arrays.equals(sCertifiedProps, packageProps)) {
+                            sCertifiedProps = packageProps;
+                        }
+                    } catch (PackageManager.NameNotFoundException e) {
+                        if (DEBUG) Log.d(TAG, "PIF package is not found");
+                    }
+                    setPropsForGms();
+                    return;
+            }
+        }
+        // Don't go through apps spoofing for supported pixels
         if (pixelCodenames.contains(DEVICE)) {
             return;
         }
@@ -249,26 +270,6 @@ public class PixelPropsUtils {
                 }
                 if (DEBUG) Log.d(TAG, "Defining " + key + " prop for: " + packageName);
                     setPropValue(key, value);
-            }
-        }
-
-        if (packageName.equals(PACKAGE_GMS)) {
-            setPropValue("TIME", System.currentTimeMillis());
-            if (processName.toLowerCase().contains("unstable")) {
-                    try {
-                        PackageManager pm = context.getPackageManager();
-                        Resources resources = pm.getResourcesForApplication(PACKAGE_PIF);
-                        int resourceId = resources.getIdentifier(
-                            "config_certifiedBuildProperties", "array", PACKAGE_PIF);
-                        String[] packageProps = resources.getStringArray(resourceId);
-                        if (!Arrays.equals(sCertifiedProps, packageProps)) {
-                            sCertifiedProps = packageProps;
-                        }
-                    } catch (PackageManager.NameNotFoundException e) {
-                        if (DEBUG) Log.d(TAG, "PIF package is not found");
-                    }
-                    setPropsForGms();
-                    return;
             }
         }
 
