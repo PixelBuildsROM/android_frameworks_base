@@ -29,7 +29,9 @@ import android.view.View;
 
 import com.android.settingslib.Utils;
 import com.android.systemui.R;
+import com.android.systemui.Dependency;
 import com.android.systemui.navigationbar.buttons.ButtonInterface;
+import com.android.systemui.statusbar.policy.KeyguardStateController;
 
 public class NavigationHandle extends View implements ButtonInterface {
 
@@ -39,6 +41,26 @@ public class NavigationHandle extends View implements ButtonInterface {
     protected final float mRadius;
     protected final float mBottom;
     private boolean mRequiresInvalidate;
+
+    private final KeyguardStateController mKeyguardStateController;
+
+    private final KeyguardStateController.Callback mKeyguardStateCallback =
+            new KeyguardStateController.Callback() {
+                @Override
+                public void onKeyguardShowingChanged() {
+                    if (mKeyguardStateController.isShowing()) {
+                        updateHandleVisibility(false);
+                    }
+                }
+                @Override
+                public void onKeyguardFadingAwayChanged() {
+                    updateHandleVisibility(true);
+                }
+                @Override
+                public void onKeyguardGoingAwayChanged() {
+                    updateHandleVisibility(true);
+                }
+            };
 
     public NavigationHandle(Context context) {
         this(context, null);
@@ -58,6 +80,19 @@ public class NavigationHandle extends View implements ButtonInterface {
         mDarkColor = Utils.getColorAttrDefaultColor(darkContext, R.attr.homeHandleColor);
         mPaint.setAntiAlias(true);
         setFocusable(false);
+        mKeyguardStateController = Dependency.get(KeyguardStateController.class);
+    }
+    
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mKeyguardStateController.addCallback(mKeyguardStateCallback);
+    }
+
+    @Override
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mKeyguardStateController.removeCallback(mKeyguardStateCallback);
     }
 
     @Override
@@ -109,5 +144,11 @@ public class NavigationHandle extends View implements ButtonInterface {
 
     @Override
     public void setDelayTouchFeedback(boolean shouldDelay) {
+    }
+
+    private void updateHandleVisibility(boolean show) {
+        if (isShown() == show) return;
+        setVisibility(show ? View.VISIBLE : View.INVISIBLE);
+        if (show) invalidate();
     }
 }
