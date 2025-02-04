@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c01bee46_3d6cdfb3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000001
+      },
+      "writtenOn": "2025-02-04T16:25:29Z",
+      "side": 1,
+      "message": "Any valid reasons for that apart from one sketchy bg process killer app not working? Never seen any other apps out there that consuming that API so this \u0027black magic\u0027 doesn\u0027t look justifiable enough to me, you would have to do better than that.",
+      "revId": "d1cf7f11ab3804e57846691fd155d2f09a6a4590",
+      "serverId": "54889931-03f6-4e00-8ab8-119c55947771"
+    }
+  ]
+}
