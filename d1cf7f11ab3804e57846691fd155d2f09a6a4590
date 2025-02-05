@@ -34,6 +34,24 @@
       "parentUuid": "c01bee46_3d6cdfb3",
       "revId": "d1cf7f11ab3804e57846691fd155d2f09a6a4590",
       "serverId": "54889931-03f6-4e00-8ab8-119c55947771"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "460c7175_c31c1b70",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000001
+      },
+      "writtenOn": "2025-02-05T19:35:45Z",
+      "side": 1,
+      "message": "You have to understand that we are not obligated to support any rooting solutions or weird hacky apps that make use of EventLog events that have no business being in production builds in first place. \n\nOn the note about Magisk - this is used as an attempt to make denylist work when the zygisk is disabled from what I can see and thereby does not really affect any core functionality, rather adding a quirk to keep in mind. \n\nYou are free to make any modifications to the source and build for yourself in case you need that stuff to work, but given the reasons for revert you have provided so far, I cannot  justify merging it, even despite the trade-off being a mostly negligable performance overhead.",
+      "parentUuid": "9b2d7db6_a5f7905a",
+      "revId": "d1cf7f11ab3804e57846691fd155d2f09a6a4590",
+      "serverId": "54889931-03f6-4e00-8ab8-119c55947771"
     }
   ]
 }
