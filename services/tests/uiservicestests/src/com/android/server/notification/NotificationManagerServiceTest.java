@@ -12712,7 +12712,7 @@ public class NotificationManagerServiceTest extends UiServiceTestCase {
         verify(mListeners).isComponentEnabledForPackage(packageName);
         verify(mDevicePolicyManager).isActiveDeviceOwner(uid);
     }
-    
+
     public void enqueueNotification_acceptsCorrectToken() throws RemoteException {
         Notification sent = new Notification.Builder(mContext, TEST_CHANNEL_ID)
                 .setContentIntent(createPendingIntent("content"))
