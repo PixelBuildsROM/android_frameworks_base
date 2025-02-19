@@ -180,6 +180,10 @@ constructor(
             .stateIn(scope, SharingStarted.WhileSubscribed(), false)
 
     override val activityContainerVisible: Flow<Boolean> =
-            flowOf(constants.shouldShowActivityConfig)
+        if (constants.shouldShowActivityConfig) {
+            showNetworkTypeIcon
+        } else {
+            flowOf(false)
             .stateIn(scope, SharingStarted.WhileSubscribed(), false)
+        }
 }

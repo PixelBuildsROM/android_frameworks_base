@@ -128,8 +128,12 @@ constructor(
             .stateIn(scope, SharingStarted.WhileSubscribed(), false)
 
     override val isActivityContainerVisible: Flow<Boolean> =
-            flowOf(connectivityConstants.shouldShowActivityConfig)
+        if (connectivityConstants.shouldShowActivityConfig) {
+            interactor.isDefault
+        } else {
+            flowOf(false)
             .stateIn(scope, SharingStarted.WhileSubscribed(), false)
+        }
 
     // TODO(b/238425913): It isn't ideal for the wifi icon to need to know about whether the
     //  airplane icon is visible. Instead, we should have a parent StatusBarSystemIconsViewModel
