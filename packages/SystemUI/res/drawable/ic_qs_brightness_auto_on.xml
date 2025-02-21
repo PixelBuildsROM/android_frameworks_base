@@ -14,13 +14,16 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="36.0dip"
-    android:height="48.0dip"
-    android:viewportWidth="36.0"
-    android:viewportHeight="48.0"
-    android:tint="?android:attr/textColorPrimaryInverse">
+<vector xmlns:android="http://schemas.android.com/apk/res/android" 
+     android:tint="?attr/onShadeActive" 
+     android:height="24.0dip" 
+     android:width="24.0dip" 
+     android:viewportWidth="24.0" 
+     android:viewportHeight="24.0">
 
-    <path android:fillColor="#FFFFFFFF"
-          android:pathData="m 17,19 -3.2,9 h 1.9 l 0.7,-2 h 3.2 l 0.7,2 h 1.9 L 19,19 Z M 16.85,24.65 18,21 19.15,24.65 Z M 26,20.69 V 16 H 21.31 L 18,12.69 14.69,16 H 10 v 4.69 L 6.69,24 10,27.31 V 32 h 4.69 L 18,35.31 21.31,32 H 26 V 27.31 L 29.31,24 Z m -2,5.79 V 30 H 20.48 L 18,32.48 15.52,30 H 12 V 26.48 L 9.52,24 12,21.52 V 18 h 3.52 L 18,15.52 20.48,18 H 24 v 3.52 L 26.48,24 Z" />
+    <path android:strokeColor="#ffffffff" 
+          android:strokeWidth="1.5" 
+          android:strokeLineCap="round" 
+          android:strokeLineJoin="round" 
+          android:pathData="M4.469 15.107V18c0 .828.671 1.5 1.5 1.5h2.893l2.046 2.046c.586.586 1.536.586   2.121 0l2.046-2.046h2.894c.828 0 1.5-.672 1.5-1.5v-2.893l2.046-2.046c.585-.586.585-1.536   0-2.122l-2.046-2.046V6c0-.828-.672-1.5-1.5-1.5h-2.894l-2.046-2.046c-.585-.586-1.535-.586-2.121   0L8.862 4.5H5.969c-.829 0-1.5.672-1.5 1.5v2.893l-2.046 2.046c-.586.586-.586 1.536 0 2.122l2.046 2.046   M9.195,15.25c0,0 1.792,-4.85 2.512,-6.796c0.045,-0.123 0.162,-0.204 0.293,-0.204c0.131,0 0.248,0.081   0.293,0.204c0.72,1.946 2.512,6.796 2.512,6.796m-4.512,-2.97l3.414,0"/>
 </vector>
