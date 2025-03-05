@@ -147,6 +147,7 @@ import android.os.IBinder;
 import android.os.PowerManagerInternal;
 import android.os.Process;
 import android.os.RemoteException;
+import android.os.StrictMode;
 import android.os.SystemClock;
 import android.os.Trace;
 import android.util.ArrayMap;
@@ -163,6 +164,7 @@ import com.android.server.am.PlatformCompatCache.CachedCompatChangeId;
 import com.android.server.wm.ActivityServiceConnectionsHolder;
 import com.android.server.wm.WindowProcessController;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -384,6 +386,8 @@ public class OomAdjuster {
     private final ArraySet<ProcessRecord> mPendingProcessSet = new ArraySet<>();
     private final ArraySet<ProcessRecord> mProcessesInCycle = new ArraySet<>();
 
+    private Boolean mProactiveKillsEnabled = null;
+
     /**
      * Flag to mark if there is an ongoing oomAdjUpdate: potentially the oomAdjUpdate
      * could be called recursively because of the indirect calls during the update;
@@ -459,6 +463,25 @@ public class OomAdjuster {
         mTmpQueue = new ArrayDeque<ProcessRecord>(mConstants.CUR_MAX_CACHED_PROCESSES << 1);
         mNumSlots = ((CACHED_APP_MAX_ADJ - CACHED_APP_MIN_ADJ + 1) >> 1)
                 / CACHED_APP_IMPORTANCE_LEVELS;
+    }
+
+    private boolean conditionallyEnableProactiveKills() {
+        if (mProactiveKillsEnabled != null) {
+            return mProactiveKillsEnabled;
+        }
+        boolean isModernKernel = false;
+        StrictMode.ThreadPolicy oldPolicy = StrictMode.allowThreadDiskReads();
+        try {
+            final File mglru = new File("/sys/kernel/mm/lru_gen/enabled");
+            final File psi = new File("/proc/pressure/memory");
+            isModernKernel = mglru.exists() && psi.exists();
+        } catch (Exception e) {
+            Slog.w(TAG, "Error checking kernel features", e);
+        } finally {
+            StrictMode.setThreadPolicy(oldPolicy);
+        }
+        mProactiveKillsEnabled = isModernKernel;
+        return isModernKernel;
     }
 
     void initSettings() {
@@ -1285,7 +1308,7 @@ public class OomAdjuster {
         int numEmpty = 0;
         int numTrimming = 0;
 
-        boolean proactiveKillsEnabled = mConstants.PROACTIVE_KILLS_ENABLED;
+        boolean proactiveKillsEnabled = conditionallyEnableProactiveKills();
         double lowSwapThresholdPercent = mConstants.LOW_SWAP_THRESHOLD_PERCENT;
         double freeSwapPercent =  proactiveKillsEnabled ? getFreeSwapPercent() : 1.00;
         ProcessRecord lruCachedApp = null;
