@@ -23,7 +23,6 @@ package com.android.internal.util.pb;
 import android.app.ActivityTaskManager;
 import android.app.Application;
 import android.app.TaskStackListener;
-import android.content.pm.PackageManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.res.Resources;
@@ -31,7 +30,9 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
 import android.os.SystemProperties;
+import android.os.Environment;
 import android.util.Log;
+import android.text.TextUtils;
 
 import com.android.internal.R;
 
@@ -41,6 +42,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.File;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.IOException;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 public class PixelPropsUtils {
 
@@ -48,7 +56,8 @@ public class PixelPropsUtils {
     private static final String DEVICE = SystemProperties.get("ro.build.version.device");
     private static final String MODEL = SystemProperties.get("ro.product.model", Build.MODEL);
 
-    private static final String PACKAGE_PIF = "org.pixelbuilds.catmouse";
+
+    private static final String CERT_DATA_FILE = "certified_props.json";
     private static final String PACKAGE_GMS = "com.google.android.gms";
     private static final String PACKAGE_FINSKY = "com.android.vending";
     private static final String PACKAGE_PHOTOS = "com.google.android.apps.photos";
@@ -168,6 +177,42 @@ public class PixelPropsUtils {
         }
         return false;
     }
+
+    private static String[] dynamicProps() {
+        File dataFile = new File(Environment.getDataSystemDirectory(), CERT_DATA_FILE);
+
+        if (!dataFile.exists()) {
+            Log.w(TAG, "File not found: " + dataFile.getAbsolutePath() + 
+                " using overlayed props for Gms");
+            return null;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(dataFile))) {
+
+            StringBuilder jsonContent = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonContent.append(line);
+            }
+            if (!TextUtils.isEmpty(jsonContent)){
+                JSONArray jsonArray = new JSONArray(jsonContent.toString());
+                String[] result = new String[jsonArray.length()];
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    result[i] = jsonArray.getString(i);
+                }
+
+                return result;
+            } else {
+                Log.w(TAG, "Dynamic props JSON has no data, using overlayed props for Gms");
+                return null;
+            }
+
+        } catch (IOException | JSONException e) {
+            Log.e(TAG, "Exception while parsing dynamic props JSON file", e);
+            return null;
+        }
+    }
     
     private static void setPropsForGms() {
         final boolean was = isGmsAddAccountActivityOnTop();
@@ -224,20 +269,12 @@ public class PixelPropsUtils {
         if (packageName.equals(PACKAGE_GMS)) {
             setPropValue("TIME", System.currentTimeMillis());
             if (processName.toLowerCase().contains("unstable")) {
-                    try {
-                        PackageManager pm = context.getPackageManager();
-                        Resources resources = pm.getResourcesForApplication(PACKAGE_PIF);
-                        int resourceId = resources.getIdentifier(
-                            "config_certifiedBuildProperties", "array", PACKAGE_PIF);
-                        String[] packageProps = resources.getStringArray(resourceId);
-                        if (!Arrays.equals(sCertifiedProps, packageProps)) {
-                            sCertifiedProps = packageProps;
-                        }
-                    } catch (PackageManager.NameNotFoundException e) {
-                        if (DEBUG) Log.d(TAG, "PIF package is not found");
-                    }
-                    setPropsForGms();
-                    return;
+                String[] sDynamicProps = dynamicProps();
+                if (sDynamicProps != null && !Arrays.equals(sCertifiedProps, sDynamicProps)) {
+                    sCertifiedProps = sDynamicProps;
+                }
+                setPropsForGms();
+                return;
             }
         }
         // Don't go through apps spoofing for supported pixels

@@ -52,4 +52,7 @@
     <java-symbol type="string" name="charging_control_notification_content_limit_reached" />
     <java-symbol type="string" name="charging_control_notification_content_target" />
     <java-symbol type="string" name="charging_control_notification_content_target_reached" />
+    
+    <!-- Dynamic certification API URI -->
+    <java-symbol type="string" name="dynamic_certification_URI" />
 </resources>
