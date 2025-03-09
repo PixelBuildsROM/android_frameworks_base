@@ -50,11 +50,11 @@
     <!-- Build properties from a GMS certified device against current platform SPL level -->
     <string-array name="config_certifiedBuildProperties" translatable="false">
      <!--
-       <item>"manufacturer"</item>
-       <item>"model"</item>
-       <item>"security patch"</item>
-       <item>initial SDK int (a number without quotes)</item>
-       <item>"fingerprint"</item>
+       <item>"Manufacturer"</item>
+       <item>"Model"</item>
+       <item>"Security patch"</item>
+       <item>"Initial SDK int"</item>
+       <item>"Fingerprint"</item>
      -->
     </string-array>
 

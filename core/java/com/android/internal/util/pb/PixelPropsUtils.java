@@ -65,7 +65,7 @@ public class PixelPropsUtils {
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = SystemProperties.getBoolean("ro.debug.pixelpropsutils", false);
 
     private static String[] sCertifiedProps =
     Resources.getSystem().getStringArray(R.array.config_certifiedBuildProperties);
@@ -156,6 +156,10 @@ public class PixelPropsUtils {
         propsToSpoofPhotos.put("MODEL", "Pixel XL");
         propsToSpoofPhotos.put("ID", "QP1A.191005.007.A3");
         propsToSpoofPhotos.put("FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
+    }
+
+    private static void dlog(String message) {
+        if (DEBUG) Log.d(TAG, message);
     }
 
     private static volatile boolean sIsFinsky = false;
@@ -295,17 +299,17 @@ public class PixelPropsUtils {
         }
 
         if (propsToChange.isEmpty()){
-            if (DEBUG) Log.d(TAG, "Nothing to define for: " + packageName);
+            dlog("Nothing to define for: " + packageName);
         } else {
-            if (DEBUG) Log.d(TAG, "Defining props for: " + packageName);
+            dlog("Defining props for: " + packageName);
             for (Map.Entry<String, Object> prop : propsToChange.entrySet()) {
                 String key = prop.getKey();
                 Object value = prop.getValue();
                 if (propsToKeep.containsKey(packageName) && propsToKeep.get(packageName).contains(key)) {
-                    if (DEBUG) Log.d(TAG, "Not defining " + key + " prop for: " + packageName);
+                    dlog("Not defining " + key + " prop for: " + packageName);
                     continue;
                 }
-                if (DEBUG) Log.d(TAG, "Defining " + key + " prop for: " + packageName);
+                dlog("Defining " + key + " prop for: " + packageName);
                     setPropValue(key, value);
             }
         }
@@ -322,7 +326,7 @@ public class PixelPropsUtils {
 
     private static void setPropValue(String key, Object value) {
         try {
-            if (DEBUG) Log.d(TAG, "Defining prop " + key + " to " + value.toString());
+            dlog("Defining prop " + key + " to " + value.toString());
             // Unlock
             Field field = Build.class.getDeclaredField(key);
             field.setAccessible(true);
@@ -337,7 +341,7 @@ public class PixelPropsUtils {
 
     private static void setBuildField(String key, String value) {
         try {
-            if (DEBUG) Log.d(TAG, "Defining build field " + key + " to " + value);
+            dlog("Defining build field " + key + " to " + value);
             Field field = Build.class.getDeclaredField(key);
             field.setAccessible(true);
             field.set(null, value);
@@ -349,7 +353,7 @@ public class PixelPropsUtils {
 
     private static void setVersionField(String key, Object value) {
         try {
-            if (DEBUG) Log.d(TAG, "Defining version field " + key + " to " + value.toString());
+            dlog("Defining version field " + key + " to " + value.toString());
             Field field = Build.VERSION.class.getDeclaredField(key);
             field.setAccessible(true);
             field.set(null, value);
@@ -375,9 +379,5 @@ public class PixelPropsUtils {
 
     public static boolean getIsKeyAttest() {
         return sIsFinsky || isDroidGuard();
-    }
-
-    public static void dlog(String msg) {
-        if (DEBUG) Log.d(TAG, msg);
     }
 }
