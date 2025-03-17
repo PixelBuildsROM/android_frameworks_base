@@ -26,6 +26,7 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.os.Environment;
 import android.os.SystemProperties;
+import android.os.PowerManager;
 import android.util.Log;
 import android.util.Patterns;
 
@@ -151,6 +152,11 @@ public final class DynamicCertificationService extends SystemService {
                         || actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
                         || actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH));
     }
+    
+    private boolean isInteractive() {
+        PowerManager pwm = mContext.getSystemService(PowerManager.class);
+        return pwm.isInteractive();
+    }
 
     private void dlog(String message) {
         if (DEBUG) Log.d(TAG, message);
@@ -162,8 +168,8 @@ public final class DynamicCertificationService extends SystemService {
             try {
                 dlog("FetchGmsCertifiedProps started");
 
-                if (!isInternetConnected()) {
-                    dlog("Internet unavailable");
+                if (!isInternetConnected() || !isInteractive()) {
+                    dlog("Internet unavailable or device is idle");
                     return;
                 }
 
