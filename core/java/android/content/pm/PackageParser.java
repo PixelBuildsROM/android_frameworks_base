@@ -7757,6 +7757,10 @@ public class PackageParser {
             final ArrayList<T> intentsList;
             try {
                 final Class<T> cls = (Class<T>) Class.forName(componentName);
+                if (!IntentInfo.class.isAssignableFrom(cls)) {
+                    throw new AssertionError("Intent list requires subclass of IntentInfo, not: "
+                            + componentName);
+                }
                 final Constructor<T> cons = cls.getConstructor(Parcel.class);
 
                 intentsList = new ArrayList<>(N);
