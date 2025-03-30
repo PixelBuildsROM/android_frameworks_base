@@ -70,11 +70,9 @@ public class PixelPropsUtils {
     private static String[] sCertifiedProps =
     Resources.getSystem().getStringArray(R.array.config_certifiedBuildProperties);
 
-    private static final Map<String, Object> propsToChangeGeneric;
     private static final Map<String, Object> propsToChangeNewerPixel;
     private static final Map<String, Object> propsToChangeOlderPixel;
     private static final Map<String, Object> propsToSpoofPhotos;
-    private static final Map<String, ArrayList<String>> propsToKeep;
 
     private static final ArrayList<String> packagesToChangeNewerPixel =
     new ArrayList<String> (
@@ -94,11 +92,7 @@ public class PixelPropsUtils {
         Arrays.asList(
             "com.google.android.gms.ui",
             "com.google.android.gms.learning",
-            "com.google.android.gms.persistent",
-            "com.android.chrome",
-            "com.breel.wallpapers20",
-            "com.nhs.online.nhsonline",
-            "com.nothing.smartcenter"
+            "com.google.android.gms.persistent"
     ));
 
     // Codenames for currently supported Pixels by Google
@@ -123,11 +117,6 @@ public class PixelPropsUtils {
     ));
 
     static {
-        propsToKeep = new HashMap<>();
-        propsToKeep.put(PACKAGE_SET_INTEL, new ArrayList<>(Collections.singletonList("FINGERPRINT")));
-        propsToChangeGeneric = new HashMap<>();
-        propsToChangeGeneric.put("TYPE", "user");
-        propsToChangeGeneric.put("TAGS", "release-keys");
         propsToChangeNewerPixel = new HashMap<>();
         String fingerprint_newer_pixel = "google/husky/husky:14/AP2A.240905.003/12231197:user/release-keys";
         propsToChangeNewerPixel.put("MANUFACTURER", "Google");
@@ -265,8 +254,8 @@ public class PixelPropsUtils {
         final String processName = Application.getProcessName();
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
 
-        propsToChangeGeneric.forEach((k, v) -> setPropValue(k, v));
-        if (packageName == null || packageName.isEmpty()) {
+        if (packageName == null || packageName.isEmpty()
+            || !packageName.startsWith("com.google")) {
             return;
         }
         // Detect and spoof GMS first
@@ -305,10 +294,6 @@ public class PixelPropsUtils {
             for (Map.Entry<String, Object> prop : propsToChange.entrySet()) {
                 String key = prop.getKey();
                 Object value = prop.getValue();
-                if (propsToKeep.containsKey(packageName) && propsToKeep.get(packageName).contains(key)) {
-                    dlog("Not defining " + key + " prop for: " + packageName);
-                    continue;
-                }
                 dlog("Defining " + key + " prop for: " + packageName);
                     setPropValue(key, value);
             }
