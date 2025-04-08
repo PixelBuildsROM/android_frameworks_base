@@ -167,7 +167,7 @@ public class BatterySaverPolicy extends ContentObserver implements
             true,  /* advertiseIsEnabled */
             true,  /* deferFullBackup */
             true,  /* deferKeyValueBackup */
-            false, /* disableAnimation */
+            true, /* disableAnimation */
             true,  /* disableAod */
             true,  /* disableLaunchBoost */
             true,  /* disableOptionalSensors */
