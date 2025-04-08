@@ -15,9 +15,19 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="quick_settings_caffeine_label">Caféine </string>
-    <string name="accessibility_quick_settings_caffeine_off">Arrêt de la caféine</string>
+    <string name="quick_settings_caffeine_label">Caféine</string>
+    <string name="accessibility_quick_settings_caffeine_off">Caféine désactivée</string>
     <string name="accessibility_quick_settings_caffeine_on">Caféine activée</string>
-    <string name="quick_settings_heads_up_label">La tête haute</string>
-    <string name="quick_settings_aod_label">AOD</string>
+    <string name="quick_settings_heads_up_label">Lever la tête</string>
+    <string name="accessibility_quick_settings_heads_up_off">Lever la tête désactivé.</string>
+    <string name="accessibility_quick_settings_heads_up_on">Lever la tête activé.</string>
+    <string name="accessibility_quick_settings_heads_up_changed_off">Lever la tête a été désactivé.</string>
+    <string name="accessibility_quick_settings_heads_up_changed_on">Lever la tête a été activé.</string>
+    <string name="quick_settings_sync_label">Synchronisation</string>
+    <string name="accessibility_quick_settings_sync_off">Synchronisation désactivée</string>
+    <string name="accessibility_quick_settings_sync_on">Synchronisation activée</string>
+    <string name="accessibility_quick_settings_sync_changed_off">La synchronisation a été désactivée</string>
+    <string name="accessibility_quick_settings_sync_changed_on">La synchronisation a été activée</string>
+    <string name="quick_settings_aod_label">Toujours afficher heures et infos</string>
+    <string name="quick_settings_aod_off_powersave_label">Toujours afficher heures et infos désactivé\nÉconomiseur de batterie</string>
 </resources>
