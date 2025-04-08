@@ -577,7 +577,7 @@ object Flags {
         sysPropBooleanFlag("persist.wm.debug.predictive_back_always_enforce", default = false)
 
     // TODO(b/254512728): Tracking Bug
-    @JvmField val NEW_BACK_AFFORDANCE = releasedFlag("new_back_affordance")
+    @JvmField val NEW_BACK_AFFORDANCE = unreleasedFlag("new_back_affordance")
 
     // TODO(b/255854141): Tracking Bug
     @JvmField
