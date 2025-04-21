@@ -118,7 +118,7 @@ public class PixelPropsUtils {
 
     static {
         propsToChangeNewerPixel = new HashMap<>();
-        String fingerprint_newer_pixel = "google/husky/husky:15/BP1A.250305.019/13003188:user/release-keys";
+        String fingerprint_newer_pixel = "google/husky/husky:14/AP2A.240905.003/12231197:user/release-keys";
         propsToChangeNewerPixel.put("MANUFACTURER", "Google");
         propsToChangeNewerPixel.put("MODEL", "Pixel 8 Pro");
         propsToChangeNewerPixel.put("FINGERPRINT", fingerprint_newer_pixel);
