@@ -2681,6 +2681,7 @@ public final class ProcessList {
             long expectedStartSeq, boolean procAttached) {
         mPendingStarts.remove(expectedStartSeq);
         final String reason = isProcStartValidLocked(app, expectedStartSeq);
+        final String hostingRecordName = app.getHostingRecord().getName();
         if (reason != null) {
             Slog.w(TAG_PROCESSES, app + " start not valid, killing pid=" +
                     pid
@@ -2701,7 +2702,7 @@ public final class ProcessList {
         EventLog.writeEvent(EventLogTags.AM_PROC_START,
                 UserHandle.getUserId(app.getStartUid()), pid, app.getStartUid(),
                 app.processName, app.getHostingRecord().getType(),
-                app.getHostingRecord().getName() != null ? app.getHostingRecord().getName() : "");
+                hostingRecordName != null ? hostingRecordName : "");
 
         try {
             AppGlobals.getPackageManager().logAppProcessStartIfNeeded(app.info.packageName,
@@ -2728,9 +2729,9 @@ public final class ProcessList {
         }
         buf.append(" for ");
         buf.append(app.getHostingRecord().getType());
-        if (app.getHostingRecord().getName() != null) {
+        if (hostingRecordName != null) {
             buf.append(" ");
-            buf.append(app.getHostingRecord().getName());
+            buf.append(hostingRecordName);
         }
         mService.reportUidInfoMessageLocked(TAG, buf.toString(), app.getStartUid());
         synchronized (mProcLock) {
@@ -2764,6 +2765,15 @@ public final class ProcessList {
             }
         }
         checkSlow(app.getStartTime(), "startProcess: done updating pids map");
+
+        if (hostingRecordName.contains("com.android.vending") && 
+                hostingRecordName.contains("integrityservice.IntegrityService") ||
+                hostingRecordName.contains("expressintegrityservice.ExpressIntegrityService")) {
+            synchronized (mService) {
+                mService.mServices.runPendingIntegrityServiceBindingLocked("com.android.vending", 
+                    app.userId);
+            }
+        }
         return true;
     }
 

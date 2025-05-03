@@ -252,7 +252,12 @@ public class PixelPropsUtils {
     public static void setProps(Context context) {
         final String packageName = context.getPackageName();
         final String processName = Application.getProcessName();
-        sIsFinsky = packageName.equals(PACKAGE_FINSKY);
+        if (packageName.equals(PACKAGE_FINSKY)) {
+            sIsFinsky = true;
+            if (SystemProperties.getBoolean("ams.integrityservice_binding", false)) {
+                setVersionField("SDK_INT", Build.VERSION_CODES.S_V2);
+            }
+        }
 
         if (packageName == null || packageName.isEmpty()
             || !packageName.startsWith("com.google")) {
