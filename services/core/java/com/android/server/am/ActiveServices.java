@@ -272,6 +272,14 @@ public final class ActiveServices {
 
     private static final boolean LOG_SERVICE_START_STOP = DEBUG_SERVICE;
 
+    // Used for IntegrityService tracking
+    private boolean IS_INTEGRITY_BINDING = false;
+    private static final String PACKAGE_VENDING = "com.android.vending";
+    private static final String FINSKY_CLASS_INTEGRITYSERVICE = 
+        "com.google.android.finsky.integrityservice.IntegrityService";
+    private static final String FINSKY_CLASS_EXPRESSINTEGRITYSERVICE = 
+        "com.google.android.finsky.expressintegrityservice.ExpressIntegrityService";
+
     // Foreground service types that always get immediate notification display,
     // expressed in the same bitmask format that ServiceRecord.foregroundServiceType
     // uses.
@@ -380,6 +388,11 @@ public final class ActiveServices {
      * Map of services that are asked to be brought up (start/binding) but not ready to.
      */
     private ArrayMap<ServiceRecord, ArrayList<Runnable>> mPendingBringups = new ArrayMap<>();
+
+    /**
+     * Map of pending IntegrityService bringups (runnables).
+     */
+    private ArrayMap<String, ArrayList<Runnable>> mPendingIntegrityBringups = new ArrayMap<>();
 
     /** Temporary list for holding the results of calls to {@link #collectPackageServicesLocked} */
     private ArrayList<ServiceRecord> mTmpCollectionResults = null;
@@ -1323,6 +1336,82 @@ public final class ActiveServices {
         return true;
     }
 
+    /** 
+     * Defer the IntegrityService binding until the vending package is restarted.
+     * Trigger the actual binding once the process/service comes back up.
+     */
+    @GuardedBy("mAm")
+    private void deferIntegrityServiceBindingLocked (IApplicationThread caller, ServiceRecord s, 
+            Intent service, boolean callerFg, int userId, int sdkSandboxClientAppUid,
+            IApplicationThread sdkSandboxClientApplicationThread) {
+        // The deffering/restarting should only happen when the state is
+        // NOT already binding. The cycle we try to achieve here is restarting 
+        // the package -> binding -> unbinding, which involves resetting this 
+        // state to 'false' once the integrity service is not needed anymore.
+        if (!IS_INTEGRITY_BINDING) {
+            // Write the state
+            IS_INTEGRITY_BINDING = true;
+            SystemProperties.set("ams.integrityservice_binding", "true");
+
+            // Kill Play Store to allow PixelPropsUtils to act upon it's restart
+            mAm.forceStopPackage(PACKAGE_VENDING, userId);
+
+            // Capture AppBindRecord
+            final ProcessRecord callerApp = mAm.getRecordForAppLOSP(caller);
+            ProcessRecord attributedApp = null;
+            if (sdkSandboxClientAppUid > 0) {
+                attributedApp = mAm.getRecordForAppLOSP(sdkSandboxClientApplicationThread);
+            }
+            final AppBindRecord b = s.retrieveAppBindingLocked(service, callerApp, attributedApp);
+
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (mAm) {
+                        try {
+                            // Manually call requestServiceBindingLocked to force binding
+                            requestServiceBindingLocked(s, b.intent, callerFg, false);
+                        } catch (Exception e) {
+                            Slog.w(TAG_SERVICE, 
+                                "Failed to request binding for IntegrityService", e);
+                        } finally {
+                            mAm.updateOomAdjPendingTargetsLocked(OOM_ADJ_REASON_START_SERVICE);
+                        }
+                    }
+                }
+            };
+
+            String key = s.packageName + ":" + userId;
+            ArrayList<Runnable> bringupList = mPendingIntegrityBringups.get(key);
+            if (bringupList == null) {
+                bringupList = new ArrayList<>();
+                mPendingIntegrityBringups.put(key, bringupList);
+            } else {
+                Slog.v(TAG_SERVICE, 
+                    "IntegrityTracker: Appending to existing bringup list for " + key);
+            }
+            bringupList.add(r);
+        }
+    }
+
+    /**
+     * Run pending runnable(s) that were scheduled in deferIntegrityServiceBindingLocked.
+     */
+    @GuardedBy("mAm")
+    void runPendingIntegrityServiceBindingLocked(String packageName, int userId) {
+        String key = packageName + ":" + userId;
+        ArrayList<Runnable> bringupList = mPendingIntegrityBringups.remove(key);
+        if (bringupList != null) {
+            Slog.v(TAG_SERVICE, "IntegrityTracker: Running " + bringupList.size() + 
+                " pending bringups for " + key);
+            for (Runnable r : bringupList) {
+                r.run();
+            }
+        } else {
+            Slog.v(TAG_SERVICE, "No pending bringups found for IntegrityService");
+        }
+    }
+                            
     @GuardedBy("mAm")
     void schedulePendingServiceStartLocked(String packageName, int userId) {
         int totalPendings = mPendingBringups.size();
@@ -3717,6 +3806,20 @@ public final class ActiveServices {
 
         final long origId = Binder.clearCallingIdentity();
 
+        // Detect the binding to vending's IntegrityService and act upon it.
+        // Trigger the restart of the vending package and defer IntegrityService binding,
+        // which should occur once the process is back up. Don't do anything if callerApp
+        // is vending itself to prevent inevitable transaction errors.
+        if (s.name.getPackageName().equals(PACKAGE_VENDING) &&
+                s.name.getClassName().equals(FINSKY_CLASS_INTEGRITYSERVICE) ||
+                s.name.getClassName().equals(FINSKY_CLASS_EXPRESSINTEGRITYSERVICE)) {
+            // Ignore for vending integrity evaluations
+            if (!callerApp.info.packageName.equals(PACKAGE_VENDING)) {
+                deferIntegrityServiceBindingLocked(caller, s, service, callerFg, userId,
+                sdkSandboxClientAppUid, sdkSandboxClientApplicationThread);
+            }
+        }
+
         try {
             if (unscheduleServiceRestartLocked(s, callerApp.info.uid, false)) {
                 if (DEBUG_SERVICE) Slog.v(TAG_SERVICE, "BIND SERVICE WHILE RESTART PENDING: "
@@ -3955,6 +4058,28 @@ public final class ActiveServices {
                                       + " to connection " + c.conn.asBinder()
                                       + " (in " + c.binding.client.processName + ")", e);
                             }
+                            // Schedule forced unbinding for ExpressIntegrityService, since we don't want
+                            // it to remain published/running. This is done in order to finish our vending
+                            // spoofing/unspoofing cycle,
+                            if (r.name.getClassName().equals(FINSKY_CLASS_EXPRESSINTEGRITYSERVICE)) {
+
+                                final IServiceConnection connToUnbind = c.conn;
+
+                                if (r.getConnections().containsKey(connToUnbind.asBinder())) {
+                                    mAm.mHandler.postDelayed(() -> {
+                                        synchronized (mAm) {
+                                            try {
+                                                unbindServiceLocked(connToUnbind);
+                                            } catch (Exception e) {
+                                                Slog.w(TAG, 
+                                                    "IntegrityTracker: Failed to unbind IntegrityService", e);
+                                            }
+                                        }
+                                    }, 800);
+                                } else {
+                                    Slog.i(TAG, "IntegrityTracker: ExpressIntegrityService was not bound");
+                                }
+                            }
                         }
                     }
                 }
@@ -4029,6 +4154,7 @@ public final class ActiveServices {
 
             while (clist.size() > 0) {
                 ConnectionRecord r = clist.get(0);
+                ServiceRecord s = r.binding.service;
                 removeConnectionLocked(r, null, null, true);
                 if (clist.size() > 0 && clist.get(0) == r) {
                     // In case it didn't get removed above, do it now.
@@ -4048,6 +4174,19 @@ public final class ActiveServices {
                         mAm.updateLruProcessLocked(app, true, null);
                     }
                     mAm.enqueueOomAdjTargetLocked(app);
+                }
+
+                if (s.name.getPackageName().equals(PACKAGE_VENDING) && 
+                        s.name.getClassName().equals(FINSKY_CLASS_INTEGRITYSERVICE) ||
+                        s.name.getClassName().equals(FINSKY_CLASS_EXPRESSINTEGRITYSERVICE)) {
+                    if (IS_INTEGRITY_BINDING) {
+                        // Write the state
+                        IS_INTEGRITY_BINDING = false;
+                        SystemProperties.set("ams.integrityservice_binding", "false");
+                        // Kill the vending
+                        mAm.forceStopPackage(PACKAGE_VENDING, UserHandle.getUserId(s.appInfo.uid));
+                        Slog.v(TAG, "IntegrityTracker: Unspoofing kill just happened");
+                    }
                 }
             }
 
