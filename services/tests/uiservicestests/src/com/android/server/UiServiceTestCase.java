@@ -15,18 +15,24 @@ package com.android.server;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import android.annotation.UserIdInt;
 import android.content.Intent;
 import android.content.pm.PackageManagerInternal;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
+import android.os.UserHandle;
 import android.testing.TestableContext;
 
 import androidx.test.InstrumentationRegistry;
 
+import com.android.server.pm.UserManagerInternal;
 import com.android.server.uri.UriGrantsManagerInternal;
 
 import org.junit.After;
@@ -38,6 +44,7 @@ import org.mockito.MockitoAnnotations;
 
 public class UiServiceTestCase {
     @Mock protected PackageManagerInternal mPmi;
+    @Mock protected UserManagerInternal mUmi;
     @Mock protected UriGrantsManagerInternal mUgmInternal;
 
     protected static final String PKG_N_MR1 = "com.example.n_mr1";
@@ -48,6 +55,15 @@ public class UiServiceTestCase {
     @Rule
     public TestableContext mContext =
             spy(new TestableContext(InstrumentationRegistry.getContext(), null));
+
+    protected final int mUid = Binder.getCallingUid();
+    protected final @UserIdInt int mUserId = UserHandle.getUserId(mUid);
+    protected final UserHandle mUser = UserHandle.of(mUserId);
+    protected final String mPkg = mContext.getPackageName();
+    protected final int UID_N_MR1 = UserHandle.getUid(mUserId, 1);
+    protected final int UID_O = UserHandle.getUid(mUserId, 2);
+    protected final int UID_P = UserHandle.getUid(mUserId, 3);
+    protected final int UID_R = UserHandle.getUid(mUserId, 4);
 
     protected TestableContext getContext() {
         return mContext;
@@ -78,7 +94,14 @@ public class UiServiceTestCase {
                             return Build.VERSION_CODES.CUR_DEVELOPMENT;
                     }
                 });
-
+        when(mPmi.getPackageUid(eq(PKG_N_MR1), anyLong(), eq(mUserId))).thenReturn(UID_N_MR1);
+        when(mPmi.getPackageUid(eq(PKG_O), anyLong(), eq(mUserId))).thenReturn(UID_O);
+        when(mPmi.getPackageUid(eq(PKG_P), anyLong(), eq(mUserId))).thenReturn(UID_P);
+        when(mPmi.getPackageUid(eq(PKG_R), anyLong(), eq(mUserId))).thenReturn(UID_R);
+        when(mPmi.getPackageUid(eq(mContext.getPackageName()), anyLong(), eq(mUserId)))
+                .thenReturn(mUid);
+        LocalServices.removeServiceForTest(UserManagerInternal.class);
+        LocalServices.addService(UserManagerInternal.class, mUmi);
         LocalServices.removeServiceForTest(UriGrantsManagerInternal.class);
         LocalServices.addService(UriGrantsManagerInternal.class, mUgmInternal);
         when(mUgmInternal.checkGrantUriPermission(
