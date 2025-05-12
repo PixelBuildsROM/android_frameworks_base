@@ -240,6 +240,79 @@ public class KeyguardViewMediatorTest extends SysuiTestCase {
 
     @Test
     @TestableLooper.RunWithLooper(setAsMainLooper = true)
+    public void testGoingAwayFollowedByUserSwitchDoesNotHideKeyguard() {
+        setCurrentUser(/* userId= */1099, /* isSecure= */false);
+
+        // Setup keyguard
+        mViewMediator.onSystemReady();
+        processAllMessagesAndBgExecutorMessages();
+        mViewMediator.setShowingLocked(true);
+
+        // Request keyguard going away
+        when(mKeyguardStateController.isKeyguardGoingAway()).thenReturn(true);
+        mViewMediator.mKeyguardGoingAwayRunnable.run();
+
+        // After the request, begin a switch to a new secure user
+        int nextUserId = 500;
+        setCurrentUser(nextUserId, /* isSecure= */true);
+
+        // After that request has begun, have WM tell us to exit keyguard
+        RemoteAnimationTarget[] apps = new RemoteAnimationTarget[]{
+                mock(RemoteAnimationTarget.class)
+        };
+        RemoteAnimationTarget[] wallpapers = new RemoteAnimationTarget[]{
+                mock(RemoteAnimationTarget.class)
+        };
+        IRemoteAnimationFinishedCallback callback = mock(IRemoteAnimationFinishedCallback.class);
+        mViewMediator.startKeyguardExitAnimation(TRANSIT_OLD_KEYGUARD_GOING_AWAY, apps, wallpapers,
+                null, callback);
+        processAllMessagesAndBgExecutorMessages();
+
+        // The call to exit should be rejected, and keyguard should still be visible
+        verify(mKeyguardUnlockAnimationController, never()).notifyStartSurfaceBehindRemoteAnimation(
+                any(), any(), anyLong(), anyBoolean());
+        assertTrue(mViewMediator.isShowingAndNotOccluded());
+    }
+
+    @Test
+    @TestableLooper.RunWithLooper(setAsMainLooper = true)
+    public void testUserSwitchToSecureUserWhileKeyguardNotVisibleShowsKeyguard() {
+        setCurrentUser(/* userId= */1099, /* isSecure= */true);
+
+        // Setup keyguard as not visible
+        mViewMediator.onSystemReady();
+        processAllMessagesAndBgExecutorMessages();
+        mViewMediator.setShowingLocked(false);
+        processAllMessagesAndBgExecutorMessages();
+
+        // Begin a switch to a new secure user
+        int nextUserId = 500;
+        setCurrentUser(nextUserId, /* isSecure= */true);
+
+        assertTrue(mViewMediator.isShowingAndNotOccluded());
+    }
+
+    @Test
+    @TestableLooper.RunWithLooper(setAsMainLooper = true)
+    public void onLockdown_showKeyguard_evenIfKeyguardIsNotEnabledExternally() {
+        // GIVEN keyguard is not enabled and isn't showing
+        mViewMediator.onSystemReady();
+        mViewMediator.setKeyguardEnabled(false);
+        TestableLooper.get(this).processAllMessages();
+        captureKeyguardUpdateMonitorCallback();
+        assertFalse(mViewMediator.isShowingAndNotOccluded());
+
+        // WHEN lockdown occurs
+        when(mLockPatternUtils.isUserInLockdown(anyInt())).thenReturn(true);
+        mKeyguardUpdateMonitorCallbackCaptor.getValue().onStrongAuthStateChanged(0);
+
+        // THEN keyguard is shown
+        TestableLooper.get(this).processAllMessages();
+        assertTrue(mViewMediator.isShowingAndNotOccluded());
+    }
+
+    @Test
+    @TestableLooper.RunWithLooper(setAsMainLooper = true)
     public void doNotHideKeyguard_whenLockdown_onKeyguardNotEnabledExternally() {
         // GIVEN keyguard is enabled and lockdown occurred so the keyguard is showing
         mViewMediator.onSystemReady();
@@ -611,6 +684,9 @@ public class KeyguardViewMediatorTest extends SysuiTestCase {
     @Test
     @TestableLooper.RunWithLooper(setAsMainLooper = true)
     public void testCancelKeyguardExitAnimation_noPendingLock_keyguardWillNotBeShowing() {
+        when(mPowerManager.isInteractive()).thenReturn(true);
+
+        setCurrentUser(0, false);
         startMockKeyguardExitAnimation();
         cancelMockKeyguardExitAnimation();
 
@@ -674,11 +750,20 @@ public class KeyguardViewMediatorTest extends SysuiTestCase {
     }
 
     /**
+     * Interactions with the ActivityTaskManagerService and others are posted to an executor that
+     * doesn't use the testable looper. Use this method to ensure those are run as well.
+     */
+    private void processAllMessagesAndBgExecutorMessages() {
+        TestableLooper.get(this).processAllMessages();
+        mUiBgExecutor.runAllReady();
+    }
+
+    /**
      * Configures mocks appropriately, then starts the keyguard exit animation.
      */
     private void startMockKeyguardExitAnimation() {
         mViewMediator.onSystemReady();
-        TestableLooper.get(this).processAllMessages();
+        processAllMessagesAndBgExecutorMessages();
 
         mViewMediator.setShowingLocked(true);
 
@@ -691,9 +776,10 @@ public class KeyguardViewMediatorTest extends SysuiTestCase {
         IRemoteAnimationFinishedCallback callback = mock(IRemoteAnimationFinishedCallback.class);
 
         when(mKeyguardStateController.isKeyguardGoingAway()).thenReturn(true);
+        mViewMediator.mKeyguardGoingAwayRunnable.run();
         mViewMediator.startKeyguardExitAnimation(TRANSIT_OLD_KEYGUARD_GOING_AWAY, apps, wallpapers,
                 null, callback);
-        TestableLooper.get(this).processAllMessages();
+        processAllMessagesAndBgExecutorMessages();
     }
 
     /**
@@ -702,7 +788,7 @@ public class KeyguardViewMediatorTest extends SysuiTestCase {
     private void cancelMockKeyguardExitAnimation() {
         when(mKeyguardStateController.isKeyguardGoingAway()).thenReturn(false);
         mViewMediator.cancelKeyguardExitAnimation();
-        TestableLooper.get(this).processAllMessages();
+        processAllMessagesAndBgExecutorMessages();
     }
 
     @Test
@@ -1007,5 +1093,12 @@ public class KeyguardViewMediatorTest extends SysuiTestCase {
 
     private void captureKeyguardUpdateMonitorCallback() {
         verify(mUpdateMonitor).registerCallback(mKeyguardUpdateMonitorCallbackCaptor.capture());
+    }
+
+    private void setCurrentUser(int userId, boolean isSecure) {
+        when(mUserTracker.getUserId()).thenReturn(userId);
+        when(mLockPatternUtils.isSecure(userId)).thenReturn(isSecure);
+        mViewMediator.setCurrentUser(userId);
+        processAllMessagesAndBgExecutorMessages();
     }
 }
