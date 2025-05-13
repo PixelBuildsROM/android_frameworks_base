@@ -68,10 +68,12 @@ import android.companion.datatransfer.PermissionSyncRequest;
 import android.companion.utils.FeatureUtils;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManagerInternal;
+import android.content.pm.ResolveInfo;
 import android.content.pm.UserInfo;
 import android.net.MacAddress;
 import android.net.NetworkPolicyManager;
@@ -88,6 +90,7 @@ import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.service.notification.NotificationListenerService;
 import android.util.ArraySet;
 import android.util.ExceptionUtils;
 import android.util.Log;
@@ -438,6 +441,24 @@ public class CompanionDeviceManagerService extends SystemService {
         final String packageName = association.getPackageName();
 
         if (changeType == AssociationStore.CHANGE_TYPE_REMOVED) {
+            // Revoke NLS if the last association has been removed for the package
+            Binder.withCleanCallingIdentity(() -> {
+                if (mAssociationStore.getAssociationsForPackage(userId, packageName).isEmpty()) {
+                    NotificationManager nm = getContext().getSystemService(
+                        NotificationManager.class);
+                    Intent nlsIntent = new Intent(
+                            NotificationListenerService.SERVICE_INTERFACE);
+                    List<ResolveInfo> matchedServiceList = getContext().getPackageManager()
+                            .queryIntentServicesAsUser(nlsIntent, /* flags */ 0, userId);
+                    for (ResolveInfo service : matchedServiceList) {
+                        if (service.getComponentInfo().getComponentName().getPackageName()
+                                .equals(packageName)) {
+                            nm.setNotificationListenerAccessGranted(
+                                    service.getComponentInfo().getComponentName(), false);
+                        }
+                    }
+                }
+            });
             markIdAsPreviouslyUsedForPackage(id, userId, packageName);
         }
 
