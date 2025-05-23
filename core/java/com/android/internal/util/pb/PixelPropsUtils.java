@@ -238,6 +238,7 @@ public class PixelPropsUtils {
             setBuildField("MODEL", sCertifiedProps[1]);
             setVersionField("SECURITY_PATCH", sCertifiedProps[2]);
             setVersionField("DEVICE_INITIAL_SDK_INT", Integer.parseInt(sCertifiedProps[3]));
+            setVersionField("SDK_INT", 32);
             setBuildField("FINGERPRINT", sCertifiedProps[4]);
             String[] certfpsections = sCertifiedProps[4].split("/");
             setBuildField("BRAND", certfpsections[0]);
