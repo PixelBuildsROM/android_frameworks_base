@@ -64,6 +64,8 @@ public class PixelPropsUtils {
     private static final String PACKAGE_SET_INTEL = "com.google.android.settings.intelligence";
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
+    private static final int VENDING_TARGET_SDK_INT = 32;
+    private static final String VENDING_TARGET_RELEASE_VERSION = "12";
 
     private static final boolean DEBUG = SystemProperties.getBoolean("ro.debug.pixelpropsutils", false);
 
@@ -238,7 +240,7 @@ public class PixelPropsUtils {
             setBuildField("MODEL", sCertifiedProps[1]);
             setVersionField("SECURITY_PATCH", sCertifiedProps[2]);
             setVersionField("DEVICE_INITIAL_SDK_INT", Integer.parseInt(sCertifiedProps[3]));
-            setVersionField("SDK_INT", 32);
+            setVersionField("SDK_INT", (Object) VENDING_TARGET_SDK_INT);
             setBuildField("FINGERPRINT", sCertifiedProps[4]);
             String[] certfpsections = sCertifiedProps[4].split("/");
             setBuildField("BRAND", certfpsections[0]);
@@ -254,6 +256,11 @@ public class PixelPropsUtils {
         final String packageName = context.getPackageName();
         final String processName = Application.getProcessName();
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
+
+        if(sIsFinsky){
+            setVersionField("SDK_INT", (Object) VENDING_TARGET_SDK_INT);
+            setVersionField("RELEASE", (Object) VENDING_TARGET_RELEASE_VERSION);
+        }
 
         if (packageName == null || packageName.isEmpty()
             || !packageName.startsWith("com.google")) {
