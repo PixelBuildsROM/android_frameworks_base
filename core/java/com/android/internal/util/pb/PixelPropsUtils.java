@@ -140,11 +140,11 @@ public class PixelPropsUtils {
         propsToSpoofPhotos = new HashMap<>();
         propsToSpoofPhotos.put("BRAND", "google");
         propsToSpoofPhotos.put("MANUFACTURER", "Google");
-        propsToSpoofPhotos.put("DEVICE", "marlin");
-        propsToSpoofPhotos.put("PRODUCT", "marlin");
-        propsToSpoofPhotos.put("MODEL", "Pixel XL");
+        propsToSpoofPhotos.put("DEVICE", "sailfish");
+        propsToSpoofPhotos.put("PRODUCT", "sailfish");
+        propsToSpoofPhotos.put("MODEL", "Pixel");
         propsToSpoofPhotos.put("ID", "QP1A.191005.007.A3");
-        propsToSpoofPhotos.put("FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
+        propsToSpoofPhotos.put("FINGERPRINT", "google/sailfish/sailfish:10/QP1A.191005.007.A3/5972272:user/release-keys");
     }
 
     private static void dlog(String message) {
