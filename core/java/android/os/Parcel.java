@@ -573,7 +573,6 @@ public final class Parcel {
         // able to print a stack when a Parcel is recycled twice, that
         // is cleared in obtain instead.
 
-        mClassCookies = null;
         freeBuffer();
 
         if (mOwnsNativeParcelObject) {
@@ -5271,9 +5270,11 @@ public final class Parcel {
             nativeFreeBuffer(mNativePtr);
         }
         mReadWriteHelper = ReadWriteHelper.DEFAULT;
+        mClassCookies = null;
     }
 
-    private void destroy() {
+    /** @hide */
+    public void destroy() {
         resetSqaushingState();
         if (mNativePtr != 0) {
             if (mOwnsNativeParcelObject) {
