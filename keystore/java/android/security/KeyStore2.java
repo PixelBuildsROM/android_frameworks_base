@@ -261,8 +261,12 @@ public class KeyStore2 {
      */
     public KeyEntryResponse getKeyEntry(@NonNull KeyDescriptor descriptor)
             throws KeyStoreException {
-        return KeyboxImitationHooks.onGetKeyEntry(
-                handleRemoteExceptionWithRetry((service) -> service.getKeyEntry(descriptor)));
+        KeyEntryResponse response = KeyboxImitationHooks.onGetKeyEntry(descriptor);
+        if (response != null) {
+            return response;
+        }
+
+        return handleRemoteExceptionWithRetry((service) -> service.getKeyEntry(descriptor));
     }
 
     /**
