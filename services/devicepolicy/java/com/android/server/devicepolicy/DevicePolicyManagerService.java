@@ -8471,10 +8471,15 @@ public class DevicePolicyManagerService extends IDevicePolicyManager.Stub {
             Slogf.e(LOG_TAG, "Invalid proxy properties, ignoring: " + proxyProperties.toString());
             return;
         }
-        mInjector.settingsGlobalPutString(Settings.Global.GLOBAL_HTTP_PROXY_HOST, data[0]);
-        mInjector.settingsGlobalPutInt(Settings.Global.GLOBAL_HTTP_PROXY_PORT, proxyPort);
-        mInjector.settingsGlobalPutString(Settings.Global.GLOBAL_HTTP_PROXY_EXCLUSION_LIST,
-                exclusionList);
+        try {
+            mInjector.settingsGlobalPutString(Global.GLOBAL_HTTP_PROXY_HOST, data[0]);
+            mInjector.settingsGlobalPutInt(Global.GLOBAL_HTTP_PROXY_PORT, proxyPort);
+            mInjector.settingsGlobalPutString(Global.GLOBAL_HTTP_PROXY_EXCLUSION_LIST,
+                    exclusionList);
+        } catch (Exception e) {
+            //Ignore any potential errors from SettingsProvider, b/365975561
+            Slogf.w(LOG_TAG, "Fail to save proxy", e);
+        }
     }
 
     /**
