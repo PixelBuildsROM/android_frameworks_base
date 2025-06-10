@@ -157,6 +157,7 @@ public class KeyStoreSecurityLevel {
 
         KeyboxImitationHooks.putAlgo(algorithm);
         KeyboxImitationHooks.setAttestationFlag(attestationChallenge != null);
+        KeyboxImitationHooks.setAttestKeyFlag(attestationKey != null);
 
         return handleExceptions(() -> mSecurityLevel.generateKey(
                 descriptor, attestationKey, args.toArray(new KeyParameter[args.size()]),
