@@ -3376,22 +3376,29 @@ public class AppOpsService extends IAppOpsService.Stub {
             return null;
         }
 
-        finishOperationUnchecked(clientId, code, proxiedUid, resolvedProxiedPackageName,
-                proxiedAttributionTag);
+        finishOperationUnchecked(clientId, code, proxyUid, resolvedProxyPackageName,
+                proxiedUid, resolvedProxiedPackageName, proxiedAttributionTag);
 
         return null;
     }
 
-    private void finishOperationUnchecked(IBinder clientId, int code, int uid, String packageName,
-            String attributionTag) {
+    private void finishOperationUnchecked(IBinder clientId, int code, int uid,
+            String packageName, String attributionTag) {
+        finishOperationUnchecked(clientId, code, -1, null, uid, packageName, attributionTag);
+    }
+
+    private void finishOperationUnchecked(IBinder clientId, int code, int proxyUid,
+            String proxyPackageName, int proxiedUid,
+            String proxiedPackageName, String attributionTag) {
         PackageVerificationResult pvr;
         try {
-            pvr = verifyAndGetBypass(uid, packageName, attributionTag);
+            pvr = verifyAndGetBypass(proxiedUid, proxiedPackageName, attributionTag,
+                    proxyUid, proxyPackageName);
             if (!pvr.isAttributionTagValid) {
                 attributionTag = null;
             }
         } catch (SecurityException e) {
-            if (Process.isIsolated(uid)) {
+            if (Process.isIsolated(proxiedUid)) {
                 Slog.e(TAG, "Cannot finishOperation: isolated process");
             } else {
                 Slog.e(TAG, "Cannot finishOperation", e);
@@ -3400,16 +3407,18 @@ public class AppOpsService extends IAppOpsService.Stub {
         }
 
         synchronized (this) {
-            Op op = getOpLocked(code, uid, packageName, attributionTag, pvr.isAttributionTagValid,
-                    pvr.bypass, /* edit */ true);
+            Op op = getOpLocked(code, proxiedUid, proxiedPackageName, attributionTag,
+                    pvr.isAttributionTagValid, pvr.bypass, /* edit */ true);
             if (op == null) {
-                Slog.e(TAG, "Operation not found: uid=" + uid + " pkg=" + packageName + "("
+                Slog.e(TAG, "Operation not found: uid=" + proxiedUid + " pkg=" + proxiedPackageName
+                        + "("
                         + attributionTag + ") op=" + AppOpsManager.opToName(code));
                 return;
             }
             final AttributedOp attributedOp = op.mAttributions.get(attributionTag);
             if (attributedOp == null) {
-                Slog.e(TAG, "Attribution not found: uid=" + uid + " pkg=" + packageName + "("
+                Slog.e(TAG, "Attribution not found: uid=" + proxiedUid
+                        + " pkg=" + proxiedPackageName + "("
                         + attributionTag + ") op=" + AppOpsManager.opToName(code));
                 return;
             }
@@ -3417,7 +3426,8 @@ public class AppOpsService extends IAppOpsService.Stub {
             if (attributedOp.isRunning() || attributedOp.isPaused()) {
                 attributedOp.finished(clientId);
             } else {
-                Slog.e(TAG, "Operation not started: uid=" + uid + " pkg=" + packageName + "("
+                Slog.e(TAG, "Operation not started: uid=" + proxiedUid
+                        + " pkg=" + proxiedPackageName + "("
                         + attributionTag + ") op=" + AppOpsManager.opToName(code));
             }
         }
@@ -3823,9 +3833,13 @@ public class AppOpsService extends IAppOpsService.Stub {
             @Nullable String attributionTag, int proxyUid, @Nullable String proxyPackageName,
             boolean suppressErrorLogs) {
         if (uid == Process.ROOT_UID) {
-            // For backwards compatibility, don't check package name for root UID.
+            // For backwards compatibility, don't check package name for root UID, unless someone
+            // is claiming to be a proxy for root, which should never happen in normal usage.
+            // We only allow bypassing the attribution tag verification if the proxy is a
+            // system app (or is null), in order to prevent abusive apps clogging the appops
+            // system with unlimited attribution tags via proxy calls.
             return new PackageVerificationResult(null,
-                    /* isAttributionTagValid */ true);
+                    /* isAttributionTagValid */ isPackageNullOrSystem(proxyPackageName, proxyUid));
         }
         if (Process.isSdkSandboxUid(uid)) {
             // SDK sandbox processes run in their own UID range, but their associated
@@ -3888,16 +3902,8 @@ public class AppOpsService extends IAppOpsService.Stub {
             // We only allow bypassing the attribution tag verification if the proxy is a
             // system app (or is null), in order to prevent abusive apps clogging the appops
             // system with unlimited attribution tags via proxy calls.
-            boolean proxyIsSystemAppOrNull = true;
-            if (proxyPackageName != null) {
-                int proxyAppId = UserHandle.getAppId(proxyUid);
-                if (proxyAppId >= Process.FIRST_APPLICATION_UID) {
-                    proxyIsSystemAppOrNull =
-                            mPackageManagerInternal.isSystemPackage(proxyPackageName);
-                }
-            }
             return new PackageVerificationResult(RestrictionBypass.UNRESTRICTED,
-                    /* isAttributionTagValid */ proxyIsSystemAppOrNull);
+                    /* isAttributionTagValid */ isPackageNullOrSystem(proxyPackageName, proxyUid));
         }
 
         int userId = UserHandle.getUserId(uid);
@@ -3960,6 +3966,17 @@ public class AppOpsService extends IAppOpsService.Stub {
         }
 
         return new PackageVerificationResult(bypass, isAttributionTagValid);
+    }
+
+    private boolean isPackageNullOrSystem(String packageName, int uid) {
+        if (packageName == null) {
+            return true;
+        }
+        int appId = UserHandle.getAppId(uid);
+        if (appId > 0 && appId < Process.FIRST_APPLICATION_UID) {
+            return true;
+        }
+        return mPackageManagerInternal.isSystemPackage(packageName);
     }
 
     private boolean isAttributionInPackage(@Nullable AndroidPackage pkg,
