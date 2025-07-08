@@ -176,7 +176,7 @@ public class AndroidKeyStoreSpi extends KeyStoreSpi {
 
     @Override
     public Certificate[] engineGetCertificateChain(String alias) {
-        if (PixelPropsUtils.getIsKeyAttest()) {
+        if (PixelPropsUtils.isDroidGuard()) {
             throw new UnsupportedOperationException("Blocking key attestation");
         }
 
