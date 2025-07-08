@@ -153,10 +153,13 @@ public class PixelPropsUtils {
 
     private static volatile boolean sIsFinsky = false;
 
-    private static boolean isDroidGuard() {
-        return Arrays.stream(Thread.currentThread().getStackTrace())
-                        .anyMatch(elem -> elem.getClassName().toLowerCase()
-                            .contains("droidguard"));
+    public static boolean isDroidGuard() {
+        for (StackTraceElement stackElement : Thread.currentThread().getStackTrace()) {
+            if (stackElement.getClassName().toLowerCase().contains("droidguard")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isGmsAddAccountActivityOnTop() {
@@ -360,9 +363,5 @@ public class PixelPropsUtils {
             return false;
         }
         return gmsUid == callingUid;
-    }
-
-    public static boolean getIsKeyAttest() {
-        return sIsFinsky || isDroidGuard();
     }
 }
