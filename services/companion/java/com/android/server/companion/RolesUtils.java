@@ -17,6 +17,10 @@
 package com.android.server.companion;
 
 import static android.app.role.RoleManager.MANAGE_HOLDERS_FLAG_DONT_KILL_APP;
+import static android.companion.AssociationRequest.DEVICE_PROFILE_APP_STREAMING;
+import static android.companion.AssociationRequest.DEVICE_PROFILE_COMPUTER;
+import static android.companion.AssociationRequest.DEVICE_PROFILE_GLASSES;
+import static android.companion.AssociationRequest.DEVICE_PROFILE_WATCH;
 
 import static com.android.server.companion.CompanionDeviceManagerService.DEBUG;
 import static com.android.server.companion.CompanionDeviceManagerService.TAG;
@@ -33,11 +37,18 @@ import android.util.Log;
 import android.util.Slog;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /** Utility methods for accessing {@link RoleManager} APIs. */
 @SuppressLint("LongLogTag")
 final class RolesUtils {
+
+    public static final Set<String> NLS_PROFILES = Set.of(
+            DEVICE_PROFILE_WATCH,
+            DEVICE_PROFILE_GLASSES,
+            DEVICE_PROFILE_APP_STREAMING,
+            DEVICE_PROFILE_COMPUTER);
 
     static boolean isRoleHolder(@NonNull Context context, @UserIdInt int userId,
             @NonNull String packageName, @NonNull String role) {

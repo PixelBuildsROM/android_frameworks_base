@@ -38,6 +38,7 @@ import static com.android.server.companion.PermissionsUtils.enforceCallerCanMana
 import static com.android.server.companion.PermissionsUtils.enforceCallerIsSystemOr;
 import static com.android.server.companion.PermissionsUtils.enforceCallerIsSystemOrCanInteractWithUserId;
 import static com.android.server.companion.PermissionsUtils.sanitizeWithCallerChecks;
+import static com.android.server.companion.RolesUtils.NLS_PROFILES;
 import static com.android.server.companion.RolesUtils.removeRoleHolderForAssociation;
 
 import static java.util.Objects.requireNonNull;
@@ -444,17 +445,20 @@ public class CompanionDeviceManagerService extends SystemService {
             // Revoke NLS if the last association has been removed for the package
             Binder.withCleanCallingIdentity(() -> {
                 if (mAssociationStore.getAssociationsForPackage(userId, packageName).isEmpty()) {
-                    NotificationManager nm = getContext().getSystemService(
-                        NotificationManager.class);
-                    Intent nlsIntent = new Intent(
-                            NotificationListenerService.SERVICE_INTERFACE);
-                    List<ResolveInfo> matchedServiceList = getContext().getPackageManager()
-                            .queryIntentServicesAsUser(nlsIntent, /* flags */ 0, userId);
-                    for (ResolveInfo service : matchedServiceList) {
-                        if (service.getComponentInfo().getComponentName().getPackageName()
-                                .equals(packageName)) {
-                            nm.setNotificationListenerAccessGranted(
-                                    service.getComponentInfo().getComponentName(), false);
+                    if (association.getDeviceProfile() != null
+                        && NLS_PROFILES.contains(association.getDeviceProfile())) {
+                        NotificationManager nm = getContext().getSystemService(
+                                NotificationManager.class);
+                        Intent nlsIntent = new Intent(
+                                NotificationListenerService.SERVICE_INTERFACE);
+                        List<ResolveInfo> matchedServiceList = getContext().getPackageManager()
+                                .queryIntentServicesAsUser(nlsIntent, /* flags */ 0, userId);
+                        for (ResolveInfo service : matchedServiceList) {
+                            if (service.getComponentInfo().getComponentName().getPackageName()
+                                    .equals(packageName)) {
+                                nm.setNotificationListenerAccessGranted(
+                                        service.getComponentInfo().getComponentName(), false, false);
+                            }
                         }
                     }
                 }
