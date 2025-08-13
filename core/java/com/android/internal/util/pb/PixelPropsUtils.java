@@ -59,7 +59,6 @@ public class PixelPropsUtils {
 
     private static final String CERT_DATA_FILE = "certified_props.json";
     private static final String PACKAGE_GMS = "com.google.android.gms";
-    private static final String PACKAGE_FINSKY = "com.android.vending";
     private static final String PACKAGE_PHOTOS = "com.google.android.apps.photos";
     private static final String PACKAGE_SET_INTEL = "com.google.android.settings.intelligence";
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
@@ -80,18 +79,12 @@ public class PixelPropsUtils {
             "com.google.android.apps.wallpaper.pixel",
             "com.google.android.apps.wallpaper",
             "com.google.pixel.livewallpaper",
-            "com.google.android.apps.aiwallpapers",
-            "com.google.android.apps.emojiwallpaper",
-            "com.google.android.googlequicksearchbox",
-            "com.google.android.setupwizard"
+            "com.google.android.googlequicksearchbox"
     ));
 
     private static final ArrayList<String> packagesToChangeOlderPixel = 
     new ArrayList<String> (
         Arrays.asList(
-            "com.google.android.gms.ui",
-            "com.google.android.gms.learning",
-            "com.google.android.gms.persistent",
             "com.google.android.inputmethod.latin"
     ));
 
@@ -149,17 +142,6 @@ public class PixelPropsUtils {
 
     private static void dlog(String message) {
         if (DEBUG) Log.d(TAG, message);
-    }
-
-    private static volatile boolean sIsFinsky = false;
-
-    public static boolean isDroidGuard() {
-        for (StackTraceElement stackElement : Thread.currentThread().getStackTrace()) {
-            if (stackElement.getClassName().toLowerCase().contains("droidguard")) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static boolean isGmsAddAccountActivityOnTop() {
@@ -255,7 +237,6 @@ public class PixelPropsUtils {
     public static void setProps(Context context) {
         final String packageName = context.getPackageName();
         final String processName = Application.getProcessName();
-        sIsFinsky = packageName.equals(PACKAGE_FINSKY);
 
         if (packageName == null || packageName.isEmpty()
             || !packageName.startsWith("com.google")) {
@@ -349,19 +330,5 @@ public class PixelPropsUtils {
         } catch (NoSuchFieldException | IllegalAccessException e) {
             Log.e(TAG, "Failed to set version field " + key, e);
         }
-    }
-
-    public static boolean shouldBypassTaskPermission(Context context) {
-        // GMS doesn't have MANAGE_ACTIVITY_TASKS permission
-        final int callingUid = Binder.getCallingUid();
-        final int gmsUid;
-        try {
-            gmsUid = context.getPackageManager().getApplicationInfo(PACKAGE_GMS, 0).uid;
-            dlog("shouldBypassTaskPermission: gmsUid:" + gmsUid + " callingUid:" + callingUid);
-        } catch (Exception e) {
-            Log.e(TAG, "shouldBypassTaskPermission: unable to get gms uid", e);
-            return false;
-        }
-        return gmsUid == callingUid;
     }
 }

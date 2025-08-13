@@ -87,8 +87,6 @@ import java.util.NoSuchElementException;
 
 import javax.crypto.SecretKey;
 
-import com.android.internal.util.pb.PixelPropsUtils;
-
 /**
  * A java.security.KeyStore interface for the Android KeyStore. An instance of
  * it can be created via the {@link java.security.KeyStore#getInstance(String)
