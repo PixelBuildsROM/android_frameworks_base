@@ -164,6 +164,7 @@ public class CompanionDeviceManagerService extends SystemService {
     private final IAppOpsService mAppOpsManager;
     private final PowerWhitelistManager mPowerWhitelistManager;
     private final UserManager mUserManager;
+    private final PackageManager mPackageManager;
     final PackageManagerInternal mPackageManagerInternal;
 
     /**
@@ -217,6 +218,7 @@ public class CompanionDeviceManagerService extends SystemService {
         mAtmInternal = LocalServices.getService(ActivityTaskManagerInternal.class);
         mAmInternal = LocalServices.getService(ActivityManagerInternal.class);
         mPackageManagerInternal = LocalServices.getService(PackageManagerInternal.class);
+        mPackageManager = context.getPackageManager();
         mUserManager = context.getSystemService(UserManager.class);
 
         mUserPersistenceHandler = new PersistUserStateHandler();
@@ -1555,8 +1557,10 @@ public class CompanionDeviceManagerService extends SystemService {
                 return;
             }
 
-            final String packageName = getPackageNameByUid(uid);
-            if (packageName == null) {
+            // A UID can be shared by multiple packages if android:sharedUserId is used.
+            // We must get all packages for the UID to ensure we find the correct one.
+            final String[] packageNames = mPackageManager.getPackagesForUid(uid);
+            if (packageNames == null || packageNames.length == 0) {
                 // Not interested in this uid.
                 return;
             }
@@ -1565,17 +1569,19 @@ public class CompanionDeviceManagerService extends SystemService {
 
             boolean needToPersistStateForUser = false;
 
-            for (AssociationInfo association :
-                    getPendingRoleHolderRemovalAssociationsForUser(userId)) {
-                if (!packageName.equals(association.getPackageName())) continue;
+            for (String packageName : packageNames) {
+                for (AssociationInfo association :
+                        getPendingRoleHolderRemovalAssociationsForUser(userId)) {
+                    if (!packageName.equals(association.getPackageName())) continue;
 
-                if (!maybeRemoveRoleHolderForAssociation(association)) {
-                    // Did not remove the role holder, will have to try again later.
-                    continue;
+                    if (!maybeRemoveRoleHolderForAssociation(association)) {
+                        // Did not remove the role holder, will have to try again later.
+                        continue;
+                    }
+
+                    removeFromPendingRoleHolderRemoval(association);
+                    needToPersistStateForUser = true;
                 }
-
-                removeFromPendingRoleHolderRemoval(association);
-                needToPersistStateForUser = true;
             }
 
             if (needToPersistStateForUser) {
