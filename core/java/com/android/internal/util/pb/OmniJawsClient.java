@@ -165,23 +165,16 @@ public class OmniJawsClient {
         mContext = context;
         mObserver = new ArrayList<OmniJawsObserver>();
     }
-
+    
     public Intent getSettingsIntent() {
-        if (isOmniJawsServiceInstalled()) {
-            Intent settings = new Intent(Intent.ACTION_MAIN)
-                    .setClassName(SERVICE_PACKAGE, SERVICE_PACKAGE + ".SettingsActivity");
-            return settings;
-        }
-        return null;
+        return new Intent(Intent.ACTION_MAIN)
+                .setClassName(SERVICE_PACKAGE, SERVICE_PACKAGE + ".SettingsActivity");
     }
 
-    public Intent getWeatherActivityIntent() {
-        if (isOmniJawsServiceInstalled()) {
-            Intent settings = new Intent(Intent.ACTION_MAIN)
-                    .setClassName(SERVICE_PACKAGE, SERVICE_PACKAGE + ".WeatherActivity");
-            return settings;
-        }
-        return null;
+    public static Intent getWeatherActivityIntent() {
+        return new Intent(Intent.ACTION_MAIN)
+                .setClassName(SERVICE_PACKAGE, SERVICE_PACKAGE + ".WeatherActivity")
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     }
 
     public WeatherInfo getWeatherInfo() {
