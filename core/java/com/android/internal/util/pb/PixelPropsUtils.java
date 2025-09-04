@@ -69,23 +69,14 @@ public class PixelPropsUtils {
     private static String[] sCertifiedProps =
     Resources.getSystem().getStringArray(R.array.config_certifiedBuildProperties);
 
-    private static final Map<String, Object> propsToChangeNewerPixel;
-    private static final Map<String, Object> propsToChangeOlderPixel;
+    private static final Map<String, Object> propsToChangePixel;
     private static final Map<String, Object> propsToSpoofPhotos;
 
-    private static final ArrayList<String> packagesToChangeNewerPixel =
+    private static final ArrayList<String> packagesToChangePixel = 
     new ArrayList<String> (
         Arrays.asList(
-            "com.google.android.apps.wallpaper.pixel",
-            "com.google.android.apps.wallpaper",
-            "com.google.pixel.livewallpaper",
+            "com.google.android.inputmethod.latin",
             "com.google.android.googlequicksearchbox"
-    ));
-
-    private static final ArrayList<String> packagesToChangeOlderPixel = 
-    new ArrayList<String> (
-        Arrays.asList(
-            "com.google.android.inputmethod.latin"
     ));
 
     // Codenames for currently supported Pixels by Google
@@ -110,26 +101,16 @@ public class PixelPropsUtils {
     ));
 
     static {
-        propsToChangeNewerPixel = new HashMap<>();
-        String fingerprint_newer_pixel = "google/husky/husky:14/AP2A.240905.003/12231197:user/release-keys";
-        propsToChangeNewerPixel.put("MANUFACTURER", "Google");
-        propsToChangeNewerPixel.put("MODEL", "Pixel 8 Pro");
-        propsToChangeNewerPixel.put("FINGERPRINT", fingerprint_newer_pixel);
-        String[] fpsections_newer_pixel = fingerprint_newer_pixel.split("/");
-        propsToChangeNewerPixel.put("BRAND", fpsections_newer_pixel[0]);
-        propsToChangeNewerPixel.put("DEVICE", fpsections_newer_pixel[2].split(":")[0]);
-        propsToChangeNewerPixel.put("PRODUCT", fpsections_newer_pixel[1]);
-        propsToChangeNewerPixel.put("ID", fpsections_newer_pixel[3]);
-        propsToChangeOlderPixel = new HashMap<>();
-        String fingerprint_older_pixel = "google/bluejay/bluejay:14/AP1A.240505.004/11583682:user/release-keys";
-        propsToChangeOlderPixel.put("MANUFACTURER", "Google");
-        propsToChangeOlderPixel.put("MODEL", "Pixel 6a");
-        propsToChangeOlderPixel.put("FINGERPRINT", fingerprint_older_pixel);
-        String[] fpsections_older_pixel = fingerprint_older_pixel.split("/");
-        propsToChangeOlderPixel.put("BRAND", fpsections_older_pixel[0]);
-        propsToChangeOlderPixel.put("DEVICE", fpsections_older_pixel[2].split(":")[0]);
-        propsToChangeOlderPixel.put("PRODUCT", fpsections_older_pixel[1]);
-        propsToChangeOlderPixel.put("ID", fpsections_older_pixel[3]);
+        propsToChangePixel = new HashMap<>();
+        String fingerprint_pixel = "google/bluejay/bluejay:14/AP1A.240505.004/11583682:user/release-keys";
+        propsToChangePixel.put("MANUFACTURER", "Google");
+        propsToChangePixel.put("MODEL", "Pixel 6a");
+        propsToChangePixel.put("FINGERPRINT", fingerprint_pixel);
+        String[] fpsections_pixel = fingerprint_pixel.split("/");
+        propsToChangePixel.put("BRAND", fpsections_pixel[0]);
+        propsToChangePixel.put("DEVICE", fpsections_pixel[2].split(":")[0]);
+        propsToChangePixel.put("PRODUCT", fpsections_pixel[1]);
+        propsToChangePixel.put("ID", fpsections_pixel[3]);
         propsToSpoofPhotos = new HashMap<>();
         propsToSpoofPhotos.put("BRAND", "google");
         propsToSpoofPhotos.put("MANUFACTURER", "Google");
@@ -261,12 +242,9 @@ public class PixelPropsUtils {
 
         Map<String, Object> propsToChange = new HashMap<>();
 
-        if (packagesToChangeNewerPixel.contains(packageName)
-            || packagesToChangeNewerPixel.contains(processName)) {
-                propsToChange.putAll(propsToChangeNewerPixel);
-        } else if (packagesToChangeOlderPixel.contains(packageName)
-            || packagesToChangeOlderPixel.contains(processName)) {
-                propsToChange.putAll(propsToChangeOlderPixel);
+        if (packagesToChangePixel.contains(packageName)
+            || packagesToChangePixel.contains(processName)) {
+                propsToChange.putAll(propsToChangePixel);
         } else if (packageName.equals(PACKAGE_PHOTOS)) {
             propsToChange.putAll(propsToSpoofPhotos);
         }
