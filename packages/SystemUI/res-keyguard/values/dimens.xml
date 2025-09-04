@@ -150,4 +150,7 @@
     <dimen name="weather_clock_smartspace_translateX">0dp</dimen>
     <dimen name="weather_clock_smartspace_translateY">0dp</dimen>
 
+    <!-- OmniJaws weather bottom padding -->
+    <dimen name="omnijaws_margin_bottom">5dp</dimen>
+
 </resources>
