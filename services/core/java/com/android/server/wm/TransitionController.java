@@ -717,8 +717,18 @@ class TransitionController {
                 info = new ActivityManager.RunningTaskInfo();
                 startTask.fillTaskInfo(info);
             }
+
+            final RemoteTransition remoteInfo;
+            if (remoteTransition != null) {
+                transition.mRemoteDelegate = remoteTransition.getAppThread();
+                remoteInfo = new RemoteTransition(remoteTransition.getRemoteTransition(),
+                        remoteTransition.getDebugName());
+            } else {
+                remoteInfo = null;
+            }
+
             final TransitionRequestInfo request = new TransitionRequestInfo(
-                    transition.mType, info, remoteTransition, displayChange, transition.getFlags());
+                    transition.mType, info, remoteInfo, displayChange, transition.getFlags());
             transition.mLogger.mRequestTimeNs = SystemClock.elapsedRealtimeNanos();
             transition.mLogger.mRequest = request;
             mTransitionPlayer.requestStartTransition(transition.getToken(), request);

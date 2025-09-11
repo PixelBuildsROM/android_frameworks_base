@@ -137,7 +137,7 @@ public class RemoteTransitionHandler implements Transitions.TransitionHandler {
                 });
             }
         };
-        Transitions.setRunningRemoteTransitionDelegate(remote.getAppThread());
+        Transitions.setRunningRemoteTransitionDelegate(transition);
         try {
             // If the remote is actually in the same process, then make a copy of parameters since
             // remote impls assume that they have to clean-up native references.

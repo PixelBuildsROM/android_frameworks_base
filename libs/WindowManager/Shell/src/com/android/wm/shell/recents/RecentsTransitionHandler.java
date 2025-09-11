@@ -117,6 +117,7 @@ public class RecentsTransitionHandler implements Transitions.TransitionHandler {
         mAnimApp = appThread;
         WindowContainerTransaction wct = new WindowContainerTransaction();
         wct.sendPendingIntent(intent, fillIn, options);
+        wct.setAnimationDelegate(appThread.asBinder());
         final RecentsController controller = new RecentsController(listener);
         RecentsMixedHandler mixer = null;
         Transitions.TransitionHandler mixedHandler = null;
@@ -172,7 +173,7 @@ public class RecentsTransitionHandler implements Transitions.TransitionHandler {
             return false;
         }
         final RecentsController controller = mControllers.get(controllerIdx);
-        Transitions.setRunningRemoteTransitionDelegate(mAnimApp);
+        Transitions.setRunningRemoteTransitionDelegate(transition);
         mAnimApp = null;
         if (!controller.start(info, startTransaction, finishTransaction, finishCallback)) {
             ProtoLog.v(ShellProtoLogGroup.WM_SHELL_RECENTS_TRANSITION,

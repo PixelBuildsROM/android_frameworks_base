@@ -176,6 +176,12 @@ class Transition implements BLASTSyncEngine.TransactionReadyListener {
     private final Token mToken;
     private IApplicationThread mRemoteAnimApp;
 
+    /**
+     * If this transition has a corresponding RemoteTransition, this tracks the process which will
+     * play the animation.
+     */
+    IApplicationThread mRemoteDelegate = null;
+
     /** Only use for clean-up after binder death! */
     private SurfaceControl.Transaction mStartTransaction = null;
     private SurfaceControl.Transaction mFinishTransaction = null;
