@@ -790,7 +790,7 @@ public class KeyguardViewMediator implements CoreStartable, Dumpable,
 
         @Override
         public void onStrongAuthStateChanged(int userId) {
-            if (mLockPatternUtils.isUserInLockdown(KeyguardUpdateMonitor.getCurrentUser())) {
+            if (mUpdateMonitor.isUserInLockdown(KeyguardUpdateMonitor.getCurrentUser())) {
                 doKeyguardLocked(null);
             }
         }
@@ -1989,7 +1989,7 @@ public class KeyguardViewMediator implements CoreStartable, Dumpable,
             mExternallyEnabled = enabled;
 
             if (!enabled && mShowing) {
-                if (mLockPatternUtils.isUserInLockdown(KeyguardUpdateMonitor.getCurrentUser())) {
+                if (mUpdateMonitor.isUserInLockdown(KeyguardUpdateMonitor.getCurrentUser())) {
                     Log.d(TAG, "keyguardEnabled(false) overridden by user lockdown");
                     return;
                 }
@@ -2226,7 +2226,7 @@ public class KeyguardViewMediator implements CoreStartable, Dumpable,
 
         // if another app is disabling us, don't show
         if (!mExternallyEnabled
-                && !mLockPatternUtils.isUserInLockdown(KeyguardUpdateMonitor.getCurrentUser())) {
+                && !mUpdateMonitor.isUserInLockdown(KeyguardUpdateMonitor.getCurrentUser())) {
             if (DEBUG) Log.d(TAG, "doKeyguard: not showing because externally disabled");
             notifyLockNowCallback();
             mNeedToReshowWhenReenabled = true;
