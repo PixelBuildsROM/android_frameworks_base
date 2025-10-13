@@ -1599,7 +1599,7 @@ class PermissionService(
         }
     }
 
-    override fun resetRuntimePermissions(androidPackage: AndroidPackage, userId: Int) {
+    override fun resetRuntimePermissions(androidPackage: AndroidPackage, userId: Int, restorePregrants: Boolean) {
         // TODO("Not yet implemented")
     }
 
