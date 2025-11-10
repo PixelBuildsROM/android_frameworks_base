@@ -30,6 +30,7 @@ import static android.view.RemoteAnimationTarget.MODE_OPENING;
 import static android.view.WindowManager.LayoutParams.TYPE_DOCK_DIVIDER;
 import static android.view.WindowManager.TRANSIT_CHANGE;
 import static android.view.WindowManager.TRANSIT_KEYGUARD_OCCLUDE;
+import static android.view.WindowManager.TRANSIT_CLOSE;
 import static android.view.WindowManager.TRANSIT_TO_BACK;
 import static android.view.WindowManager.TRANSIT_TO_FRONT;
 import static android.view.WindowManager.transitTypeToString;
@@ -131,6 +132,7 @@ import com.android.wm.shell.common.TransactionPool;
 import com.android.wm.shell.common.split.SplitLayout;
 import com.android.wm.shell.common.split.SplitScreenConstants.SplitPosition;
 import com.android.wm.shell.common.split.SplitScreenUtils;
+import com.android.wm.shell.common.split.SplitTransitionUtils;
 import com.android.wm.shell.common.split.SplitWindowManager;
 import com.android.wm.shell.protolog.ShellProtoLogGroup;
 import com.android.wm.shell.recents.RecentTasksController;
@@ -202,6 +204,7 @@ public class StageCoordinator implements SplitLayout.SplitLayoutHandler,
     private final Optional<RecentTasksController> mRecentTasks;
     private final LaunchAdjacentController mLaunchAdjacentController;
     private final Optional<WindowDecorViewModel> mWindowDecorViewModel;
+    private final Transitions mTransitions;
 
     private final Rect mTempRect1 = new Rect();
     private final Rect mTempRect2 = new Rect();
@@ -334,7 +337,8 @@ public class StageCoordinator implements SplitLayout.SplitLayoutHandler,
         mSplitTransitions = new SplitScreenTransitions(transactionPool, transitions,
                 this::onTransitionAnimationComplete, this);
         mDisplayController.addDisplayWindowListener(this);
-        transitions.addHandler(this);
+        mTransitions = transitions;
+        mTransitions.addHandler(this);
         mSplitUnsupportedToast = Toast.makeText(mContext,
                 R.string.dock_non_resizeble_failed_to_dock_text, Toast.LENGTH_SHORT);
         // With shell transition, we should update recents tile each callback so set this to true by
@@ -371,7 +375,8 @@ public class StageCoordinator implements SplitLayout.SplitLayoutHandler,
         mLaunchAdjacentController = launchAdjacentController;
         mWindowDecorViewModel = windowDecorViewModel;
         mDisplayController.addDisplayWindowListener(this);
-        transitions.addHandler(this);
+        mTransitions = transitions;
+        mTransitions.addHandler(this);
         mSplitUnsupportedToast = Toast.makeText(mContext,
                 R.string.dock_non_resizeble_failed_to_dock_text, Toast.LENGTH_SHORT);
     }
@@ -2549,9 +2554,20 @@ public class StageCoordinator implements SplitLayout.SplitLayoutHandler,
             @NonNull Transitions.TransitionFinishCallback finishCallback) {
         if (!mSplitTransitions.isPendingTransition(transition)) {
             // Not entering or exiting, so just do some house-keeping and validation.
+            ProtoLog.d(ShellProtoLogGroup.WM_SHELL_SPLIT_SCREEN,
+                    "startAnimation: transition=%d isSplitActive=%b",
+                    info.getDebugId(), isSplitActive());
 
             // If we're not in split-mode, just abort so something else can handle it.
-            if (!mMainStage.isActive()) return false;
+            if (!mMainStage.isActive()) {
+                final WindowContainerTransaction wct =
+                        SplitTransitionUtils.handleMalformedEnterTransition(info,
+                                (taskInfo) -> getStageOfTask(taskInfo));
+                if (wct != null) {
+                    mTransitions.startTransition(TRANSIT_CLOSE, wct, null);
+                }
+                return false;
+            }
 
             mSplitLayout.setFreezeDividerWindow(false);
             final StageChangeRecord record = new StageChangeRecord();
