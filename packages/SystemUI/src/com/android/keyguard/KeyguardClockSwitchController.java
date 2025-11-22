@@ -64,6 +64,8 @@ import com.android.systemui.util.concurrency.DelayableExecutor;
 import com.android.systemui.util.settings.SecureSettings;
 import com.android.systemui.util.settings.SystemSettings;
 
+import com.android.internal.util.pb.OmniJawsClient;
+
 import java.io.PrintWriter;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -100,6 +102,7 @@ public class KeyguardClockSwitchController extends ViewController<KeyguardClockS
     private final ClockRegistry.ClockChangeListener mClockChangedListener;
 
     private ViewGroup mStatusArea;
+    private OmniJawsClient mWeatherClient;
 
     // If the SMARTSPACE flag is set, keyguard_slice_view is replaced by the following views.
     private ViewGroup mDateWeatherView;
@@ -352,7 +355,7 @@ public class KeyguardClockSwitchController extends ViewController<KeyguardClockS
     public void updateWeatherView() {
         mUiExecutor.execute(() -> {
             if (mCurrentWeatherView != null) {
-                if (mOmniWeather && !mOnlyClock) {
+                if (mOmniWeather && !mOnlyClock && isOmniWeatherAvailable()) {
                     mCurrentWeatherView.enableUpdates();
                     mCurrentWeatherView.setVisibility(View.VISIBLE);
                 } else {
@@ -597,6 +600,10 @@ public class KeyguardClockSwitchController extends ViewController<KeyguardClockS
             Settings.System.LOCKSCREEN_WEATHER_ENABLED, 0,
             UserHandle.USER_CURRENT) != 0;
         setWeatherVisibility();
+    }
+
+    private boolean isOmniWeatherAvailable() {
+        return OmniJawsClient.get().isOmniJawsEnabled(getContext());
     }
 
     private void setDateWeatherVisibility() {

@@ -19,6 +19,8 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.AttributeSet;
@@ -32,13 +34,15 @@ import com.android.systemui.R;
 
 public class CurrentWeatherView extends FrameLayout implements OmniJawsClient.OmniJawsObserver {
 
-    static final String TAG = "SystemUI:CurrentWeatherView";
-
     private ImageView mCurrentImage;
     private OmniJawsClient mWeatherClient;
     private OmniJawsClient.WeatherInfo mWeatherInfo;
     private TextView mLeftText;
     private TextView mRightText;
+    private Context mContext;
+    private HandlerThread mWeatherThread;
+    private Handler mBgHandler;
+    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
     private SettingsObserver mSettingsObserver;
 
@@ -54,33 +58,71 @@ public class CurrentWeatherView extends FrameLayout implements OmniJawsClient.Om
 
     public CurrentWeatherView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        if (mWeatherClient == null) {
-            mWeatherClient = new OmniJawsClient(context);
-        }
+        mContext = context;
+        mWeatherClient = OmniJawsClient.get(); // singleton
     }
 
-    public void enableUpdates() {
-        if (mWeatherClient != null) {
-            mWeatherClient.addObserver(this);
-            queryAndUpdateWeather();
+    private final Runnable mWeatherRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mWeatherClient.queryWeather(mContext);
+            mWeatherInfo = mWeatherClient.getWeatherInfo();
+            mMainHandler.post(mUpdateViewsRunnable);
         }
-    }
+    };
 
-    public void disableUpdates() {
-        if (mWeatherClient != null) {
-            mWeatherClient.removeObserver(this);
+    private final Runnable mUpdateViewsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (mWeatherInfo != null) {
+                Drawable d = mWeatherClient.getWeatherConditionImage(mContext,
+                        mWeatherInfo.conditionCode);
+                mCurrentImage.setImageDrawable(d);
+                mRightText.setText(mWeatherInfo.temp + " " + mWeatherInfo.tempUnits);
+                mLeftText.setText(mWeatherInfo.city);
+                mLeftText.setVisibility(mShowWeatherLocation ? View.VISIBLE : View.GONE);
+            }
         }
-    }
+    };
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        mCurrentImage  = (ImageView) findViewById(R.id.current_image);
-        mLeftText = (TextView) findViewById(R.id.left_text);
-        mRightText = (TextView) findViewById(R.id.right_text);
+        mCurrentImage  = findViewById(R.id.current_image);
+        mLeftText = findViewById(R.id.left_text);
+        mRightText = findViewById(R.id.right_text);
+    }
+
+    public void enableUpdates() {
+        if (mBgHandler == null) {
+            mWeatherThread = new HandlerThread("WeatherThread");
+            mWeatherThread.start();
+            mBgHandler = new Handler(mWeatherThread.getLooper());
+        }
         if (mSettingsObserver == null) {
-            mSettingsObserver = new SettingsObserver(new Handler());
+            mSettingsObserver = new SettingsObserver(mMainHandler);
             mSettingsObserver.observe();
+        }
+        if (mWeatherClient != null) {
+            mWeatherClient.addObserver(mContext, this);
+            mBgHandler.post(mWeatherRunnable);
+        }
+    }
+
+    public void disableUpdates() {
+        if (mSettingsObserver != null){
+            mSettingsObserver.unobserve();
+        }
+        if (mWeatherClient != null) {
+            mWeatherClient.removeObserver(mContext, this);
+        }
+        if (mWeatherThread != null) {
+            if (mBgHandler != null) {
+                mBgHandler.removeCallbacks(mWeatherRunnable);
+                mBgHandler = null;
+            }
+            mWeatherThread.quitSafely();
+            mWeatherThread = null;
         }
     }
 
@@ -105,31 +147,12 @@ public class CurrentWeatherView extends FrameLayout implements OmniJawsClient.Om
 
     @Override
     public void weatherUpdated() {
-        queryAndUpdateWeather();
+        mBgHandler.post(mWeatherRunnable);
     }
 
     @Override
     public void updateSettings() {
-        queryAndUpdateWeather();
-    }
-
-    private void queryAndUpdateWeather() {
-        try {
-            if (mWeatherClient == null || !mWeatherClient.isOmniJawsEnabled()) {
-                return;
-            }
-            mWeatherClient.queryWeather();
-            mWeatherInfo = mWeatherClient.getWeatherInfo();
-            if (mWeatherInfo != null) {
-                Drawable d = mWeatherClient.getWeatherConditionImage(mWeatherInfo.conditionCode);
-                mCurrentImage.setImageDrawable(d);
-                mRightText.setText(mWeatherInfo.temp + " " + mWeatherInfo.tempUnits);
-                mLeftText.setText(mWeatherInfo.city);
-                mLeftText.setVisibility(mShowWeatherLocation ? View.VISIBLE : View.GONE);
-            }
-        } catch(Exception e) {
-            // Do nothing
-        }
+        mBgHandler.post(mWeatherRunnable);
     }
 
     class SettingsObserver extends ContentObserver {
@@ -138,18 +161,20 @@ public class CurrentWeatherView extends FrameLayout implements OmniJawsClient.Om
         }
 
         void observe() {
-            getContext().getContentResolver().registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.LOCKSCREEN_WEATHER_LOCATION), false, this,
-                    UserHandle.USER_ALL);
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.LOCKSCREEN_WEATHER_LOCATION),
+                    false, this, UserHandle.USER_ALL
+            );
             updateWeatherSettings();
         }
 
         void unobserve() {
-            getContext().getContentResolver().unregisterContentObserver(this);
+            mContext.getContentResolver().unregisterContentObserver(this);
         }
 
         void updateWeatherSettings() {
-            mShowWeatherLocation = Settings.System.getIntForUser(getContext().getContentResolver(),
+            mShowWeatherLocation = Settings.System.getIntForUser(
+                    mContext.getContentResolver(),
                     Settings.System.LOCKSCREEN_WEATHER_LOCATION,
                     0, UserHandle.USER_CURRENT) != 0;
             mLeftText.setVisibility(mShowWeatherLocation ? View.VISIBLE : View.GONE);
