@@ -538,31 +538,29 @@ public class SoundTriggerService extends SystemService {
         }
 
         @Override
-        public int startRecognition(ParcelUuid parcelUuid, IRecognitionStatusCallback callback,
+        public int startRecognition(GenericSoundModel soundModel,
+                IRecognitionStatusCallback callback,
                 RecognitionConfig config, boolean runInBatterySaverMode) {
-            mEventLogger.enqueue(new SessionEvent(Type.START_RECOGNITION, getUuid(parcelUuid)));
+            mEventLogger.enqueue(new SessionEvent(Type.START_RECOGNITION, getUuid(soundModel)));
 
             try (SafeCloseable ignored = ClearCallingIdentityContext.create()) {
                 enforceCallingPermission(Manifest.permission.MANAGE_SOUND_TRIGGER);
+
+                if (soundModel == null) {
+                    mEventLogger.enqueue(new SessionEvent(Type.START_RECOGNITION,
+                                getUuid(soundModel), "Invalid sound model").printLog(ALOGW, TAG));
+                    return STATUS_ERROR;
+                }
 
                 if (runInBatterySaverMode) {
                     enforceCallingPermission(Manifest.permission.SOUND_TRIGGER_RUN_IN_BATTERY_SAVER);
                 }
 
-                GenericSoundModel model = getSoundModel(parcelUuid);
-                if (model == null) {
-                    Slog.w(TAG, "Null model in database for id: " + parcelUuid);
-
-		    mEventLogger.enqueue(new SessionEvent(Type.START_RECOGNITION,
-                                getUuid(parcelUuid), "Invalid sound model").printLog(ALOGW, TAG));
-
-                    return STATUS_ERROR;
-                }
-
-               int ret = mSoundTriggerHelper.startGenericRecognition(parcelUuid.getUuid(), model,
+                int ret = mSoundTriggerHelper.startGenericRecognition(soundModel.getUuid(),
+                        soundModel,
                         callback, config, runInBatterySaverMode);
                 if (ret == STATUS_OK) {
-                    mSoundModelStatTracker.onStart(parcelUuid.getUuid());
+                    mSoundModelStatTracker.onStart(soundModel.getUuid());
                 }
                 return ret;
             }
