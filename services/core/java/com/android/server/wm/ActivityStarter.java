@@ -1300,6 +1300,13 @@ class ActivityStarter {
                 .setSourceRecord(sourceRecord)
                 .build();
 
+        // Reset the launch-behind flag to avoid making it visible if the activity launch should
+        // be blocked.
+        if (r.mLaunchTaskBehind && balCode == BAL_BLOCK) {
+            Slog.w(TAG, "Disallowed launching behind for a background launch");
+            r.mLaunchTaskBehind = false;
+        }
+
         mLastStartActivityRecord = r;
 
         if (r.appTimeTracker == null && sourceRecord != null) {
