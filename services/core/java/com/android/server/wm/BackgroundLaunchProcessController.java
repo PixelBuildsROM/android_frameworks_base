@@ -74,6 +74,9 @@ class BackgroundLaunchProcessController {
     /** It is {@link ActivityTaskManagerService#hasActiveVisibleWindow(int)}. */
     private final IntPredicate mUidHasActiveVisibleWindowPredicate;
 
+    /** It is {@link ActivityTaskManagerService#hasActiveVisibleNotPinnedWindow(int)}. */
+    private final IntPredicate mUidHasActiveVisibleNotPinnedWindowPredicate;
+
     private final @Nullable BackgroundActivityStartCallback mBackgroundActivityStartCallback;
 
     /**
@@ -91,8 +94,10 @@ class BackgroundLaunchProcessController {
     private @Nullable IntArray mBalOptInBoundClientUids;
 
     BackgroundLaunchProcessController(@NonNull IntPredicate uidHasActiveVisibleWindowPredicate,
+            @NonNull IntPredicate uidHasActiveVisibleNotPinnedWindowPredicate,
             @Nullable BackgroundActivityStartCallback callback) {
         mUidHasActiveVisibleWindowPredicate = uidHasActiveVisibleWindowPredicate;
+        mUidHasActiveVisibleNotPinnedWindowPredicate = uidHasActiveVisibleNotPinnedWindowPredicate;
         mBackgroundActivityStartCallback = callback;
     }
 
@@ -117,7 +122,11 @@ class BackgroundLaunchProcessController {
                     pid, "Activity start allowed: process allowed by token");
         }
         // Allow if the caller is bound by a UID that's currently foreground.
-        if (isBoundByForegroundUid()) {
+        // But still respect the appSwitchState.
+        if (appSwitchState != APP_SWITCH_DISALLOW
+                && isBoundByForegroundUid(isCheckingForFgsStart
+                ? mUidHasActiveVisibleWindowPredicate
+                : mUidHasActiveVisibleNotPinnedWindowPredicate)) {
             return BackgroundActivityStartController.logStartAllowedAndReturnCode(
                     BAL_ALLOW_VISIBLE_WINDOW, /*background*/ false, uid, uid, /*intent*/ null,
                     pid, "Activity start allowed: process bound by foreground uid");
@@ -215,11 +224,11 @@ class BackgroundLaunchProcessController {
         return originatingTokens;
     }
 
-    private boolean isBoundByForegroundUid() {
+    private boolean isBoundByForegroundUid(IntPredicate uidVisibilityPredicate) {
         synchronized (this) {
             if (mBalOptInBoundClientUids != null) {
                 for (int i = mBalOptInBoundClientUids.size() - 1; i >= 0; i--) {
-                    if (mUidHasActiveVisibleWindowPredicate.test(mBalOptInBoundClientUids.get(i))) {
+                    if (uidVisibilityPredicate.test(mBalOptInBoundClientUids.get(i))) {
                         return true;
                     }
                 }
