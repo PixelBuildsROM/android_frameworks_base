@@ -319,6 +319,7 @@ import android.app.admin.ParcelableGranteeMap;
 import android.app.admin.ParcelableResource;
 import android.app.admin.PasswordMetrics;
 import android.app.admin.PasswordPolicy;
+import android.app.admin.PolicySizeVerifier;
 import android.app.admin.PolicyKey;
 import android.app.admin.PolicyValue;
 import android.app.admin.PreferentialNetworkServiceConfig;
@@ -8407,7 +8408,10 @@ public class DevicePolicyManagerService extends IDevicePolicyManager.Stub {
                 admin.globalProxySpec = null;
                 admin.globalProxyExclusionList = null;
             } else {
-
+                PolicySizeVerifier.enforceMaxStringLength(proxySpec, "proxySpec");
+                if (exclusionList != null) {
+                    PolicySizeVerifier.enforceMaxStringLength(exclusionList, "exclusionList");
+                }
                 admin.specifiesGlobalProxy = true;
                 admin.globalProxySpec = proxySpec;
                 admin.globalProxyExclusionList = exclusionList;
