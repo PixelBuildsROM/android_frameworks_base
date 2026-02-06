@@ -2457,7 +2457,6 @@ public class AppOpsService extends IAppOpsService.Stub {
             }
             return AppOpsManager.opToDefaultMode(code);
         }
-
         if (isOpRestrictedDueToSuspend(code, packageName, uid)) {
             return AppOpsManager.MODE_IGNORED;
         }
@@ -2673,6 +2672,10 @@ public class AppOpsService extends IAppOpsService.Stub {
                 Slog.e(TAG, "Cannot noteOperation", e);
             }
             return new SyncNotedAppOp(AppOpsManager.MODE_ERRORED, code, attributionTag,
+                    packageName);
+        }
+        if (isOpRestrictedDueToSuspend(code, packageName, uid)) {
+            return new SyncNotedAppOp(AppOpsManager.MODE_IGNORED, code, attributionTag,
                     packageName);
         }
         if (proxyAttributionTag != null
@@ -3216,6 +3219,10 @@ public class AppOpsService extends IAppOpsService.Stub {
                 Slog.e(TAG, "Cannot startOperation", e);
             }
             return new SyncNotedAppOp(AppOpsManager.MODE_ERRORED, code, attributionTag,
+                    packageName);
+        }
+        if (isOpRestrictedDueToSuspend(code, packageName, uid)) {
+            return new SyncNotedAppOp(AppOpsManager.MODE_IGNORED, code, attributionTag,
                     packageName);
         }
         if (proxyAttributionTag != null
