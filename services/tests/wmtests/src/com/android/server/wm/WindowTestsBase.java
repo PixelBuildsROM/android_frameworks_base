@@ -1113,6 +1113,7 @@ class WindowTestsBase extends SystemServiceTestsBase {
         private int mLaunchedFromUid;
         private String mLaunchedFromPackage;
         private WindowProcessController mWpc;
+        private Intent mIntent;
         private Bundle mIntentExtras;
         private boolean mOnTop = false;
         private ActivityInfo.WindowLayout mWindowLayout;
@@ -1131,6 +1132,11 @@ class WindowTestsBase extends SystemServiceTestsBase {
 
         ActivityBuilder setTargetActivity(String targetActivity) {
             mTargetActivity = targetActivity;
+            return this;
+        }
+
+        ActivityBuilder setIntent(Intent intent) {
+            mIntent = intent;
             return this;
         }
 
@@ -1279,8 +1285,10 @@ class WindowTestsBase extends SystemServiceTestsBase {
                 mComponent = getUniqueComponentName();
             }
 
-            Intent intent = new Intent();
-            intent.setComponent(mComponent);
+            Intent intent = mIntent != null ? mIntent : new Intent();
+            if (mIntent == null) {
+                intent.setComponent(mComponent);
+            }
             if (mIntentExtras != null) {
                 intent.putExtras(mIntentExtras);
             }
