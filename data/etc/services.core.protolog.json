@@ -1675,6 +1675,12 @@
       "group": "WM_DEBUG_WINDOW_TRANSITIONS",
       "at": "com\/android\/server\/wm\/TransitionController.java"
     },
+    "-610155150": {
+      "message": "Adding toast window with non-empty token.",
+      "level": "WARN",
+      "group": "WM_ERROR",
+      "at": "com\/android\/server\/wm\/WindowManagerService.java"
+    },
     "-597091183": {
       "message": "Delete TaskDisplayArea uid=%d",
       "level": "VERBOSE",
