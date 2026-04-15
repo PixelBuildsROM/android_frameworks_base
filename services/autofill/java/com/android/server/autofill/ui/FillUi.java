@@ -15,6 +15,7 @@
  */
 package com.android.server.autofill.ui;
 
+import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
 import static com.android.server.autofill.Helper.paramsToString;
 import static com.android.server.autofill.Helper.sDebug;
 import static com.android.server.autofill.Helper.sFullScreenMode;
@@ -142,9 +143,8 @@ final class FillUi {
     @SuppressWarnings("AndroidFrameworkRequiresPermission")
     FillUi(@NonNull Context context, @NonNull FillResponse response,
             @NonNull AutofillId focusedViewId, @Nullable String filterText,
-            @NonNull OverlayControl overlayControl, @NonNull CharSequence serviceLabel,
-            @NonNull Drawable serviceIcon, boolean nightMode, int maxInputLengthForAutofill,
-            @NonNull Callback callback) {
+            @NonNull CharSequence serviceLabel, @NonNull Drawable serviceIcon,
+            boolean nightMode, int maxInputLengthForAutofill, @NonNull Callback callback) {
         if (sVerbose) {
             Slogf.v(TAG, "nightMode: %b displayId: %d", nightMode, context.getDisplayId());
         }
@@ -269,7 +269,7 @@ final class FillUi {
                 mContentHeight = content.getMeasuredHeight();
             }
 
-            mWindow = new AnchoredWindow(decor, overlayControl);
+            mWindow = new AnchoredWindow(decor);
             requestShowFillUi();
         } else {
             final int datasetCount = response.getDatasets().size();
@@ -379,7 +379,7 @@ final class FillUi {
             }
 
             applyNewFilterText();
-            mWindow = new AnchoredWindow(decor, overlayControl);
+            mWindow = new AnchoredWindow(decor);
         }
     }
 
@@ -696,7 +696,6 @@ final class FillUi {
     }
 
     final class AnchoredWindow {
-        private final @NonNull OverlayControl mOverlayControl;
         private final WindowManager mWm;
         private final View mContentView;
         private boolean mShowing;
@@ -708,10 +707,9 @@ final class FillUi {
          *
          * @param contentView content of the window
          */
-        AnchoredWindow(View contentView, @NonNull OverlayControl overlayControl) {
+        AnchoredWindow(View contentView) {
             mWm = contentView.getContext().getSystemService(WindowManager.class);
             mContentView = contentView;
-            mOverlayControl = overlayControl;
         }
 
         /**
@@ -725,11 +723,11 @@ final class FillUi {
             try {
                 params.packageName = "android";
                 params.setTitle("Autofill UI"); // Title is set for debugging purposes
+                params.privateFlags |= SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
                 if (!mShowing) {
                     params.accessibilityTitle = mContentView.getContext()
                             .getString(R.string.autofill_picker_accessibility_title);
                     mWm.addView(mContentView, params);
-                    mOverlayControl.hideOverlays();
                     mShowing = true;
                     mCallback.onShown();
                 } else {
@@ -768,8 +766,6 @@ final class FillUi {
                 if (destroyCallbackOnError) {
                     mCallback.onDestroy();
                 }
-            } finally {
-                mOverlayControl.showOverlays();
             }
         }
     }
