@@ -20,35 +20,21 @@
 
 package com.android.internal.util.pb;
 
-import android.app.ActivityTaskManager;
 import android.app.Application;
-import android.app.TaskStackListener;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Process;
 import android.os.SystemProperties;
-import android.os.Environment;
 import android.util.Log;
-import android.text.TextUtils;
 
 import com.android.internal.R;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.io.File;
-import java.io.FileReader;
-import java.io.BufferedReader;
-import java.io.IOException;
-
-import org.json.JSONArray;
-import org.json.JSONException;
 
 public class PixelPropsUtils {
 
@@ -56,18 +42,9 @@ public class PixelPropsUtils {
     private static final String DEVICE = SystemProperties.get("ro.build.version.device");
     private static final String MODEL = SystemProperties.get("ro.product.model", Build.MODEL);
 
-
-    private static final String CERT_DATA_FILE = "certified_props.json";
-    private static final String PACKAGE_GMS = "com.google.android.gms";
     private static final String PACKAGE_PHOTOS = "com.google.android.apps.photos";
-    private static final String PACKAGE_SET_INTEL = "com.google.android.settings.intelligence";
-    private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
-            "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
 
     private static final boolean DEBUG = SystemProperties.getBoolean("ro.debug.pixelpropsutils", false);
-
-    private static String[] sCertifiedProps =
-    Resources.getSystem().getStringArray(R.array.config_certifiedBuildProperties);
 
     private static final Map<String, Object> propsToChangePixel;
     private static final Map<String, Object> propsToSpoofPhotos;
@@ -125,96 +102,6 @@ public class PixelPropsUtils {
         if (DEBUG) Log.d(TAG, message);
     }
 
-    private static boolean isGmsAddAccountActivityOnTop() {
-        try {
-            final ActivityTaskManager.RootTaskInfo focusedTask =
-                    ActivityTaskManager.getService().getFocusedRootTaskInfo();
-            return focusedTask != null && focusedTask.topActivity != null
-                    && focusedTask.topActivity.equals(GMS_ADD_ACCOUNT_ACTIVITY);
-        } catch (Exception e) {
-            Log.e(TAG, "Unable to get top activity!", e);
-        }
-        return false;
-    }
-
-    private static String[] dynamicProps() {
-        File dataFile = new File(Environment.getDataSystemDirectory(), CERT_DATA_FILE);
-
-        if (!dataFile.exists()) {
-            Log.w(TAG, "File not found: " + dataFile.getAbsolutePath() + 
-                " using overlayed props for Gms");
-            return null;
-        }
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(dataFile))) {
-
-            StringBuilder jsonContent = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                jsonContent.append(line);
-            }
-            if (!TextUtils.isEmpty(jsonContent)){
-                JSONArray jsonArray = new JSONArray(jsonContent.toString());
-                String[] result = new String[jsonArray.length()];
-
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    result[i] = jsonArray.getString(i);
-                }
-
-                return result;
-            } else {
-                Log.w(TAG, "Dynamic props JSON has no data, using overlayed props for Gms");
-                return null;
-            }
-
-        } catch (IOException | JSONException e) {
-            Log.e(TAG, "Exception while parsing dynamic props JSON file", e);
-            return null;
-        }
-    }
-    
-    private static void setPropsForGms() {
-        final boolean was = isGmsAddAccountActivityOnTop();
-        final TaskStackListener taskStackListener = new TaskStackListener() {
-            @Override
-            public void onTaskStackChanged() {
-                final boolean is = isGmsAddAccountActivityOnTop();
-                if (is ^ was) {
-                    dlog("GmsAddAccountActivityOnTop is:" + is + " was:" + was + ", killing myself!");
-                    // process will restart automatically later
-                    Process.killProcess(Process.myPid());
-                }
-            }
-        };
-        try {
-            ActivityTaskManager.getService().registerTaskStackListener(taskStackListener);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to register task stack listener!", e);
-        }
-        if (was) return;
-
-        // Give up if not appropriate props array
-        if (sCertifiedProps.length != 5) {
-            Log.e(TAG, "Insufficient size of the certified props array: "
-                    + sCertifiedProps.length + ", required 5");
-            return;
-        } else {
-            dlog("Spoofing build for GMS");
-            setBuildField("MANUFACTURER", sCertifiedProps[0]);
-            setBuildField("MODEL", sCertifiedProps[1]);
-            setVersionField("SECURITY_PATCH", sCertifiedProps[2]);
-            setVersionField("DEVICE_INITIAL_SDK_INT", Integer.parseInt(sCertifiedProps[3]));
-            setBuildField("FINGERPRINT", sCertifiedProps[4]);
-            String[] certfpsections = sCertifiedProps[4].split("/");
-            setBuildField("BRAND", certfpsections[0]);
-            setBuildField("DEVICE", certfpsections[2].split(":")[0]);
-            setBuildField("PRODUCT", certfpsections[1]);
-            setBuildField("ID", certfpsections[3]);
-            setVersionField("RELEASE", certfpsections[2].split(":")[1]);
-            setVersionField("INCREMENTAL", certfpsections[4].split(":")[0]);
-        }
-    }
-
     public static void setProps(Context context) {
         final String packageName = context.getPackageName();
         final String processName = Application.getProcessName();
@@ -222,18 +109,6 @@ public class PixelPropsUtils {
         if (packageName == null || packageName.isEmpty()
             || !packageName.startsWith("com.google")) {
             return;
-        }
-        // Detect and spoof GMS first
-        if (packageName.equals(PACKAGE_GMS)) {
-            setPropValue("TIME", System.currentTimeMillis());
-            if (processName.toLowerCase().contains("unstable")) {
-                String[] sDynamicProps = dynamicProps();
-                if (sDynamicProps != null && !Arrays.equals(sCertifiedProps, sDynamicProps)) {
-                    sCertifiedProps = sDynamicProps;
-                }
-                setPropsForGms();
-                return;
-            }
         }
         // Don't go through apps spoofing for supported pixels
         if (pixelCodenames.contains(DEVICE)) {
@@ -259,15 +134,6 @@ public class PixelPropsUtils {
                 dlog("Defining " + key + " prop for: " + packageName);
                     setPropValue(key, value);
             }
-        }
-
-        // Set proper indexing fingerprint
-        if (packageName.equals(PACKAGE_SET_INTEL)) {
-            setPropValue("FINGERPRINT", Build.VERSION.INCREMENTAL);
-        }
-        // Show correct model name on gms services
-        if ("com.google.android.gms.ui".equals(processName)) {
-            setPropValue("MODEL", MODEL);
         }
     }
 

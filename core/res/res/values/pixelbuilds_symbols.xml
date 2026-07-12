@@ -29,9 +29,6 @@
          the sensor embedded in the power key and listening all the time
          causes a poor experience. -->
     <java-symbol type="bool" name="config_fingerprintWakeAndUnlock" />
-    
-    <!-- PixelPropsUtils -->
-    <java-symbol type="array" name="config_certifiedBuildProperties" />
 
     <!-- Whether to cancel fingerprint operation if not idle -->
     <java-symbol type="bool" name="config_fpCancelIfNotIdle" />
@@ -52,7 +49,4 @@
     <java-symbol type="string" name="charging_control_notification_content_limit_reached" />
     <java-symbol type="string" name="charging_control_notification_content_target" />
     <java-symbol type="string" name="charging_control_notification_content_target_reached" />
-    
-    <!-- Dynamic certification API URI -->
-    <java-symbol type="string" name="dynamic_certification_URI" />
 </resources>
