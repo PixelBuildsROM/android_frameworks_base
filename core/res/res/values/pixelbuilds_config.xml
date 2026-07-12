@@ -47,17 +47,6 @@
          causes a poor experience. -->
     <bool name="config_fingerprintWakeAndUnlock">true</bool>
 
-    <!-- Build properties from a GMS certified device against current platform SPL level -->
-    <string-array name="config_certifiedBuildProperties" translatable="false">
-     <!--
-       <item>"Manufacturer"</item>
-       <item>"Model"</item>
-       <item>"Security patch"</item>
-       <item>"Initial SDK int"</item>
-       <item>"Fingerprint"</item>
-     -->
-    </string-array>
-
     <!-- Whether to cancel fingerprint operation if not idle -->
     <bool name="config_fpCancelIfNotIdle">false</bool>
     
