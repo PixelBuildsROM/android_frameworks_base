@@ -809,26 +809,6 @@ public class ApplicationPackageManager extends PackageManager {
                 }
             };
 
-    private static final ArrayList<String> pTensorCodenames =
-    new ArrayList<String> (
-        Arrays.asList(
-            "comet",
-            "komodo",
-            "caiman",
-            "tokay",
-            "akita",
-            "husky",
-            "shiba",
-            "felix",
-            "tangorpro",
-            "lynx",
-            "cheetah",
-            "panther",
-            "bluejay",
-            "oriole",
-            "raven"
-    ));
-
     private static final ArrayList<String> featuresPixel =
     new ArrayList<String> (
         Arrays.asList(
@@ -848,20 +828,6 @@ public class ApplicationPackageManager extends PackageManager {
             "com.google.android.feature.GOOGLE_EXPERIENCE"
     ));
 
-    private static final ArrayList<String> featuresTensor =
-    new ArrayList<String> (
-        Arrays.asList(
-            "com.google.android.feature.PIXEL_2025_EXPERIENCE",
-            "com.google.android.feature.PIXEL_2025_MIDYEAR_EXPERIENCE",
-            "com.google.android.feature.PIXEL_2024_EXPERIENCE",
-            "com.google.android.feature.PIXEL_2024_MIDYEAR_EXPERIENCE",
-            "com.google.android.feature.PIXEL_2023_EXPERIENCE",
-            "com.google.android.feature.PIXEL_2023_MIDYEAR_EXPERIENCE",
-            "com.google.android.feature.PIXEL_2022_EXPERIENCE",
-            "com.google.android.feature.PIXEL_2022_MIDYEAR_EXPERIENCE",
-            "com.google.android.feature.PIXEL_2021_EXPERIENCE"
-    ));
-
     private static final ArrayList<String> featuresNexus =
     new ArrayList<String> (
         Arrays.asList(
@@ -872,28 +838,15 @@ public class ApplicationPackageManager extends PackageManager {
     private static final ArrayList<String> featuresOther = 
     new ArrayList<String> (
         Arrays.asList(
-        "com.google.android.feature.ASI",
-        "com.google.android.feature.ANDROID_ONE_EXPERIENCE",
-        "com.google.android.feature.GOOGLE_FI_BUNDLED",
-        "com.google.android.feature.LILY_EXPERIENCE",
-        "com.google.android.feature.TURBO_PRELOAD",
-        "com.google.android.feature.WELLBEING",
         "com.google.lens.feature.IMAGE_INTEGRATION",
         "com.google.lens.feature.CAMERA_INTEGRATION",
-        "com.google.photos.trust_debug_certs",
-        "com.google.android.feature.AER_OPTIMIZED",
-        "com.google.android.feature.EXCHANGE_6_2",
-        "com.google.android.apps.dialer.SUPPORTED"
+        "com.google.android.feature.CONTEXTUAL_SEARCH"
     ));
 
     @Override
     public boolean hasSystemFeature(String name, int version) {
-        if (name != null && featuresTensor.contains(name) &&
-                !pTensorCodenames.contains(SystemProperties.get("ro.product.device"))) {
-            return false;
-        }
         String packageName = ActivityThread.currentPackageName();
-        if (packageName != null) {
+        if (packageName != null && packageName.startsWith("com.google")) {
             if (packageName.equals("com.google.android.apps.photos")) {
                 if (featuresPixel.contains(name)) return false;
                 if (featuresNexus.contains(name)) return true;
